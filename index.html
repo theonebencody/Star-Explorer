@@ -176,6 +176,57 @@
   .facts-pfill{height:100%;background:linear-gradient(90deg,rgba(0,238,255,0.25),rgba(0,238,255,0.55));width:0%;border-radius:1px}
   .facts-suggest-btn{display:block;width:100%;margin-top:10px;padding:7px 10px;background:rgba(255,185,0,0.07);border:1px solid rgba(255,185,0,0.2);color:#fb4;font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:2px;cursor:pointer;border-radius:2px;text-align:center;transition:background 0.15s}
   .facts-suggest-btn:hover{background:rgba(255,185,0,0.15)}
+
+  /* ── Splash Buttons ── */
+  #splash{cursor:default}
+  .splash-buttons{display:flex;gap:18px;margin-top:48px;justify-content:center;flex-wrap:wrap}
+  .splash-btn{background:rgba(0,15,30,0.75);border:1px solid rgba(0,238,255,0.22);border-radius:5px;padding:22px 28px;cursor:pointer;transition:all 0.25s;text-align:center;width:210px;color:#0ef;font-family:'Share Tech Mono',monospace;pointer-events:all}
+  .splash-btn:hover{background:rgba(0,238,255,0.09);border-color:rgba(0,238,255,0.55);transform:translateY(-3px);box-shadow:0 10px 36px rgba(0,238,255,0.15)}
+  .splash-btn-primary{border-color:rgba(0,238,255,0.42);background:rgba(0,238,255,0.07)}
+  .splash-btn-icon{font-size:26px;margin-bottom:10px}
+  .splash-btn-label{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;letter-spacing:3px;margin-bottom:7px}
+  .splash-btn-sub{font-size:9px;color:rgba(0,238,255,0.42);letter-spacing:1px;line-height:1.5}
+
+  /* ── Launch History Overlay ── */
+  .lh-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,2,8,0.97);display:none;flex-direction:column;overflow:hidden}
+  .lh-overlay.open{display:flex}
+  .lh-header{padding:14px 22px 11px;border-bottom:1px solid rgba(0,238,255,0.1);display:flex;align-items:center;gap:16px;flex-shrink:0;backdrop-filter:blur(8px)}
+  .lh-back-btn{background:transparent;border:1px solid rgba(0,238,255,0.2);color:rgba(0,238,255,0.6);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:6px 14px;cursor:pointer;border-radius:2px;transition:all 0.15s;white-space:nowrap}
+  .lh-back-btn:hover{border-color:rgba(0,238,255,0.55);color:#0ef}
+  .lh-title{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:900;letter-spacing:6px;color:#0ef;flex:1;text-align:center}
+  .lh-filter-row{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;min-width:180px}
+  .lh-filter-btn{background:transparent;border:1px solid rgba(0,238,255,0.12);color:rgba(0,238,255,0.45);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1.5px;padding:3px 9px;cursor:pointer;border-radius:2px;transition:all 0.12s;white-space:nowrap}
+  .lh-filter-btn:hover{border-color:rgba(0,238,255,0.35);color:rgba(0,238,255,0.8)}
+  .lh-filter-btn.active{background:rgba(0,238,255,0.1);border-color:#0ef;color:#0ef}
+  .lh-body{display:flex;flex:1;overflow:hidden;min-height:0}
+  .lh-left{width:265px;flex-shrink:0;overflow-y:auto;border-right:1px solid rgba(0,238,255,0.07);padding:6px 0}
+  .lh-left::-webkit-scrollbar{width:4px}.lh-left::-webkit-scrollbar-track{background:transparent}.lh-left::-webkit-scrollbar-thumb{background:rgba(0,238,255,0.15);border-radius:2px}
+  .lh-mission-item{padding:10px 15px;cursor:pointer;border-left:2px solid transparent;transition:all 0.12s}
+  .lh-mission-item:hover{background:rgba(0,238,255,0.04);border-left-color:rgba(0,238,255,0.28)}
+  .lh-mission-item.active{background:rgba(0,238,255,0.07);border-left-color:#0ef}
+  .lh-mission-date{font-size:9px;color:rgba(0,238,255,0.38);letter-spacing:1px;margin-bottom:2px}
+  .lh-mission-name{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:0.5px;margin-bottom:4px;line-height:1.3}
+  .lh-mission-org{display:inline-block;font-size:8px;letter-spacing:1.5px;padding:1px 6px;border-radius:1px;font-family:'Share Tech Mono',monospace}
+  .lh-center{flex:1;position:relative;overflow:hidden;background:#010208}
+  #earth-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .lh-right{width:295px;flex-shrink:0;overflow-y:auto;border-left:1px solid rgba(0,238,255,0.07);padding:18px 16px 24px}
+  .lh-right::-webkit-scrollbar{width:4px}.lh-right::-webkit-scrollbar-track{background:transparent}.lh-right::-webkit-scrollbar-thumb{background:rgba(0,238,255,0.15);border-radius:2px}
+  .lh-detail-empty{text-align:center;color:rgba(0,238,255,0.15);font-size:10px;margin-top:80px;letter-spacing:2px;line-height:2}
+  .lh-detail-org-badge{display:inline-block;margin-bottom:11px}
+  .lh-detail-name{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:4px;line-height:1.25;letter-spacing:0.5px}
+  .lh-detail-date{font-size:10px;color:rgba(0,238,255,0.5);margin-bottom:12px;letter-spacing:1px}
+  .lh-detail-status{display:inline-flex;align-items:center;gap:5px;font-size:8px;letter-spacing:2px;padding:3px 10px;border-radius:2px;margin-bottom:14px;font-family:'Share Tech Mono',monospace}
+  .lh-detail-status.success{background:rgba(0,200,80,0.08);border:1px solid rgba(0,200,80,0.22);color:#4fa}
+  .lh-detail-status.failed{background:rgba(255,60,60,0.08);border:1px solid rgba(255,60,60,0.22);color:#f66}
+  .lh-detail-status.partial{background:rgba(255,185,0,0.08);border:1px solid rgba(255,185,0,0.2);color:#fb4}
+  .lh-detail-desc{font-size:11px;color:rgba(255,255,255,0.72);line-height:1.75;margin-bottom:16px}
+  .lh-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+  .lh-stat{background:rgba(0,238,255,0.03);border:1px solid rgba(0,238,255,0.08);border-radius:2px;padding:7px 9px}
+  .lh-stat-label{font-size:8px;letter-spacing:1.5px;color:rgba(0,238,255,0.4);text-transform:uppercase;margin-bottom:4px}
+  .lh-stat-value{font-family:'Orbitron',sans-serif;font-size:10px;color:#0ef;font-weight:700;line-height:1.3;word-break:break-word}
+  .lh-firsts-title{font-size:8px;letter-spacing:2px;color:rgba(0,238,255,0.38);text-transform:uppercase;margin-bottom:9px;padding-top:4px;border-top:1px solid rgba(0,238,255,0.07)}
+  .lh-first-item{display:flex;align-items:flex-start;gap:7px;font-size:10px;color:rgba(255,255,255,0.62);line-height:1.55;margin-bottom:6px;padding-left:2px}
+  .lh-first-item::before{content:'★';color:#fb4;flex-shrink:0;font-size:9px;margin-top:2px}
 </style>
 </head>
 <body>
@@ -184,7 +235,18 @@
   <div class="splash-inner">
     <div class="splash-title">UNIVERSE EXPLORER</div>
     <div class="splash-sub">Navigate the cosmos</div>
-    <div class="splash-hint">Click anywhere to begin</div>
+    <div class="splash-buttons">
+      <button class="splash-btn splash-btn-primary" id="splash-explore-btn">
+        <div class="splash-btn-icon">⬡</div>
+        <div class="splash-btn-label">EXPLORE UNIVERSE</div>
+        <div class="splash-btn-sub">Free-fly through space and time</div>
+      </button>
+      <button class="splash-btn" id="splash-launches-btn">
+        <div class="splash-btn-icon">🚀</div>
+        <div class="splash-btn-label">LAUNCH HISTORY</div>
+        <div class="splash-btn-sub">Relive humanity's greatest missions</div>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -224,18 +286,15 @@
       <div class="hud-label">Simulation Date</div>
       <div class="hud-value" id="hud-date">2026.0</div>
     </div>
+    <div class="hud-panel">
+      <div class="hud-label">Position (AU)</div>
+      <div class="hud-small" id="hud-pos">x: 0 y: 0 z: 0</div>
+    </div>
   </div>
 
   <div class="hud-bl">
     <div class="hud-panel controls-help" id="controls-help">
       <span>C</span> Show all controls
-    </div>
-  </div>
-
-  <div class="hud-br">
-    <div class="hud-panel">
-      <div class="hud-label">Position (AU)</div>
-      <div class="hud-small" id="hud-pos">x: 0 y: 0 z: 0</div>
     </div>
   </div>
 
@@ -353,8 +412,31 @@
 
 <!-- UFO Alert -->
 <div id="ufo-alert">
-  <span class="ufo-icon">🛸</span>
   <span class="ufo-msg">UNIDENTIFIED CRAFT DETECTED</span>
+</div>
+
+<!-- Launch History Overlay -->
+<div id="launch-history" class="lh-overlay">
+  <div class="lh-header">
+    <button class="lh-back-btn" id="lh-back-btn">← BACK</button>
+    <div class="lh-title">LAUNCH HISTORY</div>
+    <div class="lh-filter-row">
+      <button class="lh-filter-btn active" data-org="All">ALL</button>
+      <button class="lh-filter-btn" data-org="NASA">NASA</button>
+      <button class="lh-filter-btn" data-org="SpaceX">SPACEX</button>
+      <button class="lh-filter-btn" data-org="Soviet">SOVIET</button>
+      <button class="lh-filter-btn" data-org="CNSA">CHINA</button>
+      <button class="lh-filter-btn" data-org="ESA/NASA">ESA</button>
+      <button class="lh-filter-btn" data-org="ISRO">INDIA</button>
+    </div>
+  </div>
+  <div class="lh-body">
+    <div class="lh-left" id="lh-mission-list"></div>
+    <div class="lh-center"><canvas id="earth-canvas"></canvas></div>
+    <div class="lh-right" id="lh-detail-panel">
+      <div class="lh-detail-empty">SELECT A MISSION<br>TO VIEW DETAILS</div>
+    </div>
+  </div>
 </div>
 
 <!-- Fun Facts Panel -->
@@ -586,6 +668,272 @@ const asteroidMat = new THREE.PointsMaterial({ color: 0x887766, size: 0.008, siz
 scene.add(new THREE.Points(asteroidGeo, asteroidMat));
 
 // ═══════════════════════════════════════════════
+//  GRAPHICS ENHANCEMENT: Noise, Textures, Atmosphere, Comets
+// ═══════════════════════════════════════════════
+
+// --- Value noise utilities ---
+function _hash(n) { return ((Math.sin(n * 127.1 + 311.7) * 43758.5453) % 1 + 1) % 1; }
+function _sN(x, y, z) {
+  const ix=Math.floor(x),iy=Math.floor(y),iz=Math.floor(z);
+  const fx=x-ix,fy=y-iy,fz=z-iz;
+  const ux=fx*fx*(3-2*fx),uy=fy*fy*(3-2*fy),uz=fz*fz*(3-2*fz);
+  const h=_hash;
+  return h(ix+iy*57+iz*113)*(1-ux)*(1-uy)*(1-uz)+h(ix+1+iy*57+iz*113)*ux*(1-uy)*(1-uz)+
+         h(ix+(iy+1)*57+iz*113)*(1-ux)*uy*(1-uz)+h(ix+1+(iy+1)*57+iz*113)*ux*uy*(1-uz)+
+         h(ix+iy*57+(iz+1)*113)*(1-ux)*(1-uy)*uz+h(ix+1+iy*57+(iz+1)*113)*ux*(1-uy)*uz+
+         h(ix+(iy+1)*57+(iz+1)*113)*(1-ux)*uy*uz+h(ix+1+(iy+1)*57+(iz+1)*113)*ux*uy*uz;
+}
+function _sfbm(x,y,z,oct){ let v=0,a=0.5,f=1; for(let i=0;i<oct;i++){v+=_sN(x*f,y*f,z*f)*a;a*=0.5;f*=2;} return v; }
+
+// Equirectangular texture generator: fn(u,v,nx,ny,nz,lat,lon) → [r,g,b] 0-255
+function _mkTex(w,h,fn){
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  const ctx=c.getContext('2d'),img=ctx.createImageData(w,h);
+  for(let j=0;j<h;j++){
+    const lat=Math.PI*(j/h-0.5),v=j/h;
+    for(let i=0;i<w;i++){
+      const lon=Math.PI*2*(i/w)-Math.PI,u=i/w;
+      const nx=Math.cos(lat)*Math.cos(lon),ny=Math.sin(lat),nz=Math.cos(lat)*Math.sin(lon);
+      const rgb=fn(u,v,nx,ny,nz,lat,lon);
+      const k=(j*w+i)*4; img.data[k]=rgb[0]|0; img.data[k+1]=rgb[1]|0; img.data[k+2]=rgb[2]|0; img.data[k+3]=255;
+    }
+  }
+  ctx.putImageData(img,0,0); return new THREE.CanvasTexture(c);
+}
+
+// --- Sun granulation texture ---
+(()=>{
+  const tex=_mkTex(256,128,(u,v,nx,ny,nz)=>{
+    const n=_sfbm(nx*6,ny*6,nz*6,4);
+    const cell=n>0.54?1:0.72+n*0.52;
+    const spotLat=Math.abs(ny)<0.38,spotN=_sfbm(nx*2+7,ny*2,nz*2,2);
+    const spot=spotLat&&spotN>0.62?0.68:1;
+    const b=cell*spot;
+    return [255,(185+b*70)|0,(85+b*55)|0];
+  });
+  sunMat.map=tex; sunMat.needsUpdate=true;
+})();
+
+// Extra outer corona glow layers
+[5.5,10.0].forEach((sc,i)=>{
+  const cc=document.createElement('canvas'); cc.width=128; cc.height=128;
+  const cctx=cc.getContext('2d');
+  const cg=cctx.createRadialGradient(64,64,0,64,64,64);
+  const cols=['255,110,10','255,70,0'],alphas=[0.045,0.022];
+  cg.addColorStop(0,`rgba(${cols[i]},${alphas[i]})`);
+  cg.addColorStop(0.45,`rgba(${cols[i]},${alphas[i]*0.35})`);
+  cg.addColorStop(1,'rgba(0,0,0,0)');
+  cctx.fillStyle=cg; cctx.fillRect(0,0,128,128);
+  const sm=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cc),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false});
+  const ss=new THREE.Sprite(sm); ss.scale.setScalar(sc); sunGroup.add(ss);
+});
+
+// --- Planet texture functions ---
+const _pTexFns={
+  Earth:(u,v,nx,ny,nz,lat)=>{
+    const latD=lat*180/Math.PI,n=_sfbm(nx*3,ny*3,nz*3,4);
+    if(Math.abs(latD)>65+n*12) return [220+n*35,235+n*20,255];
+    if(n>0.52){const h=(n-0.52)/0.3; return h>0.45?[120+h*65,100+h*45,75+h*50]:[30+h*50,90+h*65,20];}
+    const d=_sfbm(nx*9,ny*9,nz*9,3)*0.5; return [10+d*15,50+d*40,110+d*65];
+  },
+  Mars:(u,v,nx,ny,nz,lat)=>{
+    const latD=lat*180/Math.PI,n=_sfbm(nx*4,ny*4,nz*4,4);
+    if(Math.abs(latD)>70+n*10) return [235,245,255];
+    const cr=_sfbm(nx*12+5,ny*12,nz*12,2);
+    return (cr>0.64&&cr<0.68)?[175,95,75]:[140+n*60,68+n*38,42+n*22];
+  },
+  Jupiter:(u,v,nx,ny,nz,lat)=>{
+    const latD=lat*180/Math.PI,wave=_sfbm(nx*2,ny*8,nz*2,3);
+    const band=Math.sin(latD*0.28+wave*4.5)*0.5+0.5;
+    const grsLat=Math.abs(latD+23),grsLon=Math.abs((u-0.5)*360-5);
+    const grs=Math.max(0,1-Math.sqrt((grsLat/7)**2+(grsLon/14)**2));
+    return [Math.min(255,(175+band*65+grs*55)|0),Math.min(255,(115+band*55-grs*45)|0),Math.min(255,(75+band*35-grs*35)|0)];
+  },
+  Saturn:(u,v,nx,ny,nz,lat)=>{
+    const latD=lat*180/Math.PI,wave=_sfbm(nx*1.5,ny*10,nz*1.5,3)*0.5;
+    const band=Math.sin(latD*0.32+wave*3)*0.5+0.5;
+    return [(192+band*48)|0,(162+band*42)|0,(102+band*28)|0];
+  },
+  Venus:(u,v,nx,ny,nz)=>{
+    const n=_sfbm(nx*3+1,ny*4,nz*3,4),sw=_sfbm(nx*8,ny*2,nz*8,2)*0.3;
+    return [(200+n*55)|0,(158+n*42+sw*30)|0,(75+n*32)|0];
+  },
+  Mercury:(u,v,nx,ny,nz)=>{
+    const n=_sfbm(nx*5,ny*5,nz*5,4),cr=_sfbm(nx*15+3,ny*15,nz*15,2);
+    return (cr>0.63&&cr<0.67)?[158,153,148]:[(98+n*62)|0,(93+n*57)|0,(88+n*52)|0];
+  },
+  Uranus:(u,v,nx,ny,nz,lat)=>{
+    const latD=lat*180/Math.PI,band=Math.sin(latD*0.22)*0.5+0.5,n=_sfbm(nx*3,ny*3,nz*3,2)*0.15;
+    return [(58+band*22+n*20)|0,(178+band*32+n*20)|0,(188+band*32+n*20)|0];
+  },
+  Neptune:(u,v,nx,ny,nz)=>{
+    const n=_sfbm(nx*4,ny*4,nz*4,4),st=_sfbm(nx*8+2,ny*6,nz*8,2),spot=st>0.65?0.65:1;
+    return [(18+n*32*spot)|0,(48+n*42*spot)|0,(158+n*65*spot)|0];
+  }
+};
+
+// Deferred texture application (one per frame to avoid jank)
+const _texQueue=[...planetMeshes];
+function _applyNextTex(){
+  if(!_texQueue.length) return;
+  const {mesh,data}=_texQueue.shift();
+  const fn=_pTexFns[data.name];
+  if(fn){
+    const big=data.name==='Earth'||data.name==='Jupiter';
+    const tex=_mkTex(big?512:256,big?256:128,fn);
+    mesh.material.map=tex; mesh.material.needsUpdate=true;
+  }
+  requestAnimationFrame(_applyNextTex);
+}
+requestAnimationFrame(_applyNextTex);
+
+// --- Atmosphere sprites ---
+const _atmoC={Earth:[100,160,255,0.18],Mars:[200,128,75,0.14],Venus:[220,188,78,0.24],
+               Neptune:[58,78,200,0.16],Uranus:[78,208,208,0.14],Jupiter:[200,178,138,0.10]};
+planetMeshes.forEach(({mesh,data})=>{
+  const ac=_atmoC[data.name]; if(!ac) return;
+  const [ar,ag,ab,aa]=ac;
+  const ac2=document.createElement('canvas'); ac2.width=128; ac2.height=128;
+  const ag2=ac2.getContext('2d');
+  const gr=ag2.createRadialGradient(64,64,28,64,64,64);
+  gr.addColorStop(0,`rgba(${ar},${ag},${ab},0)`);
+  gr.addColorStop(0.62,`rgba(${ar},${ag},${ab},0)`);
+  gr.addColorStop(0.80,`rgba(${ar},${ag},${ab},${aa})`);
+  gr.addColorStop(1,`rgba(${ar},${ag},${ab},0)`);
+  ag2.fillStyle=gr; ag2.fillRect(0,0,128,128);
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(ac2),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));
+  sp.scale.setScalar(data.rVis*3.4); mesh.add(sp);
+});
+
+// --- Enhanced Saturn rings (custom geo with Cassini division) ---
+(()=>{
+  const sat=planetMeshes.find(p=>p.data.name==='Saturn');
+  if(!sat) return;
+  const oldR=sat.mesh.children.find(c=>c.isMesh); if(oldR) sat.mesh.remove(oldR);
+  const rIn=sat.data.rVis*1.3,rOut=sat.data.rVis*2.55,RS=128,RR=6;
+  const pos=[],uv=[],idx=[];
+  for(let r=0;r<=RR;r++){
+    const t=r/RR,rad=rIn+(rOut-rIn)*t;
+    for(let s=0;s<=RS;s++){
+      const th=s/RS*Math.PI*2;
+      pos.push(rad*Math.cos(th),0,rad*Math.sin(th)); uv.push(t,s/RS);
+    }
+  }
+  for(let r=0;r<RR;r++) for(let s=0;s<RS;s++){
+    const a=(RS+1)*r+s,b=a+1,c=(RS+1)*(r+1)+s,d=c+1;
+    idx.push(a,c,b,b,c,d);
+  }
+  const rGeo=new THREE.BufferGeometry();
+  rGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pos),3));
+  rGeo.setAttribute('uv',new THREE.BufferAttribute(new Float32Array(uv),2));
+  rGeo.setIndex(idx);
+
+  // 1D radial texture: C ring → B ring → Cassini gap → A ring → fade
+  const rc=document.createElement('canvas'); rc.width=256; rc.height=4;
+  const rctx=rc.getContext('2d');
+  const rg=rctx.createLinearGradient(0,0,256,0);
+  rg.addColorStop(0,'rgba(178,158,118,0.22)');
+  rg.addColorStop(0.22,'rgba(218,198,155,0.75)');
+  rg.addColorStop(0.48,'rgba(208,188,142,0.92)');
+  rg.addColorStop(0.57,'rgba(22,16,10,0.06)');
+  rg.addColorStop(0.63,'rgba(22,16,10,0.06)');
+  rg.addColorStop(0.70,'rgba(192,172,128,0.68)');
+  rg.addColorStop(0.88,'rgba(182,162,118,0.50)');
+  rg.addColorStop(1,'rgba(155,138,98,0.12)');
+  rctx.fillStyle=rg; rctx.fillRect(0,0,256,4);
+
+  const rMesh=new THREE.Mesh(rGeo,new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(rc),side:THREE.DoubleSide,transparent:true,depthWrite:false}));
+  rMesh.rotation.x=Math.PI*0.45; sat.mesh.add(rMesh);
+})();
+
+// --- Comet system ---
+const COMET_DATA=[
+  {name:'Halley',  a:17.8,  e:0.967, T:75.3,  t0:-36.5, inc:162, node:59,  w:112},
+  {name:'Bopp',    a:186,   e:0.995, T:2520,  t0:0.7,   inc:89,  node:283, w:130}
+];
+function _cometPos(cd,yr){
+  const n=2*Math.PI/cd.T;
+  const M=((n*(yr-cd.t0))%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+  const E=solveKepler(M,cd.e);
+  const x=cd.a*(Math.cos(E)-cd.e),y=cd.a*Math.sqrt(1-cd.e*cd.e)*Math.sin(E);
+  const inc=cd.inc*Math.PI/180,node=cd.node*Math.PI/180,w=cd.w*Math.PI/180;
+  const cN=Math.cos(node),sN=Math.sin(node),cI=Math.cos(inc),sI=Math.sin(inc),cW=Math.cos(w),sW=Math.sin(w);
+  const xp=x*cW-y*sW,yp=x*sW+y*cW;
+  return new THREE.Vector3(xp*cN-yp*sN*cI, yp*sI, xp*sN+yp*cN*cI);
+}
+
+const _cometObjs=COMET_DATA.map(cd=>{
+  // Nucleus
+  const nMesh=new THREE.Mesh(new THREE.SphereGeometry(0.012,8,8),new THREE.MeshStandardMaterial({color:0x888877,roughness:0.95,metalness:0.05}));
+  // Coma sprite
+  const cc=document.createElement('canvas'); cc.width=64; cc.height=64;
+  const cctx=cc.getContext('2d'),cg=cctx.createRadialGradient(32,32,0,32,32,32);
+  cg.addColorStop(0,'rgba(200,220,255,0.85)'); cg.addColorStop(0.3,'rgba(150,185,255,0.38)'); cg.addColorStop(1,'rgba(100,150,255,0)');
+  cctx.fillStyle=cg; cctx.fillRect(0,0,64,64);
+  const coma=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cc),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));
+  coma.scale.setScalar(0.18);
+  // Dust tail (30 strands, yellowish fan)
+  const DS=30,dtP=new Float32Array(DS*6),dtC=new Float32Array(DS*6);
+  const _spread=Array.from({length:DS},()=>[(Math.random()-0.5)*0.18,(Math.random()-0.5)*0.10,0.5+Math.random()*0.55]);
+  const dGeo=new THREE.BufferGeometry();
+  dGeo.setAttribute('position',new THREE.BufferAttribute(dtP,3));
+  dGeo.setAttribute('color',new THREE.BufferAttribute(dtC,3));
+  const dTail=new THREE.LineSegments(dGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.7,blending:THREE.AdditiveBlending,depthWrite:false}));
+  // Ion tail (20 segments, blue)
+  const IS=20,itP=new Float32Array(IS*6),itC=new Float32Array(IS*6);
+  const iGeo=new THREE.BufferGeometry();
+  iGeo.setAttribute('position',new THREE.BufferAttribute(itP,3));
+  iGeo.setAttribute('color',new THREE.BufferAttribute(itC,3));
+  const iTail=new THREE.LineSegments(iGeo,new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.6,blending:THREE.AdditiveBlending,depthWrite:false}));
+  const grp=new THREE.Group();
+  grp.add(nMesh,coma,dTail,iTail); scene.add(grp);
+  return {cd,grp,nMesh,coma,dTail,iTail,dtP,dtC,itP,itC,_spread};
+});
+
+function updateComets(dt){
+  if(currentScale>1){ _cometObjs.forEach(o=>o.grp.visible=false); return; }
+  _cometObjs.forEach(co=>{
+    const pos=_cometPos(co.cd,simTime);
+    const dist=pos.length();
+    const vis=dist<28;
+    co.grp.visible=vis; if(!vis) return;
+    co.grp.position.copy(pos);
+    const tDir=pos.clone().normalize(); // anti-solar direction
+    const tLen=Math.min(7,2.0/(dist*0.28+0.08));
+    const tAlpha=Math.min(1,1.8/dist);
+    // Dust tail strands
+    const DS=co._spread.length;
+    for(let i=0;i<DS;i++){
+      const [sx,sy,sf]=co._spread[i];
+      co.dtP[i*6]=co.dtP[i*6+1]=co.dtP[i*6+2]=0;
+      co.dtP[i*6+3]=tDir.x*tLen*sf+sx*tLen*0.35;
+      co.dtP[i*6+4]=tDir.y*tLen*sf+sy*tLen*0.35;
+      co.dtP[i*6+5]=tDir.z*tLen*sf;
+      co.dtC[i*6]=0.92;co.dtC[i*6+1]=0.82;co.dtC[i*6+2]=0.48;
+      co.dtC[i*6+3]=co.dtC[i*6+4]=co.dtC[i*6+5]=0;
+    }
+    co.dTail.geometry.attributes.position.needsUpdate=true;
+    co.dTail.geometry.attributes.color.needsUpdate=true;
+    co.dTail.material.opacity=tAlpha*0.65;
+    // Ion tail segments
+    const IS=20,iL=tLen*0.75;
+    for(let i=0;i<IS;i++){
+      const f0=i/IS,f1=(i+1)/IS;
+      co.itP[i*6+0]=tDir.x*iL*f0; co.itP[i*6+1]=tDir.y*iL*f0; co.itP[i*6+2]=tDir.z*iL*f0;
+      co.itP[i*6+3]=tDir.x*iL*f1; co.itP[i*6+4]=tDir.y*iL*f1; co.itP[i*6+5]=tDir.z*iL*f1;
+      const b0=1-f0,b1=1-f1;
+      co.itC[i*6+0]=0.45*b0;co.itC[i*6+1]=0.68*b0;co.itC[i*6+2]=b0;
+      co.itC[i*6+3]=0.45*b1;co.itC[i*6+4]=0.68*b1;co.itC[i*6+5]=b1;
+    }
+    co.iTail.geometry.attributes.position.needsUpdate=true;
+    co.iTail.geometry.attributes.color.needsUpdate=true;
+    co.iTail.material.opacity=tAlpha*0.55;
+    // Coma size
+    co.coma.scale.setScalar(Math.min(0.28,0.07/Math.sqrt(dist)));
+  });
+}
+
+// ═══════════════════════════════════════════════
 //  BACKGROUND STARFIELD
 // ═══════════════════════════════════════════════
 const starCount = 8000;
@@ -637,6 +985,14 @@ STAR_DATA.forEach(s => {
   mesh.userData = s;
   scene.add(mesh);
   namedStarMeshes.push(mesh);
+  // Add glow sprite to each named star
+  const gc=document.createElement('canvas'); gc.width=64; gc.height=64;
+  const gctx=gc.getContext('2d'),gg=gctx.createRadialGradient(32,32,0,32,32,32);
+  const gcol=`${(col.r*255)|0},${(col.g*255)|0},${(col.b*255)|0}`;
+  gg.addColorStop(0,`rgba(${gcol},0.9)`); gg.addColorStop(0.25,`rgba(${gcol},0.4)`); gg.addColorStop(1,'rgba(0,0,0,0)');
+  gctx.fillStyle=gg; gctx.fillRect(0,0,64,64);
+  const gSp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(gc),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));
+  gSp.scale.setScalar(r*8); mesh.add(gSp);
 });
 
 // ═══════════════════════════════════════════════
@@ -907,16 +1263,16 @@ function closeSearch() {
   document.getElementById('search-panel').classList.remove('open');
 }
 
-function travelToMesh(mesh, scaleLevel) {
-  if (scaleLevel !== undefined && currentScale !== scaleLevel) {
-    currentScale = scaleLevel;
-    applyScale();
-  }
-  const targetPos = mesh.position.clone();
-  const camDir = targetPos.clone().normalize();
-  camera.position.copy(targetPos).addScaledVector(camDir, -Math.max(targetPos.length() * 0.001, 0.5));
-  yaw   = Math.atan2(-camDir.x, -camDir.z);
-  pitch = Math.asin(Math.max(-1, Math.min(1, camDir.y)));
+function travelToMesh(mesh, scaleLevel, name, orbitR) {
+  _pauseTimeForTravel();
+  if (scaleLevel !== undefined && currentScale !== scaleLevel) { currentScale = scaleLevel; applyScale(); }
+  const r = orbitR || Math.max(0.3, (mesh.geometry?.parameters?.radius || 0.3) * 4);
+  travelOrigin.copy(camera.position);
+  travelElapsed = 0;
+  travelDest = { position: mesh.position.clone(), name: name || '?', scaleLevel, radius: r };
+  travelActive = true; travelSpeed = 0;
+  document.getElementById('travel-hud').classList.add('active');
+  document.getElementById('travel-hud-dest').textContent = '→ ' + (name || 'DESTINATION').toUpperCase();
 }
 
 // Map SIMBAD otype codes → display label, marker color, scale level
@@ -980,7 +1336,7 @@ function travelToSIMBADResult(result, skipTravel = false) {
   scene.add(mesh);
   liveStarMeshes.push(mesh);
   labelsList.push({ el: createLabel(name), mesh, scaleLevel: typeInfo.scale });
-  if (!skipTravel) travelToMesh(mesh, typeInfo.scale);
+  if (!skipTravel) travelToMesh(mesh, typeInfo.scale, name, r * 4);
   closeSearch();
 }
 
@@ -1280,9 +1636,11 @@ function _exploreLaunch() {
   if (currentScale !== exploreDest.scale) { currentScale = exploreDest.scale; applyScale(); }
 
   _pauseTimeForTravel();
+  travelOrigin.copy(camera.position);
+  travelElapsed = 0;
 
   // Inject travel destination
-  travelDest = { position: pos, name: exploreDest.name, scaleLevel: exploreDest.scale, distLY: pos.length()/63241 };
+  travelDest = { position: pos, name: exploreDest.name, scaleLevel: exploreDest.scale, distLY: pos.length()/63241, radius: exploreDest.r() };
   travelActive  = true;
   travelSpeed   = 0;
   travelSpeedIdx = exploreDest.spIdx;
@@ -1361,57 +1719,43 @@ let _ufoPassive = 70 + Math.random() * 80; // seconds until passive spawn
 
 function _buildUFO() {
   const g = new THREE.Group();
-  // Hull (flattened sphere)
-  const hullGeo = new THREE.SphereGeometry(1, 22, 10);
-  const hullMat = new THREE.MeshPhongMaterial({ color:0x8899bb, shininess:110, specular:0x334466, emissive:0x0a1120 });
+  // Classic disc hull — wide, very flat
+  const hullGeo = new THREE.SphereGeometry(1, 24, 10);
+  const hullMat = new THREE.MeshPhongMaterial({ color:0xaaaaaa, shininess:90, specular:0x888888, emissive:0x111111 });
   const hull = new THREE.Mesh(hullGeo, hullMat);
-  hull.scale.set(1, 0.22, 1);
+  hull.scale.set(1, 0.18, 1);
   g.add(hull);
-  // Rim disc
-  const rimGeo = new THREE.CylinderGeometry(1.62, 1.40, 0.09, 22);
-  const rimMat = new THREE.MeshPhongMaterial({ color:0x6677aa, shininess:160 });
-  g.add(new THREE.Mesh(rimGeo, rimMat));
-  // Cockpit dome
-  const domeGeo = new THREE.SphereGeometry(0.44, 14, 8, 0, Math.PI*2, 0, Math.PI/2);
-  const domeMat = new THREE.MeshPhongMaterial({ color:0x44ffbb, transparent:true, opacity:0.55, emissive:0x1a4433 });
+  // Lower disc rim — slightly wider, tapered like a lens edge
+  const rimGeo = new THREE.CylinderGeometry(1.1, 0.9, 0.12, 24);
+  const rimMat = new THREE.MeshPhongMaterial({ color:0x999999, shininess:120 });
+  const rim = new THREE.Mesh(rimGeo, rimMat);
+  rim.position.y = -0.06;
+  g.add(rim);
+  // Small bubble dome on top
+  const domeGeo = new THREE.SphereGeometry(0.32, 12, 7, 0, Math.PI*2, 0, Math.PI*0.55);
+  const domeMat = new THREE.MeshPhongMaterial({ color:0x223311, transparent:true, opacity:0.8, shininess:200, specular:0x44aa44, emissive:0x081208 });
   const dome = new THREE.Mesh(domeGeo, domeMat);
-  dome.position.y = 0.19;
+  dome.position.y = 0.14;
   g.add(dome);
-  // Tractor beam cone (subtle)
-  const beamGeo = new THREE.ConeGeometry(0.55, 1.3, 12, 1, true);
-  const beamMat = new THREE.MeshBasicMaterial({ color:0x66ffcc, transparent:true, opacity:0.12, side:THREE.DoubleSide });
-  const beam = new THREE.Mesh(beamGeo, beamMat);
-  beam.position.y = -0.75; beam.rotation.x = Math.PI;
-  g.add(beam);
-  // Undercarriage flat panel
-  const panGeo = new THREE.CylinderGeometry(0.75, 0.75, 0.06, 14);
-  const panMat = new THREE.MeshPhongMaterial({ color:0x445566 });
-  const pan = new THREE.Mesh(panGeo, panMat);
-  pan.position.y = -0.08;
-  g.add(pan);
-  // Rim lights (6 multicolour)
+  // Soft green underglow — very subtle, like propulsion glow
+  const gc = document.createElement('canvas'); gc.width=64; gc.height=64;
+  const gctx=gc.getContext('2d'),gg=gctx.createRadialGradient(32,32,0,32,32,32);
+  gg.addColorStop(0,'rgba(80,255,100,0.35)'); gg.addColorStop(0.5,'rgba(80,255,100,0.08)'); gg.addColorStop(1,'rgba(0,0,0,0)');
+  gctx.fillStyle=gg; gctx.fillRect(0,0,64,64);
+  const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(gc),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));
+  glow.scale.setScalar(2.8); glow.position.y=-0.15; g.add(glow);
   _ufoLights = [];
-  const lc = [0xff2233, 0x22ff44, 0x2244ff, 0xffee11, 0xff22ee, 0x22eeff];
-  for (let i = 0; i < 6; i++) {
-    const ang = (i/6) * Math.PI * 2;
-    const lg  = new THREE.SphereGeometry(0.13, 6, 4);
-    const lm  = new THREE.MeshBasicMaterial({ color: lc[i] });
-    const lmesh = new THREE.Mesh(lg, lm);
-    lmesh.position.set(Math.cos(ang)*1.52, 0.02, Math.sin(ang)*1.52);
-    g.add(lmesh);
-    _ufoLights.push({ mesh: lmesh, mat: lm, col: lc[i], ph: (i/6)*Math.PI*2 });
-  }
   g.visible = false;
   scene.add(g);
   return g;
 }
 
 const _UFO_MSGS = [
-  '⚠ UNIDENTIFIED CRAFT DETECTED',
-  '👽 UNKNOWN VESSEL INTERCEPTED',
-  '⚠ ANOMALOUS OBJECT IN VICINITY',
-  '🛸 EXTRATERRESTRIAL CONTACT?',
-  '⚠ UNREGISTERED SHIP ON SENSORS',
+  'UNIDENTIFIED CRAFT DETECTED',
+  'UNKNOWN VESSEL INTERCEPTED',
+  'ANOMALOUS OBJECT IN VICINITY',
+  'UNREGISTERED SHIP ON SENSORS',
+  'CONTACT SIGNAL — ORIGIN UNKNOWN',
 ];
 
 function spawnUFO() {
@@ -1471,15 +1815,10 @@ function updateUFO(dt) {
       _ufoActive = false;
     } else {
       _ufoGroup.position.addScaledVector(_ufoVel, dt);
-      _ufoGroup.rotation.y += dt * 1.6;
-      // Gentle hover wobble
-      _ufoGroup.position.y += Math.sin(_ufoLife * 5.2) * _ufoGroup.scale.x * 0.008;
-      // Blink rim lights
-      const t = performance.now() / 1000;
-      _ufoLights.forEach(l => {
-        const on = Math.sin(t * 5 + l.ph) > 0.2;
-        l.mat.color.setHex(on ? l.col : 0x111122);
-      });
+      // Slow steady rotation — classic saucer spin
+      _ufoGroup.rotation.y += dt * 0.9;
+      // Very gentle hover bob
+      _ufoGroup.position.y += Math.sin(_ufoLife * 3.8) * _ufoGroup.scale.x * 0.004;
     }
   }
 
@@ -1672,7 +2011,7 @@ function renderSearchResults(localResults, liveResults, isLoading) {
       ? (obj.distLY < 1000 ? obj.distLY.toFixed(2) + ' ly' : (obj.distLY / 1000).toFixed(1) + ' kly')
       : 'Solar System';
     div.innerHTML = `<div class="res-name">${obj.name}</div><div class="res-info">${obj.typeLabel} &nbsp;·&nbsp; ${distStr}</div>`;
-    div.addEventListener('click', () => { if (obj.mesh) travelToMesh(obj.mesh, obj.scaleLevel); closeSearch(); });
+    div.addEventListener('click', () => { if (obj.mesh) travelToMesh(obj.mesh, obj.scaleLevel, obj.name); closeSearch(); });
     container.appendChild(div);
   });
 
@@ -1764,6 +2103,10 @@ const TRAVEL_SPEEDS = [
 let travelPanelOpen = false;
 let travelActive    = false;
 let _savedTimeRate  = null; // time rate saved at travel start, restored on arrival/abort
+const TRAVEL_DURATION = 3.5; // seconds — all travel is this long regardless of distance
+let travelElapsed   = 0;
+const travelOrigin  = new THREE.Vector3();
+const _arrivalOrbit = { active:false, target:null, r:0, h:0, angle:0, timer:0, duration:0 };
 
 function _pauseTimeForTravel() {
   if (_savedTimeRate === null) _savedTimeRate = timeRateIndex;
@@ -1874,6 +2217,8 @@ document.getElementById('travel-engage-btn').addEventListener('click', () => {
   if (travelDest.scaleLevel !== undefined && currentScale !== travelDest.scaleLevel) {
     currentScale = travelDest.scaleLevel; applyScale();
   }
+  travelOrigin.copy(camera.position);
+  travelElapsed = 0;
   travelActive = true;
   travelSpeed  = 0;
   document.getElementById('travel-hud').classList.add('active');
@@ -1887,8 +2232,36 @@ function abortTravel(arrived) {
   document.getElementById('travel-hud').classList.remove('active');
   document.getElementById('warp-overlay').style.opacity = 0;
   warpMesh.visible = false;
-  _resumeTimeAfterTravel(); // always restore time rate on arrival or abort
-  if (exploreMode && !arrived) stopExploreMode(); // user-aborted mid-flight
+  _resumeTimeAfterTravel();
+  if (arrived && travelDest && !exploreMode) {
+    // Cinematic orbit around the destination for non-explore arrivals
+    const r = Math.max(0.3, (travelDest.radius || 0.3) * 3.5);
+    _arrivalOrbit.active = true;
+    _arrivalOrbit.target = travelDest.position.clone();
+    _arrivalOrbit.r      = r;
+    _arrivalOrbit.h      = r * 0.32;
+    _arrivalOrbit.angle  = yaw + Math.PI * 0.5;
+    _arrivalOrbit.timer  = 0;
+    _arrivalOrbit.duration = 10;
+  }
+  if (exploreMode && !arrived) stopExploreMode();
+}
+
+function updateArrivalOrbit(dt) {
+  if (!_arrivalOrbit.active) return;
+  _arrivalOrbit.timer += dt;
+  if (_arrivalOrbit.timer >= _arrivalOrbit.duration) { _arrivalOrbit.active = false; return; }
+  _arrivalOrbit.angle += dt * 0.28;
+  const {target, r, h, angle} = _arrivalOrbit;
+  camera.position.set(
+    target.x + Math.cos(angle) * r,
+    target.y + h + Math.sin(angle * 0.42) * h * 0.45,
+    target.z + Math.sin(angle) * r
+  );
+  const toT = new THREE.Vector3().subVectors(target, camera.position).normalize();
+  yaw   += (Math.atan2(-toT.x, -toT.z) - yaw)   * Math.min(1, dt * 5);
+  pitch += (Math.asin(Math.max(-1, Math.min(1, toT.y))) - pitch) * Math.min(1, dt * 5);
+  roll  += (0 - roll) * Math.min(1, dt * 3);
 }
 
 // ── Warp streak geometry ──────────────────────
@@ -1920,10 +2293,10 @@ const _tR = new THREE.Vector3();
 const _tU = new THREE.Vector3();
 
 function updateTravel(dt) {
-  // Fade out warp when not travelling
+  // Fade out warp streaks after travel ends
   if (!travelActive) {
     if (travelSpeed > 0) {
-      travelSpeed = Math.max(0, travelSpeed * (1 - dt * 4));
+      travelSpeed = Math.max(0, travelSpeed * (1 - dt * 5));
       _renderWarp(dt);
     } else {
       warpMesh.visible = false;
@@ -1933,61 +2306,53 @@ function updateTravel(dt) {
   }
   if (!travelDest) return;
 
-  const dist = camera.position.distanceTo(travelDest.position);
-  const maxSpd = TRAVEL_SPEEDS[travelSpeedIdx].au_s;
-  const accelT = 3.0;
+  travelElapsed = Math.min(travelElapsed + dt, TRAVEL_DURATION);
+  const p = travelElapsed / TRAVEL_DURATION; // 0 → 1
+
+  // EaseInOutCubic: slow launch, fast cruise, smooth arrival
+  const ease = p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2, 3)/2;
+
+  // Lerp camera position along straight path
+  camera.position.lerpVectors(travelOrigin, travelDest.position, ease);
+
+  // Warp intensity: bell curve — ramps up fast, fades into arrival
+  const warpInt = Math.sin(p * Math.PI);
+  travelSpeed = C_AU_S * warpInt;
+
+  // Fixed travel direction (origin → dest) for consistent streak orientation
+  _tD.subVectors(travelDest.position, travelOrigin).normalize();
+
+  // Camera swings to face destination
+  const ty = Math.atan2(-_tD.x, -_tD.z);
+  const tp = Math.asin(Math.max(-1, Math.min(1, _tD.y)));
+  yaw   += (ty - yaw)   * Math.min(1, dt * 4);
+  pitch += (tp - pitch) * Math.min(1, dt * 4);
+
+  // Turbulence during peak warp
+  if (warpInt > 0.35) {
+    const sh = warpInt * warpInt * 0.0022;
+    camera.position.x += (Math.random()-0.5)*sh;
+    camera.position.y += (Math.random()-0.5)*sh;
+    camera.position.z += (Math.random()-0.5)*sh;
+  }
+
+  _renderWarp(dt);
+
+  // HUD countdown
+  const rem = Math.max(0, TRAVEL_DURATION - travelElapsed);
+  document.getElementById('t-spd').textContent  = formatSpeed(travelSpeed);
+  document.getElementById('t-dist').textContent = formatDist(camera.position.distanceTo(travelDest.position));
+  document.getElementById('t-eta').textContent  = rem.toFixed(1) + 's';
 
   // Arrival
-  if (dist < Math.max(0.5, travelSpeed * 0.15)) {
+  if (p >= 1) {
     camera.position.copy(travelDest.position);
     if (travelDest.simbadResult) travelToSIMBADResult(travelDest.simbadResult, true);
     if (travelDest.scaleLevel !== undefined && currentScale !== travelDest.scaleLevel) {
       currentScale = travelDest.scaleLevel; applyScale();
     }
-    abortTravel(true); return;
+    abortTravel(true);
   }
-
-  // Direction
-  _tD.subVectors(travelDest.position, camera.position).normalize();
-
-  // Speed ramp (accel / decel)
-  const decelDist = maxSpd * accelT;
-  if (dist < decelDist) {
-    travelSpeed = maxSpd * Math.max(0.005, (dist / decelDist) ** 2);
-  } else {
-    travelSpeed = Math.min(maxSpd, travelSpeed + maxSpd / accelT * dt);
-  }
-
-  // Move
-  camera.position.addScaledVector(_tD, travelSpeed * dt);
-
-  // Smooth camera orientation toward destination
-  const ty = Math.atan2(-_tD.x, -_tD.z);
-  const tp = Math.asin(Math.max(-1, Math.min(1, _tD.y)));
-  const ls = Math.min(1, dt * 3.5);
-  yaw   += (ty - yaw)   * ls;
-  pitch += (tp - pitch) * ls;
-
-  // Camera shake at warp speeds
-  const sf = Math.min(1, travelSpeed / C_AU_S);
-  if (sf > 0.05) {
-    const sh = sf * sf * 0.0025;
-    camera.position.x += (Math.random() - 0.5) * sh;
-    camera.position.y += (Math.random() - 0.5) * sh;
-    camera.position.z += (Math.random() - 0.5) * sh;
-  }
-
-  _renderWarp(dt);
-
-  // In-flight HUD
-  const eta = dist / travelSpeed;
-  document.getElementById('t-spd').textContent  = formatSpeed(travelSpeed);
-  document.getElementById('t-dist').textContent = formatDist(dist);
-  document.getElementById('t-eta').textContent  =
-    eta > 3.156e7 ? (eta/3.156e7).toFixed(1)+'yr' :
-    eta > 86400   ? (eta/86400).toFixed(1)+'d'    :
-    eta > 3600    ? (eta/3600).toFixed(1)+'hr'    :
-    eta > 60      ? (eta/60).toFixed(1)+'min'     : eta.toFixed(0)+'s';
 }
 
 function _renderWarp(dt) {
@@ -2294,12 +2659,16 @@ function updateHUD() {
 let started = false;
 let lastTime = 0;
 
-document.getElementById('splash').addEventListener('click', () => {
+document.getElementById('splash-explore-btn').addEventListener('click', () => {
   started = true;
   document.getElementById('splash').classList.add('hidden');
   document.getElementById('hud').classList.add('active');
   applyScale();
   lastTime = performance.now();
+});
+document.getElementById('splash-launches-btn').addEventListener('click', () => {
+  document.getElementById('splash').classList.add('hidden');
+  openLaunchHistory();
 });
 
 function animate(now) {
@@ -2351,7 +2720,7 @@ function animate(now) {
   const right = new THREE.Vector3(1, 0, 0).applyEuler(euler);
   const up = new THREE.Vector3(0, 1, 0);
 
-  const _dwelling = exploreMode && explorePhase === 'dwell';
+  const _dwelling = (exploreMode && explorePhase === 'dwell') || _arrivalOrbit.active;
   if (!_dwelling) {
     const spd = moveSpeed * dt;
     if (keys['KeyW']) camera.position.addScaledVector(forward, spd);
@@ -2371,7 +2740,9 @@ function animate(now) {
 
   updateExplore(dt);
   updateTravel(dt);
+  updateArrivalOrbit(dt);
   updateUFO(dt);
+  updateComets(dt);
   updateHUD();
   tickFacts(dt);
   updateLabels();
@@ -2391,6 +2762,272 @@ window.addEventListener('resize', () => {
 
 initLabels();
 loadExternalData();
+
+// ═══════════════════════════════════════════════
+//  LAUNCH HISTORY MODE
+// ═══════════════════════════════════════════════
+
+const LAUNCH_DATA = [
+  { id:'sputnik1',   name:'Sputnik 1',              org:'Soviet',    date:'1957-10-04', rocket:'R-7 Semyorka',       site:'Baikonur, Kazakhstan',      siteLat:45.92, siteLon:63.34,   destination:'LEO',           destType:'LEO',       desc:'The first artificial satellite to orbit Earth, launched by the Soviet Union. Sputnik transmitted radio pulses for 21 days before its batteries died, orbiting for 3 months. Its launch shocked the Western world and ignited the Space Race.',                                                                                                             mass:83.6,   status:'success', firsts:['First artificial Earth satellite','First human-made object in orbit'] },
+  { id:'vostok1',    name:'Vostok 1',                org:'Soviet',    date:'1961-04-12', rocket:'Vostok-K',           site:'Baikonur, Kazakhstan',      siteLat:45.92, siteLon:63.34,   destination:'LEO',           destType:'LEO',       desc:"Yuri Gagarin became the first human in space, completing one orbit of Earth in 108 minutes. The flight proved that humans could survive in space. Gagarin's famous words upon launch: 'Poyekhali!' (Let's go!)",                                                                                                                                              mass:4725,   status:'success', firsts:['First human in space','First human to orbit Earth'] },
+  { id:'friendship7',name:'Friendship 7',            org:'NASA',      date:'1962-02-20', rocket:'Atlas LV-3B',        site:'Cape Canaveral, Florida',   siteLat:28.50, siteLon:-80.58,  destination:'LEO',           destType:'LEO',       desc:"John Glenn became the first American to orbit Earth, completing 3 orbits in 4 hours 55 minutes. A critical sensor malfunction nearly forced a premature reentry, but Glenn landed safely. His flight restored American confidence in the Space Race.",                                                                                                            mass:1355,   status:'success', firsts:['First American to orbit Earth','First manual atmospheric reentry'] },
+  { id:'apollo11',   name:'Apollo 11',               org:'NASA',      date:'1969-07-16', rocket:'Saturn V',           site:'Kennedy Space Center, FL',  siteLat:28.57, siteLon:-80.65,  destination:'Moon',          destType:'Moon',      desc:"Neil Armstrong and Buzz Aldrin became the first humans to walk on the Moon on July 20, 1969, while Michael Collins orbited above. Armstrong's words — 'one small step for man, one giant leap for mankind' — echoed around a watching world of 600 million.",                                                                                                  mass:45702,  status:'success', firsts:['First crewed Moon landing','First humans on another world','First lunar samples returned by crew'] },
+  { id:'luna16',     name:'Luna 16',                 org:'Soviet',    date:'1970-09-12', rocket:'Proton-K',           site:'Baikonur, Kazakhstan',      siteLat:45.92, siteLon:63.34,   destination:'Moon',          destType:'Moon',      desc:"The first robotic spacecraft to land on the Moon and return soil samples to Earth. Luna 16 drilled 35 cm into the lunar surface, retrieved 101 grams of material, and returned safely — no humans required.",                                                                                                                                                mass:5727,   status:'success', firsts:['First robotic Moon sample return','First automated extraterrestrial sample collection'] },
+  { id:'voyager2',   name:'Voyager 2',               org:'NASA',      date:'1977-08-20', rocket:'Titan IIIE-Centaur', site:'Cape Canaveral, Florida',   siteLat:28.50, siteLon:-80.58,  destination:'Interstellar',  destType:'Deep',      desc:"Exploiting a rare planetary alignment occurring once every 175 years, Voyager 2 performed flybys of Jupiter, Saturn, Uranus, and Neptune. It entered interstellar space in 2018 and remains the only spacecraft to have visited all four outer planets.",                                                                                                     mass:721.9,  status:'success', firsts:['Only spacecraft to visit all 4 outer planets','Reached interstellar space (2018)'] },
+  { id:'sts1',       name:'STS-1 Columbia',          org:'NASA',      date:'1981-04-12', rocket:'Space Shuttle',      site:'Kennedy Space Center, FL',  siteLat:28.57, siteLon:-80.65,  destination:'LEO',           destType:'LEO',       desc:"The first Space Shuttle mission, crewed by John Young and Robert Crippen, proved the revolutionary reusable orbiter concept. Columbia completed 54.5 orbits over 2 days, landing on a runway like an airplane — the first orbital spacecraft designed for reuse.",                                                                                              mass:99318,  status:'success', firsts:['First crewed flight of a reusable orbital vehicle','First runway landing from orbit'] },
+  { id:'challenger', name:'Challenger STS-51L',      org:'NASA',      date:'1986-01-28', rocket:'Space Shuttle',      site:'Kennedy Space Center, FL',  siteLat:28.57, siteLon:-80.65,  destination:'LEO',           destType:'LEO',       desc:"Challenger broke apart 73 seconds after launch due to O-ring failure in cold temperatures, killing all 7 crew members including teacher Christa McAuliffe. The disaster grounded the shuttle fleet for 32 months and fundamentally reformed NASA's safety culture.",                                                                                               mass:99318,  status:'failed',  firsts:['Most-watched spaceflight disaster in history','Led to major NASA safety reform'] },
+  { id:'hubble',     name:'Hubble Space Telescope',  org:'NASA',      date:'1990-04-24', rocket:'Space Shuttle Discovery', site:'Kennedy Space Center, FL', siteLat:28.57, siteLon:-80.65, destination:'LEO',        destType:'LEO',       desc:"Deployed at 547 km altitude, Hubble has made over 1.5 million observations. Despite an initial mirror flaw corrected by a 1993 servicing mission, it revealed the expansion rate of the universe, confirmed supermassive black holes, and showed the universe is 13.8 billion years old.",                                                                     mass:11110,  status:'success', firsts:['Most scientifically productive telescope in history','First telescope repaired in orbit'] },
+  { id:'pathfinder', name:'Mars Pathfinder',         org:'NASA',      date:'1996-12-04', rocket:'Delta II',           site:'Cape Canaveral, Florida',   siteLat:28.50, siteLon:-80.58,  destination:'Mars',          destType:'Mars',      desc:"Mars Pathfinder delivered the Sojourner rover — the first rover on another planet — using a revolutionary airbag landing system. The $265M mission proved low-cost planetary exploration was viable and sparked immense public interest with live web updates.",                                                                                              mass:895,    status:'success', firsts:['First Mars rover (Sojourner)','First airbag landing on another planet'] },
+  { id:'zarya',      name:'ISS — Zarya Module',      org:'Roscosmos', date:'1998-11-20', rocket:'Proton-K',           site:'Baikonur, Kazakhstan',      siteLat:45.92, siteLon:63.34,   destination:'ISS',           destType:'ISS',       desc:"Zarya ('Sunrise') was the first module of the International Space Station. Launched by Russia, it provided initial power and propulsion for early assembly. The ISS has been continuously crewed since November 2000, representing the greatest cooperative human achievement in space.",                                                                        mass:19323,  status:'success', firsts:['First ISS module launched','Largest international cooperative space project'] },
+  { id:'columbia',   name:'Columbia STS-107',        org:'NASA',      date:'2003-01-16', rocket:'Space Shuttle',      site:'Kennedy Space Center, FL',  siteLat:28.57, siteLon:-80.65,  destination:'LEO',           destType:'LEO',       desc:"Columbia disintegrated during reentry on February 1, 2003, killing all 7 crew members. Foam insulation damaged the wing's heat shield during launch. The disaster led to additional shuttle safety measures and eventually hastened the shuttle program's 2011 retirement.",                                                                                        mass:99318,  status:'failed',  firsts:['Second Space Shuttle disaster','Final mission of Columbia orbiter'] },
+  { id:'shenzhou5',  name:'Shenzhou 5',              org:'CNSA',      date:'2003-10-15', rocket:'Long March 2F',      site:'Jiuquan, Inner Mongolia',   siteLat:40.96, siteLon:100.29,  destination:'LEO',           destType:'LEO',       desc:"Yang Liwei became the first Chinese person in space (taikonaut), orbiting Earth 14 times in 21 hours. China became only the third country to achieve independent human spaceflight, joining the US and Soviet Union/Russia.",                                                                                                                                     mass:7800,   status:'success', firsts:['First Chinese crewed spaceflight','China becomes 3rd nation for independent human spaceflight'] },
+  { id:'spirit',     name:'MER-A Spirit',            org:'NASA',      date:'2003-06-10', rocket:'Delta II Heavy',     site:'Cape Canaveral, Florida',   siteLat:28.50, siteLon:-80.58,  destination:'Mars',          destType:'Mars',      desc:"Designed for a 90-day mission, Spirit operated for over 6 years in Gusev Crater, traveling 7.73 km. It discovered hydrated silica suggesting ancient hot springs or steam vents — strong evidence for a watery past on Mars.",                                                                                                                                    mass:1062,   status:'success', firsts:['Operated 26× its design life','Discovered hydrated silica — evidence of ancient water'] },
+  { id:'newhorizons',name:'New Horizons',            org:'NASA',      date:'2006-01-19', rocket:'Atlas V 551',        site:'Cape Canaveral, Florida',   siteLat:28.50, siteLon:-80.58,  destination:'Pluto / Kuiper Belt', destType:'Deep', desc:"New Horizons made the first flyby of Pluto on July 14, 2015, revealing mountains of water ice and a nitrogen heart-shaped plain. It then flew past Kuiper Belt Object Arrokoth in 2019 — the most distant object ever closely explored by humanity.",                                                                                                       mass:478,    status:'success', firsts:['First spacecraft to visit Pluto','First exploration of Kuiper Belt Object Arrokoth'] },
+  { id:'falcon1f4',  name:'Falcon 1 — Flight 4',    org:'SpaceX',    date:'2008-09-28', rocket:'Falcon 1',           site:'Omelek Island, Marshall Is.', siteLat:9.05, siteLon:167.74, destination:'LEO',           destType:'LEO',       desc:"After three consecutive failures that nearly bankrupted the company, SpaceX achieved orbit on the 4th Falcon 1 flight — becoming the first private company to reach orbit with a liquid-fueled rocket. This success unlocked a NASA contract that saved SpaceX.",                                                                                          mass:165,    status:'success', firsts:['First private liquid-fueled rocket to reach orbit','Secured NASA COTS contract'] },
+  { id:'curiosity',  name:'Curiosity (MSL)',         org:'NASA',      date:'2011-11-26', rocket:'Atlas V 541',        site:'Cape Canaveral, Florida',   siteLat:28.50, siteLon:-80.58,  destination:'Mars',          destType:'Mars',      desc:"Curiosity used a revolutionary sky crane landing system to touch down in Gale Crater. The car-sized rover confirmed Mars once had conditions suitable for microbial life. Over 12 years later, it has traveled more than 29 km and still operates.",                                                                                                                mass:3839,   status:'success', firsts:['First use of sky crane landing','Confirmed Mars once had habitable conditions'] },
+  { id:'orbcomm2',   name:'ORBCOMM OG2 / Booster Landing', org:'SpaceX', date:'2015-12-21', rocket:'Falcon 9 v1.2', site:'Cape Canaveral, Florida', siteLat:28.50, siteLon:-80.58, destination:'LEO',             destType:'LEO',       desc:"After delivering 11 satellites to orbit, the Falcon 9 first stage returned to Landing Zone 1 and made the first-ever propulsive landing of an orbital rocket booster. This milestone kickstarted the reusable rocket revolution and dramatically lowered launch costs.",                                                                                            mass:2034,   status:'success', firsts:['First orbital rocket booster propulsive landing','Proved large-scale booster reusability'] },
+  { id:'falconheavy',name:'Falcon Heavy Demo',       org:'SpaceX',    date:'2018-02-06', rocket:'Falcon Heavy',      site:'Kennedy Space Center, FL',  siteLat:28.57, siteLon:-80.65,  destination:'Heliocentric Orbit', destType:'Deep',  desc:"Elon Musk's Tesla Roadster with 'Starman' mannequin flew as test payload. The two side boosters returned to Cape Canaveral in a stunning synchronized landing, while the car entered heliocentric orbit. Most powerful operational rocket at the time.",                                                                                                         mass:1350,   status:'success', firsts:['Most powerful operational rocket at launch','First synchronized dual booster landing','First car launched to space'] },
+  { id:'crewdragon', name:'Crew Dragon Demo-2',      org:'SpaceX/NASA', date:'2020-05-30', rocket:'Falcon 9',        site:'Kennedy Space Center, FL',  siteLat:28.57, siteLon:-80.65,  destination:'ISS',           destType:'ISS',       desc:"Astronauts Bob Behnken and Doug Hurley flew on the first commercial crewed spacecraft to reach the ISS, ending a 9-year gap in American human spaceflight from US soil. They spent 64 days aboard the station before returning via splashdown.",                                                                                                                         mass:12519,  status:'success', firsts:['First commercial crewed orbital spacecraft','First crewed Atlantic splashdown since 1975'] },
+  { id:'shepardns18',name:'New Shepard NS-18',       org:'Blue Origin', date:'2021-10-13', rocket:'New Shepard',     site:'Van Horn, Texas',           siteLat:31.07, siteLon:-104.83, destination:'Suborbital',     destType:'Suborbital', desc:"William Shatner — Captain Kirk of Star Trek — flew at age 90 as the oldest person to reach space. Blue Origin's New Shepard carried four passengers to 107 km altitude for a 10-minute suborbital flight with the booster landing autonomously.",                                                                                                            mass:838,    status:'success', firsts:['Oldest person in space (William Shatner, 90)','Blue Origin crew capsule 2nd reuse'] },
+  { id:'jwst',       name:'James Webb Space Telescope', org:'ESA/NASA', date:'2021-12-25', rocket:'Ariane 5',       site:'Kourou, French Guiana',     siteLat:5.23,  siteLon:-52.77,  destination:'L2 Lagrange Point', destType:'Deep',   desc:"The most powerful space telescope ever built, observing in infrared from the L2 point 1.5 million km from Earth. JWST has revealed the first galaxies formed after the Big Bang, detected carbon dioxide in exoplanet atmospheres, and produced the deepest infrared images of the universe.",                                                                        mass:6161,   status:'success', firsts:['Most powerful space telescope ever launched','First CO₂ detection in exoplanet atmosphere','Deepest infrared image of universe'] },
+  { id:'artemis1',   name:'Artemis I',               org:'NASA',      date:'2022-11-16', rocket:'Space Launch System', site:'Kennedy Space Center, FL', siteLat:28.57, siteLon:-80.65, destination:'Lunar Orbit',   destType:'Moon',      desc:"NASA's uncrewed SLS rocket completed a 25-day lunar orbit mission, testing the Orion capsule for future crewed flights. SLS generated 8.8 million pounds of thrust on liftoff — more than Saturn V — marking America's return to deep space ambitions.",                                                                                                              mass:26520,  status:'success', firsts:['First SLS launch','Most powerful rocket ever flown by thrust','First Orion deep space mission'] },
+  { id:'chandrayaan3',name:'Chandrayaan-3',          org:'ISRO',      date:'2023-07-14', rocket:'LVM3 (GSLV Mk III)', site:'Satish Dhawan, India',     siteLat:13.73, siteLon:80.23,   destination:'Lunar South Pole', destType:'Moon',    desc:"India's Chandrayaan-3 landed the Vikram lander and Pragyan rover near the lunar south pole on August 23, 2023. India became the 4th country to land on the Moon and the first to reach the south polar region — a key area for future water ice prospecting.",                                                                                                   mass:3900,   status:'success', firsts:["First spacecraft to land near Moon's south pole","India becomes 4th nation to land on the Moon"] },
+  { id:'starshipift2',name:'Starship IFT-2',         org:'SpaceX',    date:'2023-11-18', rocket:'Starship / Super Heavy', site:'Boca Chica, Texas',   siteLat:25.99, siteLon:-97.15,  destination:'Suborbital',     destType:'Suborbital', desc:"Second integrated flight test of the world's largest rocket (120m tall). Both the Super Heavy booster and Starship upper stage were intentionally terminated before completing the flight profile, but key vehicle systems and the flight termination system were validated.",                                                                                      mass:100000, status:'partial', firsts:['Largest rocket ever built (120m, 5000t)','Super Heavy generates 74.3 MN thrust at liftoff'] }
+];
+
+const ORG_COLORS = {
+  'NASA':        { css:'#08f',  bg:'rgba(0,136,255,0.13)',  bd:'rgba(0,136,255,0.38)' },
+  'Soviet':      { css:'#f44',  bg:'rgba(255,60,60,0.12)',  bd:'rgba(255,60,60,0.35)' },
+  'Roscosmos':   { css:'#f55',  bg:'rgba(255,70,70,0.12)',  bd:'rgba(255,70,70,0.35)' },
+  'SpaceX':      { css:'#aab',  bg:'rgba(180,180,200,0.1)', bd:'rgba(180,180,200,0.28)' },
+  'Blue Origin': { css:'#46f',  bg:'rgba(68,102,255,0.12)', bd:'rgba(68,102,255,0.35)' },
+  'CNSA':        { css:'#f90',  bg:'rgba(255,144,0,0.12)',  bd:'rgba(255,144,0,0.35)' },
+  'ESA/NASA':    { css:'#0cf',  bg:'rgba(0,204,255,0.12)',  bd:'rgba(0,204,255,0.35)' },
+  'ISRO':        { css:'#f70',  bg:'rgba(255,112,0,0.12)',  bd:'rgba(255,112,0,0.35)' },
+  'SpaceX/NASA': { css:'#6af',  bg:'rgba(100,170,255,0.12)',bd:'rgba(100,170,255,0.35)' }
+};
+const DEST_COLORS = { LEO:'#0af',ISS:'#4fa',GTO:'#fa0',Moon:'#eef',Mars:'#f64',Deep:'#a4f',Suborbital:'#0fe' };
+
+let _launchHistoryActive = false;
+let _selectedMission     = null;
+let _lhFilter            = 'All';
+// Earth viewer state
+let _ehRenderer=null,_ehScene=null,_ehCam=null,_ehEarth=null;
+let _ehSites={};
+let _ehTrajLine=null,_ehTrajPts=null,_ehTrajT=0;
+let _ehCamAngle=0,_ehLastT=0;
+
+function _getOC(org){ return ORG_COLORS[org]||{css:'#8ac',bg:'rgba(136,170,204,0.1)',bd:'rgba(136,170,204,0.28)'}; }
+
+function openLaunchHistory() {
+  _launchHistoryActive = true;
+  document.getElementById('launch-history').classList.add('open');
+  _renderMissionList();
+  setTimeout(() => { _initEarthViewer(); _renderMissionList(); }, 60);
+  requestAnimationFrame(t => { _ehLastT=t; _ehAnimate(t); });
+}
+function closeLaunchHistory() {
+  _launchHistoryActive = false;
+  document.getElementById('launch-history').classList.remove('open');
+  if (!started) {
+    const sp = document.getElementById('splash');
+    sp.classList.remove('hidden'); sp.style.opacity='';
+  }
+}
+
+function _renderMissionList() {
+  const list = document.getElementById('lh-mission-list');
+  if (!list) return;
+  list.innerHTML = '';
+  const filt = LAUNCH_DATA.filter(m => _lhFilter==='All' || m.org===_lhFilter ||
+    (_lhFilter==='Roscosmos' && (m.org==='Soviet'||m.org==='Roscosmos')));
+  filt.forEach(m => {
+    const oc=_getOC(m.org);
+    const div=document.createElement('div');
+    div.className='lh-mission-item'+(_selectedMission?.id===m.id?' active':'');
+    const d=new Date(m.date+'T00:00:00Z');
+    const ds=d.toLocaleDateString('en-US',{timeZone:'UTC',month:'short',day:'numeric',year:'numeric'});
+    div.innerHTML=`<div class="lh-mission-date">${ds}</div><div class="lh-mission-name">${m.name}</div>`+
+      `<span class="lh-mission-org" style="background:${oc.bg};border:1px solid ${oc.bd};color:${oc.css}">${m.org}</span>`;
+    div.addEventListener('click',()=>selectMission(m.id));
+    list.appendChild(div);
+  });
+}
+
+function selectMission(id) {
+  _selectedMission=LAUNCH_DATA.find(m=>m.id===id); if(!_selectedMission) return;
+  _renderMissionList(); _renderDetail(); _showTrajectory(_selectedMission);
+  // Orient camera toward launch site longitude
+  const lo=_selectedMission.siteLon*Math.PI/180;
+  _ehCamAngle = -lo - Math.PI*0.5;
+}
+
+function _renderDetail() {
+  const panel=document.getElementById('lh-detail-panel'); if(!panel) return;
+  const m=_selectedMission;
+  if(!m){panel.innerHTML='<div class="lh-detail-empty">SELECT A MISSION<br>TO VIEW DETAILS</div>';return;}
+  const oc=_getOC(m.org);
+  const stext=m.status==='success'?'✓ SUCCESS':m.status==='failed'?'✗ FAILED':'⚠ PARTIAL';
+  const dc=DEST_COLORS[m.destType]||'#0ef';
+  const mass=m.mass>=1000?(m.mass/1000).toFixed(1)+' t':m.mass+' kg';
+  const d=new Date(m.date+'T00:00:00Z');
+  const ds=d.toLocaleDateString('en-US',{timeZone:'UTC',weekday:'short',month:'long',day:'numeric',year:'numeric'});
+  const firsts=m.firsts.map(f=>`<div class="lh-first-item">${f}</div>`).join('');
+  panel.innerHTML=
+    `<span class="lh-detail-org-badge" style="background:${oc.bg};border:1px solid ${oc.bd};color:${oc.css};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 10px;border-radius:2px">${m.org}</span>`+
+    `<div class="lh-detail-name">${m.name}</div>`+
+    `<div class="lh-detail-date">${ds}</div>`+
+    `<span class="lh-detail-status ${m.status}">${stext}</span>`+
+    `<div class="lh-detail-desc">${m.desc}</div>`+
+    `<div class="lh-stats-grid">`+
+      `<div class="lh-stat"><div class="lh-stat-label">Rocket</div><div class="lh-stat-value" style="font-size:9px">${m.rocket}</div></div>`+
+      `<div class="lh-stat"><div class="lh-stat-label">Launch Site</div><div class="lh-stat-value" style="font-size:9px">${m.site}</div></div>`+
+      `<div class="lh-stat"><div class="lh-stat-label">Destination</div><div class="lh-stat-value" style="color:${dc}">${m.destination}</div></div>`+
+      `<div class="lh-stat"><div class="lh-stat-label">Payload Mass</div><div class="lh-stat-value">${mass}</div></div>`+
+    `</div>`+
+    `<div class="lh-firsts-title">KEY MILESTONES</div>${firsts}`;
+}
+
+// ─── Earth Viewer ────────────────────────────────────────────────
+
+function _latlonTo3D(lat,lon){
+  const la=lat*Math.PI/180,lo=lon*Math.PI/180;
+  return new THREE.Vector3(Math.cos(la)*Math.cos(lo),Math.sin(la),Math.cos(la)*Math.sin(lo));
+}
+
+function _buildEarthTexEV(){
+  return _mkTex(512,256,(u,v,nx,ny,nz,lat)=>{
+    const ld=lat*180/Math.PI, n=_sfbm(nx*4,ny*4,nz*4,4);
+    if(Math.abs(ld)>65+n*10) return [215,230,255];
+    if(n>0.52){
+      if(Math.abs(ld)<22) return [35+n*28,105+n*38,18];
+      if(Math.abs(ld)<45) return [40+n*38,88+n*48,22];
+      return [52+n*28,78+n*28,36];
+    }
+    const d=_sfbm(nx*12,ny*12,nz*12,2)*0.5;
+    return [8+d*18,42+d*52,102+d*62];
+  });
+}
+
+function _initEarthViewer(){
+  if(_ehRenderer) return;
+  const canvas=document.getElementById('earth-canvas');
+  const w=canvas.offsetWidth||700,h=canvas.offsetHeight||500;
+  _ehRenderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
+  _ehRenderer.setSize(w,h); _ehRenderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  _ehRenderer.setClearColor(0x010208,1);
+  _ehScene=new THREE.Scene();
+  _ehCam=new THREE.PerspectiveCamera(40,w/h,0.01,500);
+  _ehCam.position.set(0,0.6,3.6);
+
+  // Lighting
+  _ehScene.add(new THREE.AmbientLight(0x223344,0.55));
+  const sunL=new THREE.DirectionalLight(0xfff5dd,1.4); sunL.position.set(6,3,5); _ehScene.add(sunL);
+
+  // Earth
+  _ehEarth=new THREE.Mesh(new THREE.SphereGeometry(1,64,32),
+    new THREE.MeshStandardMaterial({map:_buildEarthTexEV(),roughness:0.75,metalness:0}));
+  _ehScene.add(_ehEarth);
+
+  // Atmosphere sprite
+  const ac=document.createElement('canvas'); ac.width=128; ac.height=128;
+  const ax=ac.getContext('2d'),ag=ax.createRadialGradient(64,64,44,64,64,64);
+  ag.addColorStop(0,'rgba(60,140,255,0)'); ag.addColorStop(0.72,'rgba(60,140,255,0)');
+  ag.addColorStop(0.86,'rgba(60,140,255,0.32)'); ag.addColorStop(1,'rgba(60,140,255,0)');
+  ax.fillStyle=ag; ax.fillRect(0,0,128,128);
+  const atmo=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(ac),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));
+  atmo.scale.setScalar(2.65); _ehScene.add(atmo);
+
+  // Stars
+  const sp=new Float32Array(2000*3),sc=new Float32Array(2000*3);
+  for(let i=0;i<2000;i++){
+    const th=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1),r=80+Math.random()*120;
+    sp[i*3]=r*Math.sin(ph)*Math.cos(th);sp[i*3+1]=r*Math.sin(ph)*Math.sin(th);sp[i*3+2]=r*Math.cos(ph);
+    const b=0.5+Math.random()*0.5;sc[i*3]=b*0.9;sc[i*3+1]=b*0.95;sc[i*3+2]=b;
+  }
+  const sGeo=new THREE.BufferGeometry();
+  sGeo.setAttribute('position',new THREE.BufferAttribute(sp,3));
+  sGeo.setAttribute('color',new THREE.BufferAttribute(sc,3));
+  _ehScene.add(new THREE.Points(sGeo,new THREE.PointsMaterial({size:0.4,vertexColors:true,sizeAttenuation:true,transparent:true,opacity:0.8})));
+
+  // Site markers
+  const seen=new Set();
+  LAUNCH_DATA.forEach(m=>{
+    const key=`${m.siteLat},${m.siteLon}`; if(seen.has(key)) return; seen.add(key);
+    const pos=_latlonTo3D(m.siteLat,m.siteLon);
+    const mc=document.createElement('canvas'); mc.width=32; mc.height=32;
+    const mx=mc.getContext('2d'),mg=mx.createRadialGradient(16,16,0,16,16,16);
+    mg.addColorStop(0,'rgba(0,238,255,1)'); mg.addColorStop(0.4,'rgba(0,238,255,0.5)'); mg.addColorStop(1,'rgba(0,238,255,0)');
+    mx.fillStyle=mg; mx.fillRect(0,0,32,32);
+    const mkSp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(mc),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));
+    mkSp.scale.setScalar(0.09); mkSp.position.copy(pos).multiplyScalar(1.015);
+    _ehScene.add(mkSp); _ehSites[key]={sprite:mkSp,pos:pos.clone()};
+  });
+}
+
+function _showTrajectory(m){
+  if(_ehTrajLine){_ehScene.remove(_ehTrajLine);_ehTrajLine=null;}
+  // Reset all site marker sizes
+  Object.values(_ehSites).forEach(s=>s.sprite.scale.setScalar(0.09));
+  // Highlight selected site
+  const key=`${m.siteLat},${m.siteLon}`;
+  if(_ehSites[key]) _ehSites[key].sprite.scale.setScalar(0.16);
+
+  const startP=_latlonTo3D(m.siteLat,m.siteLon);
+  let endP,ctrl,col;
+  switch(m.destType){
+    case 'LEO':       endP=startP.clone().applyAxisAngle(new THREE.Vector3(0.1,1,0.1).normalize(),1.2); ctrl=1.6;  col=0x00aaff; break;
+    case 'ISS':       endP=startP.clone().applyAxisAngle(new THREE.Vector3(0.15,1,0.05).normalize(),1.4); ctrl=1.7; col=0x44ffaa; break;
+    case 'GTO':       endP=startP.clone().applyAxisAngle(new THREE.Vector3(0.2,1,0.1).normalize(),1.8); ctrl=2.4;  col=0xffaa00; break;
+    case 'Moon':      endP=new THREE.Vector3(7,2,4);  ctrl=5.0;  col=0xeeeeff; break;
+    case 'Mars':      endP=new THREE.Vector3(14,4,9); ctrl=9.0;  col=0xff6633; break;
+    case 'Deep':      endP=new THREE.Vector3(20,6,13);ctrl=13.0; col=0xaa44ff; break;
+    case 'Suborbital':endP=startP.clone().applyAxisAngle(new THREE.Vector3(0,1,0.1).normalize(),0.5); ctrl=1.4; col=0x44ffff; break;
+    default:          endP=startP.clone().applyAxisAngle(new THREE.Vector3(0.1,1,0).normalize(),1.0); ctrl=1.5; col=0x00aaff;
+  }
+  const midP=startP.clone().add(endP).multiplyScalar(0.5).normalize().multiplyScalar(ctrl);
+  const curve=new THREE.QuadraticBezierCurve3(startP,midP,endP);
+  _ehTrajPts=curve.getPoints(60);
+  const geo=new THREE.BufferGeometry().setFromPoints(_ehTrajPts);
+  geo.setDrawRange(0,1);
+  _ehTrajLine=new THREE.Line(geo,new THREE.LineBasicMaterial({color:col,transparent:true,opacity:0.9}));
+  _ehScene.add(_ehTrajLine);
+  _ehTrajT=0;
+}
+
+function _ehAnimate(now=0){
+  if(!_launchHistoryActive) return;
+  requestAnimationFrame(_ehAnimate);
+  if(!_ehRenderer||!_ehScene||!_ehCam) return;
+  const dt=Math.min((now-_ehLastT)/1000,0.1); _ehLastT=now;
+  _ehCamAngle+=dt*0.07;
+  const cd=3.6,ce=0.45;
+  _ehCam.position.set(Math.cos(_ehCamAngle)*cd,ce,Math.sin(_ehCamAngle)*cd);
+  _ehCam.lookAt(0,0,0);
+  _ehEarth.rotation.y+=dt*0.04;
+  if(_ehTrajLine&&_ehTrajPts&&_ehTrajT<1){
+    _ehTrajT=Math.min(1,_ehTrajT+dt*0.42);
+    _ehTrajLine.geometry.setDrawRange(0,Math.max(2,Math.floor(_ehTrajT*_ehTrajPts.length)));
+  }
+  _ehRenderer.render(_ehScene,_ehCam);
+}
+
+document.querySelectorAll('.lh-filter-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.lh-filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); _lhFilter=btn.dataset.org; _renderMissionList();
+  });
+});
+document.getElementById('lh-back-btn').addEventListener('click',closeLaunchHistory);
+
+window.addEventListener('resize',()=>{
+  if(_ehRenderer&&_launchHistoryActive){
+    const canvas=document.getElementById('earth-canvas');
+    const w=canvas.offsetWidth,h=canvas.offsetHeight;
+    if(w&&h){ _ehRenderer.setSize(w,h); _ehCam.aspect=w/h; _ehCam.updateProjectionMatrix(); }
+  }
+});
+
 })();
 </script>
 </body>
