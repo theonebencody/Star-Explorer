@@ -229,28 +229,28 @@
   .lh-first-item::before{content:'★';color:#fb4;flex-shrink:0;font-size:9px;margin-top:2px}
 
 /* ── Mobile Touch Controls ── */
-#mobile-controls{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:15;display:none;align-items:center;gap:8px;pointer-events:all}
-#mobile-controls.active{display:flex}
-
-.mobile-joystick{width:120px;height:120px;border-radius:50%;background:rgba(0,15,30,0.5);border:1px solid rgba(0,238,255,0.2);position:relative;touch-action:none;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-.joystick-knob{width:44px;height:44px;border-radius:50%;background:rgba(0,238,255,0.15);border:1px solid rgba(0,238,255,0.45);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;transition:none}
-
-.mobile-action-bar{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:280px}
-.mob-btn{width:44px;height:44px;border-radius:50%;background:rgba(0,15,30,0.6);border:1px solid rgba(0,238,255,0.22);color:#0ef;font-size:10px;font-family:'Orbitron',sans-serif;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:all;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:all 0.15s;letter-spacing:1px}
-.mob-btn:active{background:rgba(0,238,255,0.15);border-color:#0ef}
-.mob-btn.active{background:rgba(0,238,255,0.12);border-color:#0ef;box-shadow:0 0 10px rgba(0,238,255,0.2)}
-
-.mobile-speed-area{position:fixed;right:16px;bottom:140px;z-index:15;display:none;flex-direction:column;align-items:center;gap:4px;pointer-events:all}
-.mobile-speed-area.active{display:flex}
-.mob-speed-btn{width:38px;height:28px;border-radius:3px;background:rgba(0,15,30,0.6);border:1px solid rgba(0,238,255,0.18);color:#0ef;font-size:16px;font-family:'Orbitron',sans-serif;display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:all}
-.mob-speed-btn:active{background:rgba(0,238,255,0.15)}
-.mob-speed-label{font-size:8px;color:rgba(0,238,255,0.5);letter-spacing:1px;text-align:center;pointer-events:none}
+/* ── Mobile Menu ── */
+.mob-menu{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:25;display:none;pointer-events:all}
+.mob-menu.active{display:block}
+.mob-menu-toggle{width:42px;height:42px;border-radius:50%;background:rgba(0,12,25,0.85);border:1px solid rgba(0,238,255,0.3);color:#0ef;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all 0.15s;margin:0 auto}
+.mob-menu-toggle:active{background:rgba(0,238,255,0.15);border-color:#0ef}
+.mob-menu-toggle.open{background:rgba(0,238,255,0.12);border-color:#0ef;box-shadow:0 0 12px rgba(0,238,255,0.2)}
+.mob-menu-panel{display:none;margin-top:8px;background:rgba(0,10,22,0.95);border:1px solid rgba(0,238,255,0.18);border-radius:6px;padding:12px 14px;width:280px;max-height:70vh;overflow-y:auto;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 40px rgba(0,0,0,0.6);transform:translateX(-50%);position:relative;left:50%}
+.mob-menu-panel::-webkit-scrollbar{width:3px}.mob-menu-panel::-webkit-scrollbar-thumb{background:rgba(0,238,255,0.15);border-radius:2px}
+.mob-menu-panel.open{display:block;animation:welcomeSlide 0.2s ease}
+.mob-menu-section{margin-bottom:12px}
+.mob-menu-title{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:rgba(0,238,255,0.35);margin-bottom:6px;padding-bottom:3px;border-bottom:1px solid rgba(0,238,255,0.08)}
+.mob-menu-item{display:block;width:100%;text-align:left;background:transparent;border:none;color:rgba(0,238,255,0.75);font-family:'Share Tech Mono',monospace;font-size:12px;padding:8px 10px;cursor:pointer;border-radius:2px;transition:background 0.12s;border-left:2px solid transparent}
+.mob-menu-item:hover,.mob-menu-item:active{background:rgba(0,238,255,0.06);border-left-color:rgba(0,238,255,0.4)}
+.mob-speed-row{display:flex;align-items:center;gap:6px}
+.mob-speed-row .mob-spd{flex:1;text-align:center;font-size:11px}
+.mob-speed-display{font-family:'Orbitron',sans-serif;font-size:9px;color:#0ef;min-width:70px;text-align:center}
 
 /* ── Mobile Responsive ── */
 @media (max-width: 768px) {
   .hud-tl{top:8px;left:8px}
   .hud-tr{top:8px;right:8px}
-  .hud-bl{bottom:150px;left:8px}
+  .hud-bl{bottom:16px;left:8px}
   .hud-panel{padding:6px 10px;margin-bottom:4px}
   .hud-value{font-size:11px}
   .hud-value.large{font-size:14px}

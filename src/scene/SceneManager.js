@@ -1396,69 +1396,68 @@ if (!isMobile) {
 //  MOBILE TOUCH CONTROLS
 // ═══════════════════════════════════════════════
 if (isMobile) {
-  const mobileCtrl = document.getElementById('mobile-controls');
-  const mobileSpeed = document.getElementById('mobile-speed');
-  const joystickArea = document.getElementById('joystick-area');
-  const joystickKnob = document.getElementById('joystick-knob');
+  const mobMenu = document.getElementById('mobile-menu');
+  const mobToggle = document.getElementById('mob-menu-toggle');
+  const mobPanel = document.getElementById('mob-menu-panel');
+  let mobMenuOpen = false;
 
-  // Joystick state
-  let joyActive = false, joyTouchId = null;
-  let joyX = 0, joyY = 0; // -1 to 1
+  mobToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    mobMenuOpen = !mobMenuOpen;
+    mobPanel.classList.toggle('open', mobMenuOpen);
+    mobToggle.classList.toggle('open', mobMenuOpen);
+  });
 
-  joystickArea.addEventListener('touchstart', e => {
-    e.preventDefault();
-    const t = e.changedTouches[0];
-    joyActive = true;
-    joyTouchId = t.identifier;
-    _updateJoy(t);
-  }, { passive: false });
-
-  document.addEventListener('touchmove', e => {
-    if (!joyActive) return;
-    for (let i = 0; i < e.changedTouches.length; i++) {
-      if (e.changedTouches[i].identifier === joyTouchId) {
-        _updateJoy(e.changedTouches[i]);
-        break;
-      }
-    }
-  }, { passive: true });
-
-  document.addEventListener('touchend', e => {
-    for (let i = 0; i < e.changedTouches.length; i++) {
-      if (e.changedTouches[i].identifier === joyTouchId) {
-        joyActive = false; joyTouchId = null; joyX = 0; joyY = 0;
-        joystickKnob.style.transform = 'translate(-50%,-50%)';
-        break;
-      }
+  // Close menu when tapping outside
+  document.addEventListener('click', (e) => {
+    if (mobMenuOpen && !mobPanel.contains(e.target) && e.target !== mobToggle) {
+      mobMenuOpen = false;
+      mobPanel.classList.remove('open');
+      mobToggle.classList.remove('open');
     }
   });
 
-  function _updateJoy(touch) {
-    const rect = joystickArea.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const maxR = rect.width / 2 - 22;
-    let dx = touch.clientX - cx, dy = touch.clientY - cy;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist > maxR) { dx = dx/dist*maxR; dy = dy/dist*maxR; }
-    joyX = dx / maxR; joyY = dy / maxR;
-    joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+  function _closeMenu() {
+    mobMenuOpen = false;
+    mobPanel.classList.remove('open');
+    mobToggle.classList.remove('open');
   }
 
-  // Apply joystick to movement keys each frame
-  function applyJoystick() {
-    keys['KeyW'] = joyY < -0.2;
-    keys['KeyS'] = joyY > 0.2;
-    keys['KeyA'] = joyX < -0.2;
-    keys['KeyD'] = joyX > 0.2;
+  // Hold-to-fly buttons
+  let _flyInterval = null;
+  function _startFly(key) {
+    keys[key] = true;
+    _flyInterval = setInterval(() => { keys[key] = true; }, 50);
+    _closeMenu();
+  }
+  function _stopFly(key) {
+    keys[key] = false;
+    if (_flyInterval) { clearInterval(_flyInterval); _flyInterval = null; }
   }
 
-  // Touch look: one-finger drag on the canvas (not joystick) rotates camera
-  let lookTouchId = null;
-  let lookLastX = 0, lookLastY = 0;
+  const flyFwd = document.getElementById('mob-fly-fwd');
+  const flyBack = document.getElementById('mob-fly-back');
+  const flyUp = document.getElementById('mob-fly-up');
+  const flyDown = document.getElementById('mob-fly-down');
+
+  flyFwd.addEventListener('touchstart', (e) => { e.preventDefault(); _startFly('KeyW'); }, { passive: false });
+  flyFwd.addEventListener('touchend', () => _stopFly('KeyW'));
+  flyFwd.addEventListener('touchcancel', () => _stopFly('KeyW'));
+  flyBack.addEventListener('touchstart', (e) => { e.preventDefault(); _startFly('KeyS'); }, { passive: false });
+  flyBack.addEventListener('touchend', () => _stopFly('KeyS'));
+  flyBack.addEventListener('touchcancel', () => _stopFly('KeyS'));
+  flyUp.addEventListener('touchstart', (e) => { e.preventDefault(); _startFly('Space'); }, { passive: false });
+  flyUp.addEventListener('touchend', () => _stopFly('Space'));
+  flyUp.addEventListener('touchcancel', () => _stopFly('Space'));
+  flyDown.addEventListener('touchstart', (e) => { e.preventDefault(); _startFly('ShiftLeft'); }, { passive: false });
+  flyDown.addEventListener('touchend', () => _stopFly('ShiftLeft'));
+  flyDown.addEventListener('touchcancel', () => _stopFly('ShiftLeft'));
+
+  // Touch look: one-finger drag on canvas rotates camera
+  let lookTouchId = null, lookLastX = 0, lookLastY = 0;
 
   renderer.domElement.addEventListener('touchstart', e => {
-    if (e.touches.length === 1 && !joyActive) {
+    if (e.touches.length === 1) {
       lookTouchId = e.touches[0].identifier;
       lookLastX = e.touches[0].clientX;
       lookLastY = e.touches[0].clientY;
@@ -1485,10 +1484,7 @@ if (isMobile) {
 
   renderer.domElement.addEventListener('touchend', e => {
     for (let i = 0; i < e.changedTouches.length; i++) {
-      if (e.changedTouches[i].identifier === lookTouchId) {
-        lookTouchId = null;
-        break;
-      }
+      if (e.changedTouches[i].identifier === lookTouchId) { lookTouchId = null; break; }
     }
   });
 
@@ -1496,7 +1492,7 @@ if (isMobile) {
   let pinchDist0 = 0;
   renderer.domElement.addEventListener('touchstart', e => {
     if (e.touches.length === 2) {
-      lookTouchId = null; // cancel look
+      lookTouchId = null;
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       pinchDist0 = Math.sqrt(dx*dx + dy*dy);
@@ -1517,42 +1513,45 @@ if (isMobile) {
     }
   }, { passive: true });
 
-  // Speed +/- buttons
+  // Speed buttons
   document.getElementById('mob-speed-up').addEventListener('click', () => {
-    speedLevel = Math.min(MAX_SPEED_LEVEL, speedLevel + 2);
+    speedLevel = Math.min(MAX_SPEED_LEVEL, speedLevel + 3);
     moveSpeed = getSpeedFromLevel(speedLevel);
   });
   document.getElementById('mob-speed-down').addEventListener('click', () => {
-    speedLevel = Math.max(MIN_SPEED_LEVEL, speedLevel - 2);
+    speedLevel = Math.max(MIN_SPEED_LEVEL, speedLevel - 3);
     moveSpeed = getSpeedFromLevel(speedLevel);
   });
 
-  // Action buttons
-  document.getElementById('mob-search').addEventListener('click', () => openSearch());
-  document.getElementById('mob-nav').addEventListener('click', () => openTravelPanel());
+  // Tools
+  document.getElementById('mob-search').addEventListener('click', () => { _closeMenu(); openSearch(); });
+  document.getElementById('mob-nav').addEventListener('click', () => { _closeMenu(); openTravelPanel(); });
   document.getElementById('mob-explore').addEventListener('click', () => {
-    exploreMode ? stopExploreMode() : startExploreMode();
+    _closeMenu(); exploreMode ? stopExploreMode() : startExploreMode();
   });
+  document.getElementById('mob-controls').addEventListener('click', () => { _closeMenu(); toggleControls(); });
+
+  // View
   document.getElementById('mob-scale').addEventListener('click', () => {
-    currentScale = (currentScale + 1) % SCALE_LEVELS.length; applyScale();
+    _closeMenu(); currentScale = (currentScale + 1) % SCALE_LEVELS.length; applyScale();
   });
-  document.getElementById('mob-nearest').addEventListener('click', () => goToNearest());
-  document.getElementById('mob-time').addEventListener('click', () => {
-    timeRateIndex = timeRateIndex === 0 ? 2 : 0;
+  document.getElementById('mob-nearest').addEventListener('click', () => { _closeMenu(); goToNearest(); });
+  document.getElementById('mob-time').addEventListener('click', () => { _closeMenu(); timeRateIndex = timeRateIndex === 0 ? 2 : 0; });
+  document.getElementById('mob-time-faster').addEventListener('click', () => {
+    _closeMenu(); timeRateIndex = Math.min(TIME_RATES.length - 1, timeRateIndex + 1);
+  });
+  document.getElementById('mob-time-slower').addEventListener('click', () => {
+    _closeMenu(); timeRateIndex = Math.max(0, timeRateIndex - 1);
+  });
+  document.getElementById('mob-hud-toggle').addEventListener('click', () => {
+    _closeMenu(); hudVisible = !hudVisible; document.getElementById('hud').classList.toggle('active', hudVisible);
   });
 
-  // Show/hide mobile controls with HUD
-  const _origShowHud = () => {
-    mobileCtrl.classList.add('active');
-    mobileSpeed.classList.add('active');
-  };
-  const _origHideHud = () => {
-    mobileCtrl.classList.remove('active');
-    mobileSpeed.classList.remove('active');
-  };
+  // Show/hide
+  const _origShowHud = () => { mobMenu.classList.add('active'); };
+  const _origHideHud = () => { mobMenu.classList.remove('active'); _closeMenu(); };
 
-  // Export applyJoystick so animate loop can call it
-  window._mobileApplyJoystick = applyJoystick;
+  window._mobileApplyJoystick = () => {}; // no joystick anymore
   window._mobileHideControls = _origHideHud;
   window._mobileShowControls = _origShowHud;
 }
@@ -1734,19 +1733,28 @@ document.getElementById('splash-explore-btn').addEventListener('click', (e) => {
   applyScale();
   lastTime = performance.now();
 
-  // Show welcome intro, then controls
+  // Show welcome intro (10s), then controls (10s) — each dismissable via X
   const welcomeEl = document.getElementById('welcome-intro');
   welcomeEl.classList.add('active');
-  setTimeout(() => {
+  let _welcomeTimer = setTimeout(_dismissWelcome, 10000);
+  function _dismissWelcome() {
+    clearTimeout(_welcomeTimer);
+    if (!welcomeEl.classList.contains('active')) return;
     welcomeEl.classList.remove('active');
-    // Show controls overlay briefly
+    // Show controls overlay
     controlsOpen = true;
     document.getElementById('controls-overlay').classList.add('open');
-    setTimeout(() => {
-      controlsOpen = false;
-      document.getElementById('controls-overlay').classList.remove('open');
-    }, 4500);
-  }, 4000);
+    _controlsAutoTimer = setTimeout(_autoDismissControls, 10000);
+  }
+  let _controlsAutoTimer = null;
+  function _autoDismissControls() {
+    clearTimeout(_controlsAutoTimer); _controlsAutoTimer = null;
+    if (controlsOpen) { controlsOpen = false; document.getElementById('controls-overlay').classList.remove('open'); }
+  }
+  document.getElementById('welcome-close-btn').addEventListener('click', _dismissWelcome);
+  // Controls close btn already wired — also clear auto timer
+  const _origCtrlClose = document.getElementById('controls-close-btn');
+  _origCtrlClose.addEventListener('click', () => { if (_controlsAutoTimer) { clearTimeout(_controlsAutoTimer); _controlsAutoTimer = null; } });
 });
 document.getElementById('splash-launches-btn').addEventListener('click', (e) => {
   e.stopPropagation();
@@ -1798,6 +1806,7 @@ function openLaunchSim() {
 function closeLaunchSim() {
   _simActive = false; _simRunning = false;
   document.getElementById('launch-sim').classList.remove('open');
+  document.getElementById('splash').classList.remove('hidden');
   if (_simRenderer) { _simRenderer.dispose(); _simRenderer = null; }
 }
 

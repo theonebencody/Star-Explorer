@@ -205,6 +205,7 @@ function App() {
       {/* Welcome Intro */}
       <div id="welcome-intro" className="welcome-overlay">
         <div className="welcome-card">
+          <button className="panel-close-btn" id="welcome-close-btn" style={{position:'absolute',top:'12px',right:'12px'}}>{'\u2715'}</button>
           <div className="welcome-icon">{'\u2B21'}</div>
           <div className="welcome-title">WELCOME, EXPLORER</div>
           <div className="welcome-text">
@@ -353,24 +354,42 @@ function App() {
         </div>
       </div>
 
-      {/* Mobile Touch Controls */}
-      <div id="mobile-controls">
-        <div className="mobile-joystick" id="joystick-area">
-          <div className="joystick-knob" id="joystick-knob"></div>
+      {/* Mobile Menu */}
+      <div id="mobile-menu" className="mob-menu">
+        <button className="mob-menu-toggle" id="mob-menu-toggle">{'\u2630'}</button>
+        <div className="mob-menu-panel" id="mob-menu-panel">
+          <div className="mob-menu-section">
+            <div className="mob-menu-title">NAVIGATION</div>
+            <button className="mob-menu-item" id="mob-fly-fwd">{'\u25B2'} Fly Forward</button>
+            <button className="mob-menu-item" id="mob-fly-back">{'\u25BC'} Fly Backward</button>
+            <button className="mob-menu-item" id="mob-fly-up">{'\u25B3'} Fly Up</button>
+            <button className="mob-menu-item" id="mob-fly-down">{'\u25BD'} Fly Down</button>
+            <button className="mob-menu-item" id="mob-nearest">G Jump to Nearest</button>
+          </div>
+          <div className="mob-menu-section">
+            <div className="mob-menu-title">SPEED</div>
+            <div className="mob-speed-row">
+              <button className="mob-menu-item mob-spd" id="mob-speed-down">{'\u2212'} Slower</button>
+              <span className="mob-speed-display" id="mob-speed-label">0 m/s</span>
+              <button className="mob-menu-item mob-spd" id="mob-speed-up">+ Faster</button>
+            </div>
+          </div>
+          <div className="mob-menu-section">
+            <div className="mob-menu-title">TOOLS</div>
+            <button className="mob-menu-item" id="mob-search">{'\uD83D\uDD0D'} Object Search</button>
+            <button className="mob-menu-item" id="mob-nav">{'\u2316'} Navigation Computer</button>
+            <button className="mob-menu-item" id="mob-explore">{'\u2B21'} Auto-Explore</button>
+            <button className="mob-menu-item" id="mob-controls">{'\u2328'} Show Controls</button>
+          </div>
+          <div className="mob-menu-section">
+            <div className="mob-menu-title">VIEW</div>
+            <button className="mob-menu-item" id="mob-scale">{'\u29BE'} Cycle Scale Level</button>
+            <button className="mob-menu-item" id="mob-time">{'\u23EF'} Pause / Resume Time</button>
+            <button className="mob-menu-item" id="mob-time-faster">{'\u23E9'} Speed Up Time</button>
+            <button className="mob-menu-item" id="mob-time-slower">{'\u23EA'} Slow Down Time</button>
+            <button className="mob-menu-item" id="mob-hud-toggle">{'\u25A3'} Toggle HUD</button>
+          </div>
         </div>
-        <div className="mobile-action-bar">
-          <button className="mob-btn" id="mob-search" title="Search">{'\uD83D\uDD0D'}</button>
-          <button className="mob-btn" id="mob-nav" title="Navigation">{'\u2316'}</button>
-          <button className="mob-btn" id="mob-explore" title="Explore">{'\u2B21'}</button>
-          <button className="mob-btn" id="mob-scale" title="Scale">{'\u29BE'}</button>
-          <button className="mob-btn" id="mob-nearest" title="Nearest">G</button>
-          <button className="mob-btn" id="mob-time" title="Time">{'\u23EF'}</button>
-        </div>
-      </div>
-      <div className="mobile-speed-area" id="mobile-speed">
-        <button className="mob-speed-btn" id="mob-speed-up">+</button>
-        <div className="mob-speed-label" id="mob-speed-label">SPD</div>
-        <button className="mob-speed-btn" id="mob-speed-down">-</button>
       </div>
 
       <div id="labels" />
