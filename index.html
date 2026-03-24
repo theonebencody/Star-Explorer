@@ -134,6 +134,7 @@
   /* ── Explore Mode HUD ── */
   #explore-hud{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:20;display:none;align-items:center;gap:9px;background:rgba(0,8,20,0.88);border:1px solid rgba(0,238,255,0.22);border-radius:20px;padding:7px 14px 7px 12px;pointer-events:all;white-space:nowrap;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 24px rgba(0,238,255,0.1)}
   #explore-hud.active{display:flex}
+  #explore-hud.active ~ .travel-hud, body.explore-active .travel-hud{top:68px}
   .exp-icon{color:#0ef;font-size:13px;animation:pulse 2s ease-in-out infinite}
   .exp-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(0,238,255,0.45)}
   .exp-sep{color:rgba(0,238,255,0.18);font-size:10px}
@@ -1612,6 +1613,7 @@ function startExploreMode() {
   const rest = _shuffle(it.filter(d => d.scale !== 1));
   exploreQueue = [..._shuffle(ss), ...rest];
   document.getElementById('explore-hud').classList.add('active');
+  document.body.classList.add('explore-active');
   document.getElementById('exp-dest').textContent = 'INITIALISING…';
   document.getElementById('exp-status').textContent = '';
 }
@@ -1621,6 +1623,7 @@ function stopExploreMode() {
   explorePhase = 'idle';
   exploreDest  = null;
   document.getElementById('explore-hud').classList.remove('active');
+  document.body.classList.remove('explore-active');
 }
 
 function _exploreLaunch() {
