@@ -22,10 +22,10 @@
   #hud{position:fixed;inset:0;z-index:10;pointer-events:none;opacity:0;transition:opacity 0.6s}
   #hud.active{opacity:1}
   .hud-panel{background:rgba(0,15,30,0.6);border:1px solid rgba(0,238,255,0.12);padding:10px 14px;border-radius:3px;margin-bottom:6px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-  .hud-label{font-size:9px;opacity:0.4;text-transform:uppercase;letter-spacing:2px;margin-bottom:2px}
+  .hud-label{font-size:9px;opacity:0.78;text-transform:uppercase;letter-spacing:2px;margin-bottom:2px}
   .hud-value{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700}
   .hud-value.large{font-size:18px}
-  .hud-small{font-size:11px;opacity:0.6;margin-top:2px}
+  .hud-small{font-size:11px;opacity:0.88;margin-top:2px}
 
   .hud-tl{position:absolute;top:16px;left:16px}
   .hud-tr{position:absolute;top:16px;right:16px;text-align:right}
@@ -43,27 +43,24 @@
   .scale-pip{width:8px;height:8px;border:1px solid rgba(0,238,255,0.3);border-radius:50%;transition:all 0.3s}
   .scale-pip.active{background:#0ef;border-color:#0ef;box-shadow:0 0 8px #0ef}
 
-  .controls-help{font-size:10px;opacity:0.3;line-height:1.8;max-width:300px}
+  .controls-help{font-size:10px;opacity:0.75;line-height:1.8;max-width:300px}
   .controls-help span{color:#0ef;opacity:1}
 
   .nearest-body{padding:8px 12px;background:rgba(0,238,255,0.04);border-left:2px solid rgba(0,238,255,0.3);margin-top:6px}
   .nearest-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700}
-  .nearest-info{font-size:10px;opacity:0.5;margin-top:2px}
+  .nearest-info{font-size:10px;opacity:0.85;margin-top:2px}
 
   .time-bar{display:flex;align-items:center;gap:6px;margin-top:6px}
   .time-pip{width:6px;height:14px;background:rgba(0,238,255,0.15);border-radius:1px;transition:all 0.2s}
   .time-pip.active{background:#0ef;box-shadow:0 0 6px rgba(0,238,255,0.5)}
   .time-pip.paused{background:#f44}
 
-  .lightspeed-ref{margin-top:4px;font-size:10px;opacity:0.5}
+  .lightspeed-ref{margin-top:4px;font-size:10px;opacity:0.85}
   .lightspeed-ref .val{color:#ffa;opacity:1}
 
-  /* DB Status badges */
-  .db-status{position:absolute;top:16px;left:50%;transform:translateX(-50%);text-align:center;pointer-events:none}
-  .db-badge{display:inline-block;font-size:9px;padding:2px 8px;border-radius:2px;margin:2px;letter-spacing:1px;text-transform:uppercase}
-  .db-badge.loading{background:rgba(255,200,0,0.08);border:1px solid rgba(255,200,0,0.25);color:#ffc800}
-  .db-badge.loaded{background:rgba(0,255,100,0.05);border:1px solid rgba(0,255,100,0.2);color:#00ff64}
-  .db-badge.error{background:rgba(255,50,50,0.08);border:1px solid rgba(255,50,50,0.25);color:#ff5555}
+  /* Object labels */
+  #labels{position:fixed;inset:0;pointer-events:none;z-index:5}
+  .obj-label{position:absolute;color:#fff;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 6px rgba(0,0,0,1),0 0 12px rgba(0,0,0,0.8);transform:translate(-50%,-100%);white-space:nowrap;padding-bottom:6px}
 
   /* Controls overlay */
   .controls-overlay{position:fixed;inset:0;z-index:150;background:rgba(0,5,12,0.88);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.25s;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
@@ -71,10 +68,10 @@
   .controls-card{background:rgba(0,12,25,0.97);border:1px solid rgba(0,238,255,0.18);border-radius:6px;padding:28px 32px;max-width:660px;width:90%;max-height:85vh;overflow-y:auto}
   .controls-card-title{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;letter-spacing:4px;color:#0ef;margin-bottom:24px;text-align:center}
   .controls-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px 32px}
-  .ctrl-section-title{font-size:9px;text-transform:uppercase;letter-spacing:3px;color:rgba(0,238,255,0.35);margin-bottom:8px;border-bottom:1px solid rgba(0,238,255,0.08);padding-bottom:4px}
+  .ctrl-section-title{font-size:9px;text-transform:uppercase;letter-spacing:3px;color:rgba(0,238,255,0.72);margin-bottom:8px;border-bottom:1px solid rgba(0,238,255,0.15);padding-bottom:4px}
   .ctrl-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
   .ctrl-key{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:#0ef;white-space:nowrap;background:rgba(0,238,255,0.06);border:1px solid rgba(0,238,255,0.18);border-radius:2px;padding:1px 6px}
-  .ctrl-desc{font-size:11px;color:rgba(0,238,255,0.5);margin-left:12px;text-align:right}
+  .ctrl-desc{font-size:11px;color:rgba(0,238,255,0.85);margin-left:12px;text-align:right}
   .controls-footer{text-align:center;margin-top:20px;font-size:10px;color:rgba(0,238,255,0.2);letter-spacing:2px}
 
   /* Search panel */
@@ -204,9 +201,6 @@
     </div>
   </div>
 
-  <!-- Live database status -->
-  <div class="db-status" id="db-status"></div>
-
   <!-- Search overlay -->
   <div class="search-overlay">
     <div class="search-panel" id="search-panel">
@@ -218,6 +212,7 @@
   </div>
 </div>
 
+<div id="labels"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
@@ -402,7 +397,7 @@ PLANETS.forEach(p => {
     pts.push(getOrbitalPosition(p, t));
   }
   const orbitGeo = new THREE.BufferGeometry().setFromPoints(pts);
-  const orbitMat = new THREE.LineBasicMaterial({ color: p.color, transparent: true, opacity: 0.12 });
+  const orbitMat = new THREE.LineBasicMaterial({ color: p.color, transparent: true, opacity: 0.5 });
   const orbitLine = new THREE.Line(orbitGeo, orbitMat);
   scene.add(orbitLine);
   orbitLines.push(orbitLine);
@@ -580,6 +575,51 @@ lightSphere.visible = false;
 scene.add(lightSphere);
 
 // ═══════════════════════════════════════════════
+//  OBJECT LABELS
+// ═══════════════════════════════════════════════
+const labelsContainer = document.getElementById('labels');
+const labelsList = []; // { el, mesh, scaleLevel }
+
+function createLabel(text) {
+  const el = document.createElement('div');
+  el.className = 'obj-label';
+  el.textContent = text;
+  labelsContainer.appendChild(el);
+  return el;
+}
+
+function initLabels() {
+  // Sun
+  labelsList.push({ el: createLabel('Sun'), mesh: sunMesh, scaleLevel: 1 });
+  // Planets
+  planetMeshes.forEach(({ mesh, data }) => {
+    labelsList.push({ el: createLabel(data.name), mesh, scaleLevel: 1 });
+  });
+  // Hardcoded named stars
+  namedStarMeshes.forEach(m => {
+    labelsList.push({ el: createLabel(m.userData.name), mesh: m, scaleLevel: 2 });
+  });
+}
+
+const _labelWorldPos = new THREE.Vector3();
+function updateLabels() {
+  if (!started) return;
+  labelsList.forEach(({ el, mesh, scaleLevel }) => {
+    if (!hudVisible || currentScale !== scaleLevel || !mesh.visible) {
+      el.style.display = 'none'; return;
+    }
+    mesh.getWorldPosition(_labelWorldPos);
+    const proj = _labelWorldPos.clone().project(camera);
+    if (proj.z > 1 || proj.z < -1) { el.style.display = 'none'; return; }
+    const x = (proj.x + 1) * 0.5 * window.innerWidth;
+    const y = (-proj.y + 1) * 0.5 * window.innerHeight;
+    el.style.display = '';
+    el.style.left = x + 'px';
+    el.style.top  = y + 'px';
+  });
+}
+
+// ═══════════════════════════════════════════════
 //  LIVE ASTRONOMICAL DATABASES
 // ═══════════════════════════════════════════════
 const liveStarMeshes = [];
@@ -587,10 +627,7 @@ const exoplanetMarkers = [];
 const searchableObjects = [];
 let searchOpen = false;
 
-function updateDBBadge(id, state, label) {
-  const el = document.getElementById('db-' + id);
-  if (el) { el.className = 'db-badge ' + state; el.textContent = label; }
-}
+function updateDBBadge() {} // status bar removed
 
 function raDecToVec3(ra, dec, distAU) {
   const raRad = ra * Math.PI / 180;
@@ -684,14 +721,6 @@ async function fetchExoplanets() {
 }
 
 function loadExternalData() {
-  const db = document.getElementById('db-status');
-  ['stars', 'exo'].forEach(k => {
-    const b = document.createElement('span');
-    b.className = 'db-badge loading';
-    b.id = 'db-' + k;
-    b.textContent = (k === 'stars' ? 'Stars' : 'Exoplanets') + ': loading';
-    db.appendChild(b);
-  });
   fetchRealStars();
   fetchExoplanets();
 }
@@ -783,8 +812,8 @@ function travelToSIMBADResult(result) {
   mesh.position.copy(pos);
   mesh.userData  = { name, type: typeInfo.label, distAU };
   scene.add(mesh);
-  // Keep marker visible at its target scale
   liveStarMeshes.push(mesh);
+  labelsList.push({ el: createLabel(name), mesh, scaleLevel: typeInfo.scale });
   travelToMesh(mesh, typeInfo.scale);
   closeSearch();
 }
@@ -1224,6 +1253,7 @@ function animate(now) {
   bodyPositions[0].pos.set(0, 0, 0);
 
   updateHUD();
+  updateLabels();
   renderer.render(scene, camera);
 }
 
@@ -1238,6 +1268,7 @@ window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
+initLabels();
 loadExternalData();
 })();
 </script>
