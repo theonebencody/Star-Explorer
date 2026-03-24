@@ -604,8 +604,8 @@ function raDecToVec3(ra, dec, distAU) {
 
 async function fetchRealStars() {
   try {
-    const q = `SELECT TOP 300 main_id,ra,dec,plx_value,flux_V,sp_type FROM basic WHERE plx_value>3 AND flux_V<5.5 AND ra IS NOT NULL ORDER BY flux_V`;
-    const url = `https://simbad.cds.unistra.fr/simbad/tap/sync?REQUEST=doQuery&LANG=ADQL&FORMAT=json&QUERY=${encodeURIComponent(q)}`;
+    const q = `SELECT TOP 300 main_id,ra,dec,plx_value,sp_type FROM basic WHERE plx_value>5 AND ra IS NOT NULL ORDER BY plx_value DESC`;
+    const url = `https://simbad.cds.unistra.fr/simbad/sim-tap/sync?REQUEST=doQuery&LANG=ADQL&FORMAT=json&QUERY=${encodeURIComponent(q)}`;
     const resp = await fetch(url);
     const json = await resp.json();
     const cols = (json.metadata || []).map(m => m.name);
@@ -616,7 +616,7 @@ async function fetchRealStars() {
       const ra    = row[idx('ra')];
       const dec   = row[idx('dec')];
       const plx   = row[idx('plx_value')];
-      const vmag  = row[idx('flux_V')] != null ? row[idx('flux_V')] : 4;
+      const vmag  = 4;
       const sp    = row[idx('sp_type')];
       if (!plx || plx <= 0 || ra == null || dec == null) return;
       const distLY = (1000 / plx) * 3.26156;
@@ -793,14 +793,16 @@ function travelToSIMBADResult(result) {
 let searchDebounce = null;
 let liveReqId = 0;
 
+function titleCase(s) {
+  return s.replace(/\b\w/g, c => c.toUpperCase());
+}
+
 async function queryLiveSIMBAD(query, reqId) {
-  const safe = query.replace(/'/g, "''");
-  const lower = safe.toLowerCase();
-  const q = `SELECT TOP 12 b.main_id,b.ra,b.dec,b.otype,b.plx_value,b.z_value,b.sp_type ` +
+  const safe = titleCase(query.trim()).replace(/'/g, "''");
+  const q = `SELECT TOP 12 b.main_id,b.ra,b.dec,b.otype,b.plx_value,b.rvz_redshift,b.sp_type ` +
             `FROM basic b JOIN ident i ON i.oidref=b.oid ` +
-            `WHERE LOWER(i.id) LIKE '%${lower}%' AND b.ra IS NOT NULL ` +
-            `ORDER BY b.plx_value DESC NULLS LAST`;
-  const url = `https://simbad.cds.unistra.fr/simbad/tap/sync?REQUEST=doQuery&LANG=ADQL&FORMAT=json&QUERY=${encodeURIComponent(q)}`;
+            `WHERE i.id LIKE '%${safe}%' AND b.ra IS NOT NULL`;
+  const url = `https://simbad.cds.unistra.fr/simbad/sim-tap/sync?REQUEST=doQuery&LANG=ADQL&FORMAT=json&QUERY=${encodeURIComponent(q)}`;
   const resp = await fetch(url);
   const json = await resp.json();
   return { reqId, json };
@@ -895,7 +897,7 @@ async function performSearch(query) {
         dec:   row[idx('dec')],
         otype: row[idx('otype')],
         plx:   row[idx('plx_value')],
-        z:     row[idx('z_value')],
+        z:     row[idx('rvz_redshift')],
         sp:    row[idx('sp_type')],
       })).filter(r => r.name && r.ra != null && r.dec != null);
       // Remove items already in local results
