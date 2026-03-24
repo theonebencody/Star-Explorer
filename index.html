@@ -90,6 +90,9 @@
   .search-result .res-name{font-size:12px;color:#0ef;font-weight:700}
   .search-result .res-info{font-size:10px;color:rgba(0,238,255,0.35);margin-top:1px}
   .search-hint{font-size:9px;color:rgba(0,238,255,0.18);margin-top:8px;text-align:center;letter-spacing:1px}
+  .search-section-label{font-size:9px;letter-spacing:2px;color:rgba(0,238,255,0.22);text-transform:uppercase;padding:6px 0 3px;border-top:1px solid rgba(0,238,255,0.07);margin-top:4px;display:flex;align-items:center;gap:6px}
+  .search-spinner{width:8px;height:8px;border:1px solid rgba(0,238,255,0.2);border-top-color:#0ef;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0}
+  @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -210,7 +213,7 @@
       <div class="search-title">Object Database Search</div>
       <input type="text" class="search-input" id="search-input" placeholder="Search stars, exoplanets, planets..." autocomplete="off" spellcheck="false">
       <div class="search-results" id="search-results"></div>
-      <div class="search-hint">ESC / F to close &nbsp;·&nbsp; Enter or click to travel</div>
+      <div class="search-hint">ESC / F to close &nbsp;·&nbsp; Enter or click to travel &nbsp;·&nbsp; Powered by SIMBAD (~15M objects)</div>
     </div>
   </div>
 </div>
@@ -723,14 +726,89 @@ function travelToMesh(mesh, scaleLevel) {
   pitch = Math.asin(Math.max(-1, Math.min(1, camDir.y)));
 }
 
-function performSearch(query) {
-  const q = query.toLowerCase().trim();
-  const container = document.getElementById('search-results');
-  container.innerHTML = '';
-  if (!q) return;
+// Map SIMBAD otype codes → display label, marker color, scale level
+function simbadOtypeInfo(otype) {
+  const t = (otype || '').trim();
+  if (/^BH/.test(t))                    return { label: 'Black Hole',        color: 0x6666cc, scale: 2 };
+  if (/^NS$/.test(t))                   return { label: 'Neutron Star',      color: 0x88aaff, scale: 2 };
+  if (/^PN/.test(t))                    return { label: 'Planetary Nebula',  color: 0x44ffaa, scale: 3 };
+  if (/^SNR/.test(t))                   return { label: 'Supernova Remnant', color: 0xff5533, scale: 3 };
+  if (/^HII|^Neb|^MoC|^Cld|^DNe|^glb/.test(t)) return { label: 'Nebula', color: 0x6688ff, scale: 3 };
+  if (/^GlCl/.test(t))                  return { label: 'Globular Cluster',  color: 0xffaa44, scale: 3 };
+  if (/^OpCl|^Cl\*|^As\*/.test(t))     return { label: 'Star Cluster',      color: 0xffdd77, scale: 3 };
+  if (/^GrG|^CGG|^ClG/.test(t))        return { label: 'Galaxy Cluster',    color: 0x7788ee, scale: 4 };
+  if (/^G$|^GiG|^GiC|^GiP|^rG|^SBG|^EmG|^IG|^PaG|^LSB|^BCG/.test(t))
+                                         return { label: 'Galaxy',           color: 0x8899ff, scale: 4 };
+  if (/^QSO|^AGN|^Sy|^BLL|^Bla/.test(t)) return { label: 'Quasar / AGN',   color: 0x44ccff, scale: 4 };
+  if (/^\*\*|^SB\*/.test(t))           return { label: 'Double Star',       color: 0xfff0c0, scale: 2 };
+  if (!t || /^\*|^Star|^sg\*|^s\*|^WD\*|^HB\*|^HS\*|^Be\*/.test(t))
+                                         return { label: 'Star',             color: 0xfff5d0, scale: 2 };
+  return { label: t, color: 0xcccccc, scale: 2 };
+}
 
+// Estimate distance in AU from SIMBAD parallax or redshift
+function simbadDistAU(plx, z, typeInfo) {
+  if (plx && plx > 0)  return (1000 / plx) * 3.26156 * 63241;
+  if (z  && z  > 0 && z < 10) return (z * 299792.458 / 70) * 3.26156e6 * 63241;
+  if (typeInfo.scale === 4) return 10e6  * 63241;  // nominal 10 Mly for galaxies
+  if (typeInfo.scale === 3) return 5000  * 63241;  // nominal 5 kly for nebulae
+  return 300 * 63241;                               // nominal 300 ly for stars
+}
+
+function simbadMarkerRadius(scale) {
+  if (scale === 4) return 8e8;
+  if (scale === 3) return 2500;
+  return 0.04;
+}
+
+function formatDistFromAU(au) {
+  const ly = au / 63241;
+  if (ly < 1)       return (au).toFixed(1) + ' AU';
+  if (ly < 1000)    return ly.toFixed(1) + ' ly';
+  if (ly < 1e6)     return (ly / 1000).toFixed(1) + ' kly';
+  return (ly / 1e6).toFixed(2) + ' Mly';
+}
+
+function travelToSIMBADResult(result) {
+  const { name, ra, dec, plx, z, otype, sp } = result;
+  const typeInfo = simbadOtypeInfo(otype);
+  const distAU   = simbadDistAU(plx, z, typeInfo);
+  const pos      = raDecToVec3(ra, dec, distAU);
+  const r        = simbadMarkerRadius(typeInfo.scale);
+  const col      = sp ? tempToColor(spTypeToTemp(sp)) : typeInfo.color;
+  const mesh     = new THREE.Mesh(
+    new THREE.SphereGeometry(r, 12, 12),
+    new THREE.MeshBasicMaterial({ color: col })
+  );
+  mesh.position.copy(pos);
+  mesh.userData  = { name, type: typeInfo.label, distAU };
+  scene.add(mesh);
+  // Keep marker visible at its target scale
+  liveStarMeshes.push(mesh);
+  travelToMesh(mesh, typeInfo.scale);
+  closeSearch();
+}
+
+// Query SIMBAD TAP for live search
+let searchDebounce = null;
+let liveReqId = 0;
+
+async function queryLiveSIMBAD(query, reqId) {
+  const safe = query.replace(/'/g, "''");
+  const lower = safe.toLowerCase();
+  const q = `SELECT TOP 12 b.main_id,b.ra,b.dec,b.otype,b.plx_value,b.z_value,b.sp_type ` +
+            `FROM basic b JOIN ident i ON i.oidref=b.oid ` +
+            `WHERE LOWER(i.id) LIKE '%${lower}%' AND b.ra IS NOT NULL ` +
+            `ORDER BY b.plx_value DESC NULLS LAST`;
+  const url = `https://simbad.cds.unistra.fr/simbad/tap/sync?REQUEST=doQuery&LANG=ADQL&FORMAT=json&QUERY=${encodeURIComponent(q)}`;
+  const resp = await fetch(url);
+  const json = await resp.json();
+  return { reqId, json };
+}
+
+function getLocalMatches(q) {
   const allObjs = [
-    { name: 'Sun',  distLY: 0,  typeLabel: 'Star',   mesh: sunMesh,  scaleLevel: 1 },
+    { name: 'Sun', distLY: 0, typeLabel: 'Star', mesh: sunMesh, scaleLevel: 1 },
     ...PLANETS.map(p => ({
       name: p.name, distLY: 0, typeLabel: 'Planet',
       mesh: planetMeshes.find(pm => pm.data.name === p.name)?.mesh, scaleLevel: 1
@@ -739,13 +817,8 @@ function performSearch(query) {
       name: s.name, distLY: s.dist, typeLabel: 'Star',
       mesh: namedStarMeshes.find(m => m.userData.name === s.name), scaleLevel: 2
     })),
-    ...searchableObjects.map(o => ({
-      ...o,
-      scaleLevel: (o.typeLabel === 'Planet' ? 1 : 2)
-    }))
+    ...searchableObjects.map(o => ({ ...o, scaleLevel: o.typeLabel === 'Planet' ? 1 : 2 }))
   ];
-
-  // Deduplicate by name (keep first match)
   const seen = new Set();
   const results = [];
   for (const o of allObjs) {
@@ -754,37 +827,91 @@ function performSearch(query) {
     if (seen.has(key)) continue;
     seen.add(key);
     results.push(o);
-    if (results.length >= 15) break;
+    if (results.length >= 8) break;
   }
+  return results;
+}
 
-  if (!results.length) {
-    container.innerHTML = '<div style="font-size:10px;opacity:0.3;padding:6px 0">No results</div>';
-    return;
-  }
+function renderSearchResults(localResults, liveResults, isLoading) {
+  const container = document.getElementById('search-results');
+  container.innerHTML = '';
 
-  results.forEach(obj => {
+  localResults.forEach(obj => {
     const div = document.createElement('div');
     div.className = 'search-result';
     const distStr = obj.distLY > 0
-      ? (obj.distLY < 1000 ? obj.distLY.toFixed(2) + ' ly' : (obj.distLY/1000).toFixed(1) + ' kly')
+      ? (obj.distLY < 1000 ? obj.distLY.toFixed(2) + ' ly' : (obj.distLY / 1000).toFixed(1) + ' kly')
       : 'Solar System';
     div.innerHTML = `<div class="res-name">${obj.name}</div><div class="res-info">${obj.typeLabel} &nbsp;·&nbsp; ${distStr}</div>`;
-    div.addEventListener('click', () => {
-      if (obj.mesh) travelToMesh(obj.mesh, obj.scaleLevel);
-      closeSearch();
-    });
+    div.addEventListener('click', () => { if (obj.mesh) travelToMesh(obj.mesh, obj.scaleLevel); closeSearch(); });
     container.appendChild(div);
   });
+
+  if (isLoading || (liveResults && liveResults.length > 0)) {
+    const sep = document.createElement('div');
+    sep.className = 'search-section-label';
+    sep.innerHTML = isLoading
+      ? `<span class="search-spinner"></span>Searching SIMBAD&hellip;`
+      : `SIMBAD`;
+    container.appendChild(sep);
+  }
+
+  if (liveResults) {
+    liveResults.forEach(r => {
+      const typeInfo = simbadOtypeInfo(r.otype);
+      const distAU   = simbadDistAU(r.plx, r.z, typeInfo);
+      const div = document.createElement('div');
+      div.className = 'search-result';
+      div.innerHTML = `<div class="res-name">${r.name}</div><div class="res-info">${typeInfo.label} &nbsp;·&nbsp; ${formatDistFromAU(distAU)}</div>`;
+      div.addEventListener('click', () => travelToSIMBADResult(r));
+      container.appendChild(div);
+    });
+  }
+
+  if (!localResults.length && !isLoading && (!liveResults || !liveResults.length)) {
+    container.innerHTML = '<div style="font-size:10px;opacity:0.3;padding:6px 0">No results</div>';
+  }
+}
+
+async function performSearch(query) {
+  const q = query.toLowerCase().trim();
+  if (!q) { document.getElementById('search-results').innerHTML = ''; return; }
+
+  const local = getLocalMatches(q);
+  renderSearchResults(local, null, q.length >= 2);
+  if (q.length < 2) return;
+
+  clearTimeout(searchDebounce);
+  const myId = ++liveReqId;
+  searchDebounce = setTimeout(async () => {
+    try {
+      const { reqId, json } = await queryLiveSIMBAD(query.trim(), myId);
+      if (reqId !== liveReqId) return;
+      const cols = (json?.metadata || []).map(m => m.name);
+      const idx  = n => cols.indexOf(n);
+      const live = (json?.data || []).map(row => ({
+        name:  row[idx('main_id')],
+        ra:    row[idx('ra')],
+        dec:   row[idx('dec')],
+        otype: row[idx('otype')],
+        plx:   row[idx('plx_value')],
+        z:     row[idx('z_value')],
+        sp:    row[idx('sp_type')],
+      })).filter(r => r.name && r.ra != null && r.dec != null);
+      // Remove items already in local results
+      const localNames = new Set(getLocalMatches(q).map(o => o.name.toLowerCase()));
+      renderSearchResults(local, live.filter(r => !localNames.has(r.name.toLowerCase())), false);
+    } catch(e) {
+      renderSearchResults(local, [], false);
+      console.warn('SIMBAD live query error:', e);
+    }
+  }, 450);
 }
 
 document.getElementById('search-input').addEventListener('input', e => performSearch(e.target.value));
 document.getElementById('search-input').addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeSearch(); e.stopPropagation(); return; }
-  if (e.key === 'Enter') {
-    const first = document.querySelector('.search-result');
-    if (first) first.click();
-    e.stopPropagation(); return;
-  }
+  if (e.key === 'Enter') { const first = document.querySelector('.search-result'); if (first) first.click(); e.stopPropagation(); return; }
   e.stopPropagation();
 });
 
