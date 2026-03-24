@@ -1738,6 +1738,124 @@ function updateHUD() {
 }
 
 // ═══════════════════════════════════════════════
+//  SPLASH BIG BANG BACKGROUND
+// ═══════════════════════════════════════════════
+(function _initSplashBg() {
+  const canvas = document.getElementById('splash-bg');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let w, h, particles = [], t = 0, animId = null;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Create particles expanding from center
+  const N = 280;
+  for (let i = 0; i < N; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.15 + Math.random() * 0.8;
+    const dist = Math.random() * 0.3; // start near center
+    const hue = Math.random() < 0.4 ? 190 + Math.random() * 30 : // cyan/blue
+                Math.random() < 0.6 ? 260 + Math.random() * 40 : // purple
+                Math.random() < 0.8 ? 20 + Math.random() * 30 :  // orange/warm
+                340 + Math.random() * 40; // pink
+    particles.push({
+      angle, speed, dist,
+      hue,
+      size: 0.5 + Math.random() * 2,
+      alpha: 0.2 + Math.random() * 0.5,
+      drift: (Math.random() - 0.5) * 0.002,
+      pulse: Math.random() * Math.PI * 2
+    });
+  }
+
+  // Nebula clouds
+  const clouds = [];
+  for (let i = 0; i < 12; i++) {
+    clouds.push({
+      angle: Math.random() * Math.PI * 2,
+      dist: 0.1 + Math.random() * 0.4,
+      size: 60 + Math.random() * 120,
+      hue: Math.random() < 0.5 ? 200 + Math.random() * 40 : 280 + Math.random() * 50,
+      alpha: 0.015 + Math.random() * 0.025,
+      speed: 0.02 + Math.random() * 0.06,
+      drift: (Math.random() - 0.5) * 0.001
+    });
+  }
+
+  function draw() {
+    if (document.getElementById('splash').classList.contains('hidden')) {
+      cancelAnimationFrame(animId);
+      animId = null;
+      return;
+    }
+    animId = requestAnimationFrame(draw);
+    t += 0.004;
+    const cx = w / 2, cy = h / 2;
+    const maxR = Math.min(w, h) * 0.6;
+
+    // Clear with dark bg
+    ctx.fillStyle = 'rgba(2,10,20,0.12)';
+    ctx.fillRect(0, 0, w, h);
+
+    // Central glow
+    const coreR = maxR * 0.08;
+    const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+    coreGrad.addColorStop(0, 'rgba(100,180,255,0.06)');
+    coreGrad.addColorStop(0.5, 'rgba(60,100,200,0.03)');
+    coreGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = coreGrad;
+    ctx.fillRect(cx - coreR, cy - coreR, coreR * 2, coreR * 2);
+
+    // Nebula clouds
+    clouds.forEach(c => {
+      c.dist += c.speed * 0.001;
+      c.angle += c.drift;
+      if (c.dist > 0.9) c.dist = 0.1;
+      const x = cx + Math.cos(c.angle) * c.dist * maxR;
+      const y = cy + Math.sin(c.angle) * c.dist * maxR;
+      const grad = ctx.createRadialGradient(x, y, 0, x, y, c.size);
+      grad.addColorStop(0, `hsla(${c.hue},60%,50%,${c.alpha})`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, c.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Particles
+    particles.forEach(p => {
+      p.dist += p.speed * 0.0008;
+      p.angle += p.drift;
+      p.pulse += 0.02;
+      if (p.dist > 1.0) { p.dist = Math.random() * 0.05; p.angle = Math.random() * Math.PI * 2; }
+
+      const x = cx + Math.cos(p.angle) * p.dist * maxR;
+      const y = cy + Math.sin(p.angle) * p.dist * maxR;
+      const flicker = 0.7 + 0.3 * Math.sin(p.pulse);
+      const a = p.alpha * flicker * (1 - p.dist * 0.5);
+
+      ctx.fillStyle = `hsla(${p.hue},70%,70%,${a})`;
+      ctx.beginPath();
+      ctx.arc(x, y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  draw();
+
+  // Restart animation when splash becomes visible again
+  const observer = new MutationObserver(() => {
+    if (!document.getElementById('splash').classList.contains('hidden') && !animId) draw();
+  });
+  observer.observe(document.getElementById('splash'), { attributes: true, attributeFilter: ['class'] });
+})();
+
+// ═══════════════════════════════════════════════
 //  ANIMATION LOOP
 // ═══════════════════════════════════════════════
 let started = false;

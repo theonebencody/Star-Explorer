@@ -18,6 +18,7 @@ function App() {
       <div ref={canvasContainer} id="canvas-container" />
 
       <div id="splash">
+        <canvas id="splash-bg" className="splash-bg-canvas"></canvas>
         <div className="splash-inner">
           <div className="splash-title">INFINITA</div>
           <div className="splash-sub">Navigate the cosmos</div>
