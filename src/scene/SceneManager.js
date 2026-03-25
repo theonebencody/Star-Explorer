@@ -998,10 +998,15 @@ function startExploreMode() {
   exploreMode  = true;
   explorePhase = 'gap';
   exploreGapT  = 0;
-  // Start with solar system, then shuffle the rest
+  // Always start in Solar System
+  currentScale = 0;
+  camera.position.set(0, 1.5, 4);
+  yaw = Math.PI; pitch = -0.3; roll = 0;
+  applyScale();
+  // Start with solar system objects, then shuffle the rest
   const it = _getItinerary();
-  const ss  = it.filter(d => d.scale === 1);
-  const rest = _shuffle(it.filter(d => d.scale !== 1));
+  const ss  = it.filter(d => d.scale === 0);
+  const rest = _shuffle(it.filter(d => d.scale !== 0));
   exploreQueue = [..._shuffle(ss), ...rest];
   document.getElementById('explore-hud').classList.add('active');
   document.body.classList.add('explore-active');
@@ -2431,6 +2436,10 @@ document.getElementById('splash-explore-btn').addEventListener('click', (e) => {
   document.getElementById('splash').classList.add('hidden');
   document.getElementById('hud').classList.add('active');
   if (isMobile && window._mobileShowControls) window._mobileShowControls();
+  // Always start in Solar System
+  currentScale = 0;
+  camera.position.set(0, 1.5, 4);
+  yaw = Math.PI; pitch = -0.3; roll = 0;
   applyScale();
   lastTime = performance.now();
 
