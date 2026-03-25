@@ -21,33 +21,47 @@ let _ufoPassive = 70 + Math.random() * 80; // seconds until passive spawn
 let _interceptor = null; // { group, vel, missileGroup, missileVel, phase, timer }
 let _explosion = null;   // { group, timer, particles }
 
+let _saucerTexture = null;
+let _saucerTexLoading = false;
+
+function _loadSaucerTex(cb) {
+  if (_saucerTexture) { cb(_saucerTexture); return; }
+  if (_saucerTexLoading) { setTimeout(() => _loadSaucerTex(cb), 100); return; }
+  _saucerTexLoading = true;
+  new THREE.TextureLoader().load(
+    (typeof window !== 'undefined' && window.location.pathname.includes('Infinita') ? '/Infinita' : '') + '/images/saucer.jpg',
+    (tex) => { _saucerTexture = tex; _saucerTexLoading = false; cb(tex); },
+    undefined,
+    () => { _saucerTexLoading = false; cb(null); }
+  );
+}
+
 function _buildUFO() {
   const g = new THREE.Group();
-  // Classic disc hull — wide, very flat
-  const hullGeo = new THREE.SphereGeometry(1, 24, 10);
-  const hullMat = new THREE.MeshPhongMaterial({ color:0xaaaaaa, shininess:90, specular:0x888888, emissive:0x111111 });
-  const hull = new THREE.Mesh(hullGeo, hullMat);
-  hull.scale.set(1, 0.18, 1);
-  g.add(hull);
-  // Lower disc rim — slightly wider, tapered like a lens edge
-  const rimGeo = new THREE.CylinderGeometry(1.1, 0.9, 0.12, 24);
-  const rimMat = new THREE.MeshPhongMaterial({ color:0x999999, shininess:120 });
-  const rim = new THREE.Mesh(rimGeo, rimMat);
-  rim.position.y = -0.06;
-  g.add(rim);
-  // Small bubble dome on top
-  const domeGeo = new THREE.SphereGeometry(0.32, 12, 7, 0, Math.PI*2, 0, Math.PI*0.55);
-  const domeMat = new THREE.MeshPhongMaterial({ color:0x223311, transparent:true, opacity:0.8, shininess:200, specular:0x44aa44, emissive:0x081208 });
-  const dome = new THREE.Mesh(domeGeo, domeMat);
-  dome.position.y = 0.14;
-  g.add(dome);
-  // Soft green underglow — very subtle, like propulsion glow
+
+  // Saucer image sprite (loads async, falls back to green glow if image fails)
+  const placeholder = new THREE.SpriteMaterial({ color: 0x888888, transparent: true, opacity: 0.8 });
+  const saucerSprite = new THREE.Sprite(placeholder);
+  saucerSprite.scale.set(2, 1.2, 1); // wider than tall for saucer shape
+  g.add(saucerSprite);
+
+  _loadSaucerTex((tex) => {
+    if (tex) {
+      saucerSprite.material = new THREE.SpriteMaterial({
+        map: tex, transparent: true, alphaTest: 0.01, depthWrite: false
+      });
+      saucerSprite.scale.set(2.2, 1.4, 1);
+    }
+  });
+
+  // Green underglow trail
   const gc = document.createElement('canvas'); gc.width=64; gc.height=64;
   const gctx=gc.getContext('2d'),gg=gctx.createRadialGradient(32,32,0,32,32,32);
-  gg.addColorStop(0,'rgba(80,255,100,0.35)'); gg.addColorStop(0.5,'rgba(80,255,100,0.08)'); gg.addColorStop(1,'rgba(0,0,0,0)');
+  gg.addColorStop(0,'rgba(80,255,100,0.3)'); gg.addColorStop(0.5,'rgba(80,255,100,0.06)'); gg.addColorStop(1,'rgba(0,0,0,0)');
   gctx.fillStyle=gg; gctx.fillRect(0,0,64,64);
-  const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(gc),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));
-  glow.scale.setScalar(2.8); glow.position.y=-0.15; g.add(glow);
+  const glow=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(gc),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,alphaTest:0.01}));
+  glow.scale.setScalar(3.2); glow.position.y=-0.2; g.add(glow);
+
   _ufoLights = [];
   g.visible = false;
   _scene.add(g);
