@@ -87,6 +87,7 @@ function App() {
         <div className="hud-bl">
           <button className="lh-back-btn" id="hud-back-btn" style={{marginBottom:'8px',pointerEvents:'all'}}>{'\u2190'} BACK</button>
           <button className="mission-report-btn" id="mission-report-btn" style={{pointerEvents:'all'}}>{'\u2263'} ASTRO REPORT</button>
+          <button className="mission-report-btn" id="sat-toggle-btn" style={{pointerEvents:'all'}}>{'\uD83D\uDEF0'} SATELLITES</button>
           <div className="hud-panel controls-help" id="controls-help">
             <span>C</span> Show all controls
           </div>
@@ -401,6 +402,7 @@ function App() {
             <button className="mob-menu-item" id="mob-explore">{'\u2B21'} Auto-Explore</button>
             <button className="mob-menu-item" id="mob-controls">{'\u2328'} Show Controls</button>
             <button className="mob-menu-item" id="mob-report">{'\u2263'} Astro Report</button>
+            <button className="mob-menu-item" id="mob-satellites">{'\uD83D\uDEF0'} Satellites</button>
           </div>
           <div className="mob-menu-section">
             <div className="mob-menu-title">VIEW</div>

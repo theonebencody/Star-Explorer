@@ -10,6 +10,7 @@ import { initUFO, spawnUFO, updateUFO } from './ufo.js';
 import { initWarp, renderWarp, hideWarp } from './warpEffect.js';
 import { initComets, updateComets } from './comets.js';
 import { buildRocket } from './rocketModels.js';
+import { initSatellites, toggleSatellites, updateSatellites, isSatellitesVisible } from './satellites.js';
 import { ensureLoaded, fetchGaiaStars, fetchNearbyGalaxies } from '../data/catalogManager.js';
 import { DEEP_SKY_OBJECTS } from '../data/messierNGC.js';
 
@@ -1873,6 +1874,7 @@ if (isMobile) {
   });
   document.getElementById('mob-controls').addEventListener('click', () => { _closeMenu(); toggleControls(); });
   document.getElementById('mob-report').addEventListener('click', () => { _closeMenu(); generateMissionReport(); });
+  document.getElementById('mob-satellites').addEventListener('click', () => { _closeMenu(); toggleSatellites(); });
 
   // View
   document.getElementById('mob-scale').addEventListener('click', () => {
@@ -2317,6 +2319,12 @@ function generateMissionReport() {
 }
 
 document.getElementById('mission-report-btn').addEventListener('click', generateMissionReport);
+
+// Satellite toggle
+document.getElementById('sat-toggle-btn').addEventListener('click', () => {
+  const on = toggleSatellites();
+  document.getElementById('sat-toggle-btn').style.borderColor = on ? '#0ef' : 'rgba(0,238,255,0.22)';
+});
 document.getElementById('report-close-btn').addEventListener('click', () => {
   document.getElementById('mission-report').classList.remove('active');
 });
@@ -3409,6 +3417,7 @@ function animate(now) {
   updateArrivalOrbit(dt);
   updateUFO(dt);
   updateComets(dt, simTime, currentScale);
+  if (currentScale === 0) updateSatellites(simTime);
   if (galaxyGroup.visible) galaxyGroup.rotation.y += dt * 0.0008;
   // Pulse "You Are Here" marker
   if (youAreHere.visible) { yahSprite.scale.setScalar(8000 * (1 + 0.15 * Math.sin(performance.now() * 0.003))); }
@@ -3432,6 +3441,10 @@ window.addEventListener('resize', () => {
 
 initLabels();
 loadExternalData();
+
+// Satellite tracking — init with Earth mesh reference
+const earthMeshRef = planetMeshes.find(p => p.data.name === 'Earth')?.mesh;
+if (earthMeshRef) initSatellites(scene, earthMeshRef);
 
 // ═══════════════════════════════════════════════
 //  LAUNCH HISTORY MODE
