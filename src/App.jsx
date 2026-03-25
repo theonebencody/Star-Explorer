@@ -246,6 +246,7 @@ function App() {
 
       {/* UFO Alert */}
       <div id="ufo-alert">
+        <img src="/Infinita/images/marsattacks.jpg" alt="" className="ufo-alert-img" />
         <span className="ufo-msg">UNIDENTIFIED CRAFT DETECTED</span>
       </div>
 
