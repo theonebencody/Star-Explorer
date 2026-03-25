@@ -3162,10 +3162,11 @@ function _renderMilestones() {
   if (!container) return;
   container.innerHTML = '';
   var milestones = STARSHIP_PROFILE.milestones;
-  var maxAlt = STARSHIP_PROFILE.maxAlt;
+  var maxTime = STARSHIP_PROFILE.maxTime;
   for (var i = 0; i < milestones.length; i++) {
     var m = milestones[i];
-    var pct = Math.sqrt(m.alt / maxAlt) * 90 + 5;
+    // Use time-based positioning so milestones don't cluster at similar altitudes
+    var pct = (m.t / maxTime) * 88 + 6;
     var side = i % 2 === 0 ? 'left' : 'right';
     var node = document.createElement('div');
     node.className = 'fp-milestone fp-milestone-' + side;
@@ -3200,7 +3201,7 @@ function _updateFP(state) {
   // Update rocket indicator position (sqrt scale)
   var rocketDot = document.getElementById('fp-rocket-dot');
   if (rocketDot) {
-    var altPct = Math.sqrt(Math.min(s.alt, maxAlt) / maxAlt) * 90 + 5;
+    var altPct = (Math.min(_fpTime, STARSHIP_PROFILE.maxTime) / STARSHIP_PROFILE.maxTime) * 88 + 6;
     rocketDot.style.bottom = altPct + '%';
   }
 
