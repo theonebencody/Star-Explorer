@@ -2222,67 +2222,6 @@ function updateHUD() {
 }
 
 // ═══════════════════════════════════════════════
-// ═══════════════════════════════════════════════
-//  MATRIX RAIN
-// ═══════════════════════════════════════════════
-(function _initMatrixRain() {
-  const canvas = document.getElementById('matrix-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ΑΒΓΔΘΛΞΠΣΦΨΩabcdefghijklmnopqrstuvwxyz@#$%&*+=<>{}[]';
-  const fontSize = 11;
-  let columns, drops, w, h;
-
-  function resize() {
-    const container = canvas.parentElement;
-    w = canvas.width = container.clientWidth || 200;
-    h = canvas.height = container.clientHeight || 300;
-    columns = Math.floor(w / fontSize);
-    drops = new Array(columns).fill(0).map(() => Math.random() * -50);
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  function draw() {
-    requestAnimationFrame(draw);
-    if (!started) return;
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
-    ctx.fillRect(0, 0, w, h);
-
-    for (let i = 0; i < columns; i++) {
-      const ch = chars[Math.floor(Math.random() * chars.length)];
-      const y = drops[i] * fontSize;
-
-      // Head character — bright white-green
-      if (y > 0 && y < h) {
-        ctx.fillStyle = '#fff';
-        ctx.font = fontSize + 'px monospace';
-        ctx.fillText(ch, i * fontSize, y);
-
-        // Trail characters — neon green fading
-        if (y - fontSize > 0) {
-          ctx.fillStyle = 'rgba(57, 255, 20, 0.8)';
-          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, y - fontSize);
-        }
-        if (y - fontSize * 2 > 0) {
-          ctx.fillStyle = 'rgba(57, 255, 20, 0.5)';
-          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, y - fontSize * 2);
-        }
-        if (y - fontSize * 3 > 0) {
-          ctx.fillStyle = 'rgba(57, 255, 20, 0.25)';
-          ctx.fillText(chars[Math.floor(Math.random() * chars.length)], i * fontSize, y - fontSize * 3);
-        }
-      }
-
-      drops[i] += 0.4 + Math.random() * 0.3;
-      if (drops[i] * fontSize > h + 50) {
-        drops[i] = Math.random() * -20;
-      }
-    }
-  }
-  draw();
-})();
-
 //  AI TICKER — funny/informational scrolling messages
 // ═══════════════════════════════════════════════
 const _TICKER_MSGS = [

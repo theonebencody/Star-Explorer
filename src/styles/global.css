@@ -4,7 +4,7 @@
 
   #splash{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#020a14 0%,#000 70%);cursor:pointer;transition:opacity 0.8s}
   #splash.hidden{opacity:0;pointer-events:none;visibility:hidden}
-  .splash-bg-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+  .splash-bg-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;display:block}
   .splash-inner{position:relative;z-index:1}
   .splash-inner{text-align:center}
   .splash-title{font-family:'Orbitron',sans-serif;font-size:clamp(28px,5vw,56px);font-weight:900;letter-spacing:6px;background:linear-gradient(135deg,#0ef 0%,#07f 50%,#f0e 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:glow 3s ease-in-out infinite alternate}
@@ -50,8 +50,6 @@
 
   .nearest-body{padding:8px 12px;background:rgba(0,238,255,0.04);border-left:2px solid rgba(0,238,255,0.3);margin-top:6px}
 
-  .matrix-rain{position:absolute;top:180px;left:16px;width:200px;bottom:160px;pointer-events:none;overflow:hidden;opacity:0.7;z-index:1}
-  .matrix-rain canvas{width:100%;height:100%;display:block}
 
   #trivia-panel{position:fixed;right:16px;bottom:16px;z-index:10;pointer-events:all;width:272px}
   #trivia-panel .trivia-question{font-size:11px;color:rgba(255,255,255,0.78);line-height:1.7;margin-bottom:8px;white-space:normal;word-wrap:break-word}
