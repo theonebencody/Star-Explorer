@@ -316,7 +316,7 @@
   .lh-highlight-expand-stats span{color:#0ef;font-weight:700}
 
   .lh-timeline-wrap{position:relative;overflow:hidden}
-  .lh-timeline-bg-img{position:absolute;right:-5%;top:50%;transform:translateY(-50%);width:65%;max-width:500px;opacity:0.12;pointer-events:none;filter:brightness(0.8) contrast(1.2);z-index:0}
+  .lh-timeline-bg-img{position:absolute;right:-5%;top:50%;transform:translateY(-50%);width:80%;max-width:600px;opacity:0.22;pointer-events:none;filter:brightness(0.8) contrast(1.2);z-index:0}
   .lh-timeline-wrap .lh-timeline{position:relative;z-index:1}
   .lh-timeline-wrap .lh-show-more-btn{position:relative;z-index:1}
 
