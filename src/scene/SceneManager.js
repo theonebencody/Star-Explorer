@@ -3545,7 +3545,7 @@ function openLaunchSim() {
 
 function closeLaunchSim() {
   _simActive = false;
-  _simRunning = false;
+  if (_simState) { _simState.running = false; _simState.countdownActive = false; }
   _simState = null;
   var overlay = document.getElementById('sim-img-overlay');
   if (overlay) { overlay.className = 'sim-img-overlay'; }
