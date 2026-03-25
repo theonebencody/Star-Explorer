@@ -269,11 +269,34 @@ function App() {
             <button className="lh-filter-btn" data-org="ISRO">INDIA</button>
           </div>
         </div>
-        <div className="lh-body">
-          <div className="lh-left" id="lh-mission-list"></div>
-          <div className="lh-center"><canvas id="earth-canvas"></canvas></div>
-          <div className="lh-right" id="lh-detail-panel">
-            <div className="lh-detail-empty">SELECT A MISSION<br />TO VIEW DETAILS</div>
+        <div className="lh-scroll-body" id="lh-scroll-body">
+          {/* Stats overview */}
+          <div className="lh-stats-overview" id="lh-stats-overview"></div>
+
+          {/* Company comparison */}
+          <div className="lh-section">
+            <div className="lh-section-title">ORGANIZATION COMPARISON</div>
+            <div className="lh-company-grid" id="lh-company-grid"></div>
+          </div>
+
+          {/* Globe — smaller, inline */}
+          <div className="lh-section">
+            <div className="lh-section-title">LAUNCH SITES</div>
+            <div className="lh-globe-container">
+              <canvas id="earth-canvas"></canvas>
+            </div>
+          </div>
+
+          {/* Key milestones timeline */}
+          <div className="lh-section">
+            <div className="lh-section-title">KEY MILESTONES</div>
+            <div className="lh-timeline" id="lh-timeline"></div>
+          </div>
+
+          {/* All missions */}
+          <div className="lh-section">
+            <div className="lh-section-title">ALL MISSIONS</div>
+            <div className="lh-missions-grid" id="lh-missions-grid"></div>
           </div>
         </div>
       </div>

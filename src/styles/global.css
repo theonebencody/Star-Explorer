@@ -225,7 +225,7 @@
   .splash-btn-sub{font-size:9px;color:rgba(0,238,255,0.42);letter-spacing:1px;line-height:1.5}
 
   /* ── Launch History Overlay ── */
-  .lh-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,2,8,0.97);display:none;flex-direction:column;overflow:hidden}
+  .lh-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,2,8,0.98);display:none;flex-direction:column;overflow:hidden}
   .lh-overlay.open{display:flex}
   .lh-header{padding:14px 22px 11px;border-bottom:1px solid rgba(0,238,255,0.1);display:flex;align-items:center;gap:16px;flex-shrink:0;backdrop-filter:blur(8px)}
   .lh-back-btn{background:transparent;border:1px solid rgba(0,238,255,0.2);color:rgba(0,238,255,0.6);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:6px 14px;cursor:pointer;border-radius:2px;transition:all 0.15s;white-space:nowrap}
@@ -235,35 +235,62 @@
   .lh-filter-btn{background:transparent;border:1px solid rgba(0,238,255,0.12);color:rgba(0,238,255,0.45);font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:1.5px;padding:3px 9px;cursor:pointer;border-radius:2px;transition:all 0.12s;white-space:nowrap}
   .lh-filter-btn:hover{border-color:rgba(0,238,255,0.35);color:rgba(0,238,255,0.8)}
   .lh-filter-btn.active{background:rgba(0,238,255,0.1);border-color:#0ef;color:#0ef}
-  .lh-body{display:flex;flex:1;overflow:hidden;min-height:0}
-  .lh-left{width:265px;flex-shrink:0;overflow-y:auto;border-right:1px solid rgba(0,238,255,0.07);padding:6px 0}
-  .lh-left::-webkit-scrollbar{width:4px}.lh-left::-webkit-scrollbar-track{background:transparent}.lh-left::-webkit-scrollbar-thumb{background:rgba(0,238,255,0.15);border-radius:2px}
-  .lh-mission-item{padding:10px 15px;cursor:pointer;border-left:2px solid transparent;transition:all 0.12s}
-  .lh-mission-item:hover{background:rgba(0,238,255,0.04);border-left-color:rgba(0,238,255,0.28)}
-  .lh-mission-item.active{background:rgba(0,238,255,0.07);border-left-color:#0ef}
-  .lh-mission-date{font-size:9px;color:rgba(0,238,255,0.38);letter-spacing:1px;margin-bottom:2px}
-  .lh-mission-name{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:0.5px;margin-bottom:4px;line-height:1.3}
-  .lh-mission-org{display:inline-block;font-size:8px;letter-spacing:1.5px;padding:1px 6px;border-radius:1px;font-family:'Share Tech Mono',monospace}
-  .lh-center{flex:1;position:relative;overflow:hidden;background:#010208}
-  #earth-canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-  .lh-right{width:295px;flex-shrink:0;overflow-y:auto;border-left:1px solid rgba(0,238,255,0.07);padding:18px 16px 24px}
-  .lh-right::-webkit-scrollbar{width:4px}.lh-right::-webkit-scrollbar-track{background:transparent}.lh-right::-webkit-scrollbar-thumb{background:rgba(0,238,255,0.15);border-radius:2px}
-  .lh-detail-empty{text-align:center;color:rgba(0,238,255,0.15);font-size:10px;margin-top:80px;letter-spacing:2px;line-height:2}
-  .lh-detail-org-badge{display:inline-block;margin-bottom:11px}
-  .lh-detail-name{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:#fff;margin-bottom:4px;line-height:1.25;letter-spacing:0.5px}
-  .lh-detail-date{font-size:10px;color:rgba(0,238,255,0.5);margin-bottom:12px;letter-spacing:1px}
-  .lh-detail-status{display:inline-flex;align-items:center;gap:5px;font-size:8px;letter-spacing:2px;padding:3px 10px;border-radius:2px;margin-bottom:14px;font-family:'Share Tech Mono',monospace}
-  .lh-detail-status.success{background:rgba(0,200,80,0.08);border:1px solid rgba(0,200,80,0.22);color:#4fa}
-  .lh-detail-status.failed{background:rgba(255,60,60,0.08);border:1px solid rgba(255,60,60,0.22);color:#f66}
-  .lh-detail-status.partial{background:rgba(255,185,0,0.08);border:1px solid rgba(255,185,0,0.2);color:#fb4}
-  .lh-detail-desc{font-size:11px;color:rgba(255,255,255,0.72);line-height:1.75;margin-bottom:16px}
-  .lh-stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-  .lh-stat{background:rgba(0,238,255,0.03);border:1px solid rgba(0,238,255,0.08);border-radius:2px;padding:7px 9px}
-  .lh-stat-label{font-size:8px;letter-spacing:1.5px;color:rgba(0,238,255,0.4);text-transform:uppercase;margin-bottom:4px}
-  .lh-stat-value{font-family:'Orbitron',sans-serif;font-size:10px;color:#0ef;font-weight:700;line-height:1.3;word-break:break-word}
-  .lh-firsts-title{font-size:8px;letter-spacing:2px;color:rgba(0,238,255,0.38);text-transform:uppercase;margin-bottom:9px;padding-top:4px;border-top:1px solid rgba(0,238,255,0.07)}
-  .lh-first-item{display:flex;align-items:flex-start;gap:7px;font-size:10px;color:rgba(255,255,255,0.62);line-height:1.55;margin-bottom:6px;padding-left:2px}
-  .lh-first-item::before{content:'★';color:#fb4;flex-shrink:0;font-size:9px;margin-top:2px}
+
+  .lh-scroll-body{flex:1;overflow-y:auto;padding:20px 28px 40px}
+  .lh-scroll-body::-webkit-scrollbar{width:5px}
+  .lh-scroll-body::-webkit-scrollbar-thumb{background:rgba(0,238,255,0.15);border-radius:3px}
+
+  .lh-stats-overview{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:28px}
+  .lh-stat-card{background:rgba(0,15,30,0.6);border:1px solid rgba(0,238,255,0.1);border-radius:4px;padding:14px 16px;text-align:center}
+  .lh-stat-card-value{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:#0ef;margin-bottom:4px}
+  .lh-stat-card-label{font-size:8px;letter-spacing:2px;color:rgba(0,238,255,0.4);text-transform:uppercase}
+
+  .lh-section{margin-bottom:32px}
+  .lh-section-title{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;letter-spacing:4px;color:rgba(0,238,255,0.5);margin-bottom:14px;padding-bottom:6px;border-bottom:1px solid rgba(0,238,255,0.08)}
+
+  .lh-company-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .lh-company-card{background:rgba(0,12,25,0.7);border:1px solid rgba(0,238,255,0.08);border-radius:4px;padding:16px;border-left:3px solid #0ef}
+  .lh-company-name{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#fff;margin-bottom:10px;letter-spacing:1px}
+  .lh-company-stat{display:flex;justify-content:space-between;padding:3px 0;font-size:10px;color:rgba(255,255,255,0.55)}
+  .lh-company-stat span{color:#0ef;font-weight:700}
+
+  .lh-globe-container{width:100%;max-width:500px;height:300px;margin:0 auto;position:relative;border-radius:6px;overflow:hidden;background:#010208}
+  #earth-canvas{width:100%;height:100%;display:block}
+
+  .lh-timeline{display:flex;flex-direction:column;gap:0}
+  .lh-timeline-item{display:flex;gap:14px;padding:12px 0;border-left:2px solid rgba(0,238,255,0.15);margin-left:8px;padding-left:18px;position:relative}
+  .lh-timeline-item::before{content:'';position:absolute;left:-5px;top:16px;width:8px;height:8px;border-radius:50%;background:#0ef;border:2px solid rgba(0,2,8,0.98)}
+  .lh-timeline-item.failed::before{background:#f44}
+  .lh-timeline-year{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#0ef;min-width:42px;flex-shrink:0}
+  .lh-timeline-content{flex:1}
+  .lh-timeline-name{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:3px}
+  .lh-timeline-desc{font-size:10px;color:rgba(255,255,255,0.5);line-height:1.6}
+  .lh-timeline-firsts{margin-top:5px;font-size:9px;color:#fb4;letter-spacing:0.5px}
+
+  .lh-missions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+  .lh-mission-card{background:rgba(0,12,25,0.5);border:1px solid rgba(0,238,255,0.06);border-radius:4px;padding:14px 16px;cursor:default;transition:border-color 0.15s}
+  .lh-mission-card:hover{border-color:rgba(0,238,255,0.25)}
+  .lh-mission-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+  .lh-mission-card-name{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:0.5px;line-height:1.3}
+  .lh-mission-card-date{font-size:9px;color:rgba(0,238,255,0.4);letter-spacing:1px;flex-shrink:0}
+  .lh-mission-card-org{display:inline-block;font-size:7px;letter-spacing:1.5px;padding:2px 7px;border-radius:1px;margin-bottom:6px}
+  .lh-mission-card-desc{font-size:10px;color:rgba(255,255,255,0.5);line-height:1.6;margin-bottom:6px}
+  .lh-mission-card-stats{display:flex;gap:12px;font-size:9px;color:rgba(0,238,255,0.5)}
+  .lh-mission-card-stats span{color:#0ef;font-weight:700}
+  .lh-mission-card-status{display:inline-block;font-size:7px;letter-spacing:1.5px;padding:1px 6px;border-radius:1px;margin-left:6px}
+  .lh-mission-card-status.success{background:rgba(0,200,80,0.08);border:1px solid rgba(0,200,80,0.2);color:#4fa}
+  .lh-mission-card-status.failed{background:rgba(255,60,60,0.08);border:1px solid rgba(255,60,60,0.2);color:#f66}
+  .lh-mission-card-status.partial{background:rgba(255,185,0,0.08);border:1px solid rgba(255,185,0,0.2);color:#fb4}
+
+  @media (max-width: 768px) {
+    .lh-scroll-body{padding:14px 12px 30px}
+    .lh-header{flex-wrap:wrap;gap:8px;padding:10px 12px}
+    .lh-filter-row{min-width:auto;justify-content:center}
+    .lh-globe-container{height:200px}
+    .lh-stats-overview{grid-template-columns:repeat(2,1fr)}
+    .lh-company-grid{grid-template-columns:1fr}
+    .lh-missions-grid{grid-template-columns:1fr}
+  }
 
 /* ── Mobile Touch Controls ── */
 /* ── Mobile Menu ── */
@@ -310,11 +337,6 @@
   .search-panel{width:90vw}
   .controls-card{padding:18px 16px;width:95vw}
   .controls-grid{grid-template-columns:1fr}
-  .lh-left{width:200px}
-  .lh-right{width:240px}
-  .lh-title{font-size:12px;letter-spacing:3px}
-  .lh-filter-row{min-width:auto}
-  .lh-header{flex-wrap:wrap;gap:8px;padding:10px 12px}
   #hud-back-btn{margin-bottom:4px}
   .crosshair{display:none}
 }
@@ -324,10 +346,6 @@
   .hud-tl .nearest-body{display:none}
   .hud-tl .hud-panel:nth-child(2){display:none}
   #facts-panel{display:none}
-  .lh-body{flex-direction:column}
-  .lh-left{width:100%;max-height:30vh;border-right:none;border-bottom:1px solid rgba(0,238,255,0.07)}
-  .lh-center{min-height:30vh}
-  .lh-right{width:100%;max-height:40vh}
   .lh-header{flex-direction:column;align-items:stretch;text-align:center}
   .lh-filter-row{justify-content:center}
 }

@@ -3,25 +3,39 @@ import { LAUNCH_DATA, ORG_COLORS, DEST_COLORS } from '../data/launchData.js';
 import { _mkTex, _sfbm, _pTexFns, loadRealEarthTexture } from './noiseUtils.js';
 
 let _launchHistoryActive = false;
-let _selectedMission     = null;
 let _lhFilter            = 'All';
 // Earth viewer state
 let _ehRenderer=null,_ehScene=null,_ehCam=null,_ehEarth=null;
 let _ehSites={};
-let _ehTrajLine=null,_ehTrajPts=null,_ehTrajT=0;
 let _ehCamAngle=0,_ehLastT=0;
 
 let _getStarted = () => false;
 
 function _getOC(org){ return ORG_COLORS[org]||{css:'#8ac',bg:'rgba(136,170,204,0.1)',bd:'rgba(136,170,204,0.28)'}; }
 
+function _filteredData() {
+  return LAUNCH_DATA.filter(m => _lhFilter==='All' || m.org===_lhFilter ||
+    (_lhFilter==='Roscosmos' && (m.org==='Soviet'||m.org==='Roscosmos')));
+}
+
+function _fmtMass(kg) {
+  if (kg >= 1000) return (kg/1000).toFixed(1) + ' t';
+  return kg + ' kg';
+}
+
+function _truncate(str, len) {
+  if (!str) return '';
+  return str.length > len ? str.slice(0, len) + '...' : str;
+}
+
 export function openLaunchHistory() {
   _launchHistoryActive = true;
   document.getElementById('launch-history').classList.add('open');
-  _renderMissionList();
-  setTimeout(() => { _initEarthViewer(); _renderMissionList(); }, 60);
+  _renderAll();
+  setTimeout(() => { _initEarthViewer(); }, 60);
   requestAnimationFrame(t => { _ehLastT=t; _ehAnimate(t); });
 }
+
 export function closeLaunchHistory() {
   _launchHistoryActive = false;
   document.getElementById('launch-history').classList.remove('open');
@@ -31,57 +45,145 @@ export function closeLaunchHistory() {
   }
 }
 
-function _renderMissionList() {
-  const list = document.getElementById('lh-mission-list');
-  if (!list) return;
-  list.innerHTML = '';
-  const filt = LAUNCH_DATA.filter(m => _lhFilter==='All' || m.org===_lhFilter ||
-    (_lhFilter==='Roscosmos' && (m.org==='Soviet'||m.org==='Roscosmos')));
-  filt.forEach(m => {
-    const oc=_getOC(m.org);
-    const div=document.createElement('div');
-    div.className='lh-mission-item'+(_selectedMission?.id===m.id?' active':'');
-    const d=new Date(m.date+'T00:00:00Z');
-    const ds=d.toLocaleDateString('en-US',{timeZone:'UTC',month:'short',day:'numeric',year:'numeric'});
-    div.innerHTML=`<div class="lh-mission-date">${ds}</div><div class="lh-mission-name">${m.name}</div>`+
-      `<span class="lh-mission-org" style="background:${oc.bg};border:1px solid ${oc.bd};color:${oc.css}">${m.org}</span>`;
-    div.addEventListener('click',()=>selectMission(m.id));
-    list.appendChild(div);
+// ─── Render All Sections ─────────────────────────────────────────
+function _renderAll() {
+  const data = _filteredData();
+  _renderStatsOverview(data);
+  _renderCompanyGrid(data);
+  _renderTimeline(data);
+  _renderMissionsGrid(data);
+}
+
+// ─── Stats Overview ──────────────────────────────────────────────
+function _renderStatsOverview(data) {
+  const el = document.getElementById('lh-stats-overview');
+  if (!el) return;
+
+  const total = data.length;
+  const successes = data.filter(m => m.status === 'success').length;
+  const rate = total > 0 ? Math.round((successes / total) * 100) : 0;
+
+  const totalMassKg = data.filter(m => m.status === 'success').reduce((s, m) => s + (m.mass || 0), 0);
+  const totalMassTonnes = (totalMassKg / 1000).toFixed(1);
+
+  const countries = new Set();
+  data.forEach(m => countries.add(m.org));
+
+  const years = data.map(m => parseInt(m.date.slice(0, 4)));
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  const yearSpan = minYear === maxYear ? `${minYear}` : `${minYear} - ${maxYear}`;
+
+  const totalFirsts = data.reduce((s, m) => s + (m.firsts ? m.firsts.length : 0), 0);
+
+  el.innerHTML =
+    _statCard(total, 'Total Missions') +
+    _statCard(rate + '%', 'Success Rate') +
+    _statCard(totalMassTonnes + ' t', 'Mass to Orbit') +
+    _statCard(countries.size, 'Organizations') +
+    _statCard(yearSpan, 'Year Span') +
+    _statCard(totalFirsts, 'Firsts Achieved');
+}
+
+function _statCard(value, label) {
+  return `<div class="lh-stat-card"><div class="lh-stat-card-value">${value}</div><div class="lh-stat-card-label">${label}</div></div>`;
+}
+
+// ─── Company Comparison Grid ─────────────────────────────────────
+function _renderCompanyGrid(data) {
+  const el = document.getElementById('lh-company-grid');
+  if (!el) return;
+
+  const orgs = {};
+  data.forEach(m => {
+    if (!orgs[m.org]) orgs[m.org] = { launches: 0, success: 0, failed: 0, mass: 0, firsts: [] };
+    const o = orgs[m.org];
+    o.launches++;
+    if (m.status === 'success') o.success++;
+    else if (m.status === 'failed') o.failed++;
+    o.mass += (m.mass || 0);
+    if (m.firsts && m.firsts.length > 0 && o.firsts.length === 0) {
+      o.firsts.push(m.firsts[0]);
+    }
   });
+
+  let html = '';
+  for (const [orgName, o] of Object.entries(orgs)) {
+    const oc = _getOC(orgName);
+    const massTonnes = (o.mass / 1000).toFixed(1);
+    const firstNote = o.firsts.length > 0 ? o.firsts[0] : '—';
+    html += `<div class="lh-company-card" style="border-left-color:${oc.css}">` +
+      `<div class="lh-company-name">${orgName}</div>` +
+      `<div class="lh-company-stat">Launches <span>${o.launches}</span></div>` +
+      `<div class="lh-company-stat">Success / Fail <span>${o.success} / ${o.failed}</span></div>` +
+      `<div class="lh-company-stat">Total Mass <span>${massTonnes} t</span></div>` +
+      `<div class="lh-company-stat" style="margin-top:6px;font-size:9px;color:rgba(255,185,0,0.7);border-top:1px solid rgba(0,238,255,0.06);padding-top:6px">\u2605 ${_truncate(firstNote, 60)}</div>` +
+      `</div>`;
+  }
+  el.innerHTML = html;
 }
 
-function selectMission(id) {
-  _selectedMission=LAUNCH_DATA.find(m=>m.id===id); if(!_selectedMission) return;
-  _renderMissionList(); _renderDetail(); _showTrajectory(_selectedMission);
-  // Orient camera toward launch site longitude
-  const lo=_selectedMission.siteLon*Math.PI/180;
-  _ehCamAngle = -lo - Math.PI*0.5;
+// ─── Key Milestones Timeline ─────────────────────────────────────
+function _renderTimeline(data) {
+  const el = document.getElementById('lh-timeline');
+  if (!el) return;
+
+  const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date));
+
+  let html = '';
+  sorted.forEach(m => {
+    const year = m.date.slice(0, 4);
+    const desc = _truncate(m.desc, 100);
+    const firstTag = (m.firsts && m.firsts.length > 0)
+      ? `<div class="lh-timeline-firsts">\u2605 ${m.firsts[0]}</div>`
+      : '';
+    const failClass = m.status === 'failed' ? ' failed' : '';
+    html += `<div class="lh-timeline-item${failClass}">` +
+      `<div class="lh-timeline-year">${year}</div>` +
+      `<div class="lh-timeline-content">` +
+        `<div class="lh-timeline-name">${m.name}</div>` +
+        `<div class="lh-timeline-desc">${desc}</div>` +
+        firstTag +
+      `</div>` +
+      `</div>`;
+  });
+  el.innerHTML = html;
 }
 
-function _renderDetail() {
-  const panel=document.getElementById('lh-detail-panel'); if(!panel) return;
-  const m=_selectedMission;
-  if(!m){panel.innerHTML='<div class="lh-detail-empty">SELECT A MISSION<br>TO VIEW DETAILS</div>';return;}
-  const oc=_getOC(m.org);
-  const stext=m.status==='success'?'✓ SUCCESS':m.status==='failed'?'✗ FAILED':'⚠ PARTIAL';
-  const dc=DEST_COLORS[m.destType]||'#0ef';
-  const mass=m.mass>=1000?(m.mass/1000).toFixed(1)+' t':m.mass+' kg';
-  const d=new Date(m.date+'T00:00:00Z');
-  const ds=d.toLocaleDateString('en-US',{timeZone:'UTC',weekday:'short',month:'long',day:'numeric',year:'numeric'});
-  const firsts=m.firsts.map(f=>`<div class="lh-first-item">${f}</div>`).join('');
-  panel.innerHTML=
-    `<span class="lh-detail-org-badge" style="background:${oc.bg};border:1px solid ${oc.bd};color:${oc.css};font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;padding:3px 10px;border-radius:2px">${m.org}</span>`+
-    `<div class="lh-detail-name">${m.name}</div>`+
-    `<div class="lh-detail-date">${ds}</div>`+
-    `<span class="lh-detail-status ${m.status}">${stext}</span>`+
-    `<div class="lh-detail-desc">${m.desc}</div>`+
-    `<div class="lh-stats-grid">`+
-      `<div class="lh-stat"><div class="lh-stat-label">Rocket</div><div class="lh-stat-value" style="font-size:9px">${m.rocket}</div></div>`+
-      `<div class="lh-stat"><div class="lh-stat-label">Launch Site</div><div class="lh-stat-value" style="font-size:9px">${m.site}</div></div>`+
-      `<div class="lh-stat"><div class="lh-stat-label">Destination</div><div class="lh-stat-value" style="color:${dc}">${m.destination}</div></div>`+
-      `<div class="lh-stat"><div class="lh-stat-label">Payload Mass</div><div class="lh-stat-value">${mass}</div></div>`+
-    `</div>`+
-    `<div class="lh-firsts-title">KEY MILESTONES</div>${firsts}`;
+// ─── All Missions Grid ───────────────────────────────────────────
+function _renderMissionsGrid(data) {
+  const el = document.getElementById('lh-missions-grid');
+  if (!el) return;
+
+  const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date));
+
+  let html = '';
+  sorted.forEach(m => {
+    const oc = _getOC(m.org);
+    const d = new Date(m.date + 'T00:00:00Z');
+    const ds = d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
+    const desc = _truncate(m.desc, 120);
+    const mass = _fmtMass(m.mass);
+
+    const statusLabel = m.status === 'success' ? 'SUCCESS' : m.status === 'failed' ? 'FAILED' : 'PARTIAL';
+    const statusClass = m.status;
+
+    html += `<div class="lh-mission-card">` +
+      `<div class="lh-mission-card-header">` +
+        `<div class="lh-mission-card-name">${m.name}</div>` +
+        `<div class="lh-mission-card-date">${ds}</div>` +
+      `</div>` +
+      `<span class="lh-mission-card-org" style="background:${oc.bg};border:1px solid ${oc.bd};color:${oc.css}">${m.org}</span>` +
+      `<span class="lh-mission-card-status ${statusClass}">${statusLabel}</span>` +
+      `<div class="lh-mission-card-desc">${desc}</div>` +
+      `<div class="lh-mission-card-stats">` +
+        `<div>Rocket: <span>${m.rocket}</span></div>` +
+        `<div>Mass: <span>${mass}</span></div>` +
+        `<div>Dest: <span>${m.destination}</span></div>` +
+      `</div>` +
+      `</div>`;
+  });
+  el.innerHTML = html;
 }
 
 // ─── Earth Viewer ────────────────────────────────────────────────
@@ -94,7 +196,8 @@ function _latlonTo3D(lat,lon){
 function _initEarthViewer(){
   if(_ehRenderer) return;
   const canvas=document.getElementById('earth-canvas');
-  const w=canvas.offsetWidth||700,h=canvas.offsetHeight||500;
+  if (!canvas) return;
+  const w=canvas.offsetWidth||500,h=canvas.offsetHeight||300;
   _ehRenderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
   _ehRenderer.setSize(w,h); _ehRenderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
   _ehRenderer.setClearColor(0x010208,1);
@@ -171,36 +274,6 @@ function _initEarthViewer(){
   });
 }
 
-function _showTrajectory(m){
-  if(_ehTrajLine){_ehScene.remove(_ehTrajLine);_ehTrajLine=null;}
-  // Reset all site marker sizes
-  Object.values(_ehSites).forEach(s=>s.sprite.scale.setScalar(0.09));
-  // Highlight selected site
-  const key=`${m.siteLat},${m.siteLon}`;
-  if(_ehSites[key]) _ehSites[key].sprite.scale.setScalar(0.16);
-
-  const startP=_latlonTo3D(m.siteLat,m.siteLon);
-  let endP,ctrl,col;
-  switch(m.destType){
-    case 'LEO':       endP=startP.clone().applyAxisAngle(new THREE.Vector3(0.1,1,0.1).normalize(),1.2); ctrl=1.6;  col=0x00aaff; break;
-    case 'ISS':       endP=startP.clone().applyAxisAngle(new THREE.Vector3(0.15,1,0.05).normalize(),1.4); ctrl=1.7; col=0x44ffaa; break;
-    case 'GTO':       endP=startP.clone().applyAxisAngle(new THREE.Vector3(0.2,1,0.1).normalize(),1.8); ctrl=2.4;  col=0xffaa00; break;
-    case 'Moon':      endP=new THREE.Vector3(7,2,4);  ctrl=5.0;  col=0xeeeeff; break;
-    case 'Mars':      endP=new THREE.Vector3(14,4,9); ctrl=9.0;  col=0xff6633; break;
-    case 'Deep':      endP=new THREE.Vector3(20,6,13);ctrl=13.0; col=0xaa44ff; break;
-    case 'Suborbital':endP=startP.clone().applyAxisAngle(new THREE.Vector3(0,1,0.1).normalize(),0.5); ctrl=1.4; col=0x44ffff; break;
-    default:          endP=startP.clone().applyAxisAngle(new THREE.Vector3(0.1,1,0).normalize(),1.0); ctrl=1.5; col=0x00aaff;
-  }
-  const midP=startP.clone().add(endP).multiplyScalar(0.5).normalize().multiplyScalar(ctrl);
-  const curve=new THREE.QuadraticBezierCurve3(startP,midP,endP);
-  _ehTrajPts=curve.getPoints(60);
-  const geo=new THREE.BufferGeometry().setFromPoints(_ehTrajPts);
-  geo.setDrawRange(0,1);
-  _ehTrajLine=new THREE.Line(geo,new THREE.LineBasicMaterial({color:col,transparent:true,opacity:0.9}));
-  _ehScene.add(_ehTrajLine);
-  _ehTrajT=0;
-}
-
 function _ehAnimate(now=0){
   if(!_launchHistoryActive) return;
   requestAnimationFrame(_ehAnimate);
@@ -211,10 +284,6 @@ function _ehAnimate(now=0){
   _ehCam.position.set(Math.cos(_ehCamAngle)*cd,ce,Math.sin(_ehCamAngle)*cd);
   _ehCam.lookAt(0,0,0);
   _ehEarth.rotation.y+=dt*0.04;
-  if(_ehTrajLine&&_ehTrajPts&&_ehTrajT<1){
-    _ehTrajT=Math.min(1,_ehTrajT+dt*0.42);
-    _ehTrajLine.geometry.setDrawRange(0,Math.max(2,Math.floor(_ehTrajT*_ehTrajPts.length)));
-  }
   _ehRenderer.render(_ehScene,_ehCam);
 }
 
@@ -224,7 +293,8 @@ export function initLaunchHistory(getStarted) {
   document.querySelectorAll('.lh-filter-btn').forEach(btn=>{
     btn.addEventListener('click',()=>{
       document.querySelectorAll('.lh-filter-btn').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active'); _lhFilter=btn.dataset.org; _renderMissionList();
+      btn.classList.add('active'); _lhFilter=btn.dataset.org;
+      _renderAll();
     });
   });
   document.getElementById('lh-back-btn').addEventListener('click',closeLaunchHistory);
@@ -232,6 +302,7 @@ export function initLaunchHistory(getStarted) {
   window.addEventListener('resize',()=>{
     if(_ehRenderer&&_launchHistoryActive){
       const canvas=document.getElementById('earth-canvas');
+      if (!canvas) return;
       const w=canvas.offsetWidth,h=canvas.offsetHeight;
       if(w&&h){ _ehRenderer.setSize(w,h); _ehCam.aspect=w/h; _ehCam.updateProjectionMatrix(); }
     }
