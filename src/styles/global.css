@@ -40,6 +40,10 @@
   .controls-help{font-size:10px;opacity:0.75;line-height:1.8;max-width:300px}
   .controls-help span{color:#0ef;opacity:1}
 
+  .hud-ticker{position:absolute;bottom:0;left:0;right:0;pointer-events:none;padding:8px 16px;background:linear-gradient(transparent,rgba(0,5,12,0.5));z-index:1;overflow:hidden}
+  .hud-ticker-text{font-size:10px;color:rgba(0,238,255,0.4);letter-spacing:1px;font-style:italic;white-space:nowrap;display:inline-block;animation:hudTicker 22s linear infinite}
+  @keyframes hudTicker{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+
   .nearest-body{padding:8px 12px;background:rgba(0,238,255,0.04);border-left:2px solid rgba(0,238,255,0.3);margin-top:6px}
   .nearest-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700}
   .nearest-info{font-size:10px;opacity:0.85;margin-top:2px}

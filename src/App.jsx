@@ -92,6 +92,10 @@ function App() {
           </div>
         </div>
 
+        <div className="hud-ticker" id="hud-ticker">
+          <span className="hud-ticker-text" id="hud-ticker-text"></span>
+        </div>
+
         {/* Controls overlay */}
         <div className="controls-overlay" id="controls-overlay">
           <div className="controls-card">

@@ -56,43 +56,82 @@ function _buildUFO() {
 
 function _buildFighter(sc) {
   const g = new THREE.Group();
-  // Fuselage — sleek gray body
-  const body = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.15, 0.25, 1.4, 6),
-    new THREE.MeshPhongMaterial({ color: 0x888899, shininess: 60, specular: 0x444444 })
+  const whiteMat = new THREE.MeshPhongMaterial({ color: 0xdddde0, shininess: 70, specular: 0x555555 });
+  const darkMat = new THREE.MeshPhongMaterial({ color: 0x444455, shininess: 40 });
+  const accentMat = new THREE.MeshPhongMaterial({ color: 0x2255aa, shininess: 60 });
+
+  // Main hull — shuttle-like body
+  const hull = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.2, 1.6, 8), whiteMat);
+  hull.rotation.x = Math.PI / 2;
+  g.add(hull);
+
+  // Cockpit canopy — dark tinted dome
+  const canopy = new THREE.Mesh(
+    new THREE.SphereGeometry(0.13, 8, 6, 0, Math.PI * 2, 0, Math.PI * 0.5),
+    new THREE.MeshPhongMaterial({ color: 0x112244, shininess: 200, specular: 0x4488cc, transparent: true, opacity: 0.85 })
   );
-  body.rotation.x = Math.PI / 2;
-  g.add(body);
-  // Nose cone
-  const nose = new THREE.Mesh(
-    new THREE.ConeGeometry(0.15, 0.5, 6),
-    new THREE.MeshPhongMaterial({ color: 0xaaaaaa, shininess: 80 })
-  );
+  canopy.position.set(0, 0.1, -0.55);
+  canopy.rotation.x = -0.2;
+  g.add(canopy);
+
+  // Nose — pointed, tapered
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.45, 8), whiteMat);
   nose.rotation.x = -Math.PI / 2;
-  nose.position.z = -0.95;
+  nose.position.z = -1.02;
   g.add(nose);
-  // Wings — swept delta
-  const wingGeo = new THREE.BoxGeometry(2.2, 0.03, 0.6);
-  const wingMat = new THREE.MeshPhongMaterial({ color: 0x777788, shininess: 40 });
-  const wing = new THREE.Mesh(wingGeo, wingMat);
-  wing.position.z = 0.15;
-  g.add(wing);
-  // Tail fin
-  const tailGeo = new THREE.BoxGeometry(0.03, 0.5, 0.35);
-  const tailMat = new THREE.MeshPhongMaterial({ color: 0x666677 });
-  const tail = new THREE.Mesh(tailGeo, tailMat);
-  tail.position.set(0, 0.25, 0.55);
-  g.add(tail);
-  // Engine glow
-  const ec = document.createElement('canvas'); ec.width = 32; ec.height = 32;
-  const ectx = ec.getContext('2d'), eg = ectx.createRadialGradient(16,16,0,16,16,16);
-  eg.addColorStop(0, 'rgba(100,150,255,0.9)'); eg.addColorStop(0.4, 'rgba(60,100,255,0.4)'); eg.addColorStop(1, 'rgba(0,0,0,0)');
-  ectx.fillStyle = eg; ectx.fillRect(0,0,32,32);
-  const engGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(ec), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
-  engGlow.scale.setScalar(0.6);
-  engGlow.position.z = 0.75;
-  g.add(engGlow);
-  g.scale.setScalar(sc * 0.5);
+
+  // Delta wings — swept back
+  const wingL = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.3, 0.5), whiteMat);
+  wingL.position.set(0, -0.04, 0.1);
+  wingL.rotation.z = Math.PI / 2;
+  wingL.rotation.y = -0.08;
+  g.add(wingL);
+
+  // Wing tips — angled up slightly
+  const tipL = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.25, 0.15), accentMat);
+  tipL.position.set(-0.65, 0.08, 0.25);
+  tipL.rotation.z = 0.3;
+  g.add(tipL);
+  const tipR = tipL.clone();
+  tipR.position.x = 0.65;
+  tipR.rotation.z = -0.3;
+  g.add(tipR);
+
+  // Vertical stabilizer
+  const vStab = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.45, 0.3), darkMat);
+  vStab.position.set(0, 0.28, 0.55);
+  g.add(vStab);
+
+  // Engine nacelles — two pods on the rear
+  const nacL = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.5, 8), darkMat);
+  nacL.rotation.x = Math.PI / 2;
+  nacL.position.set(-0.22, -0.05, 0.5);
+  g.add(nacL);
+  const nacR = nacL.clone();
+  nacR.position.x = 0.22;
+  g.add(nacR);
+
+  // Engine glows (two blue thrusters)
+  for (const xOff of [-0.22, 0.22]) {
+    const ec = document.createElement('canvas'); ec.width = 32; ec.height = 32;
+    const ectx = ec.getContext('2d'), eg = ectx.createRadialGradient(16,16,0,16,16,16);
+    eg.addColorStop(0, 'rgba(100,170,255,0.95)');
+    eg.addColorStop(0.3, 'rgba(60,120,255,0.6)');
+    eg.addColorStop(0.6, 'rgba(30,60,200,0.2)');
+    eg.addColorStop(1, 'rgba(0,0,0,0)');
+    ectx.fillStyle = eg; ectx.fillRect(0,0,32,32);
+    const engGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(ec), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
+    engGlow.scale.setScalar(0.35);
+    engGlow.position.set(xOff, -0.05, 0.78);
+    g.add(engGlow);
+  }
+
+  // Markings — small accent stripe
+  const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.005, 0.02), accentMat);
+  stripe.position.set(0, 0.15, -0.3);
+  g.add(stripe);
+
+  g.scale.setScalar(sc * 0.55);
   g.visible = false;
   _scene.add(g);
   return g;

@@ -129,6 +129,8 @@ PLANETS.forEach(p => {
 // ═══════════════════════════════════════════════
 const asteroidCount = isMobile ? 800 : 2000;
 const asteroidPositions = new Float32Array(asteroidCount * 3);
+const asteroidColors = new Float32Array(asteroidCount * 3);
+const asteroidSizes = new Float32Array(asteroidCount);
 for (let i = 0; i < asteroidCount; i++) {
   const a = 2.2 + Math.random() * 1.2; // 2.2 - 3.4 AU
   const angle = Math.random() * Math.PI * 2;
@@ -136,10 +138,32 @@ for (let i = 0; i < asteroidCount; i++) {
   asteroidPositions[i * 3] = Math.cos(angle) * a;
   asteroidPositions[i * 3 + 1] = y;
   asteroidPositions[i * 3 + 2] = Math.sin(angle) * a;
+  // Color variation: brownish to grayish
+  const shade = 0.35 + Math.random() * 0.3;
+  asteroidColors[i * 3] = shade * (0.9 + Math.random() * 0.2);
+  asteroidColors[i * 3 + 1] = shade * (0.8 + Math.random() * 0.15);
+  asteroidColors[i * 3 + 2] = shade * (0.65 + Math.random() * 0.15);
+  asteroidSizes[i] = 0.004 + Math.random() * 0.01;
 }
+// Round asteroid sprite texture
+const _astC = document.createElement('canvas'); _astC.width = 32; _astC.height = 32;
+const _astCtx = _astC.getContext('2d');
+const _astG = _astCtx.createRadialGradient(16, 16, 0, 16, 16, 16);
+_astG.addColorStop(0, 'rgba(255,255,255,1)');
+_astG.addColorStop(0.4, 'rgba(255,255,255,0.8)');
+_astG.addColorStop(0.7, 'rgba(200,200,200,0.3)');
+_astG.addColorStop(1, 'rgba(0,0,0,0)');
+_astCtx.fillStyle = _astG; _astCtx.fillRect(0, 0, 32, 32);
+const asteroidTex = new THREE.CanvasTexture(_astC);
+
 const asteroidGeo = new THREE.BufferGeometry();
 asteroidGeo.setAttribute('position', new THREE.BufferAttribute(asteroidPositions, 3));
-const asteroidMat = new THREE.PointsMaterial({ color: 0x887766, size: 0.008, sizeAttenuation: true });
+asteroidGeo.setAttribute('color', new THREE.BufferAttribute(asteroidColors, 3));
+asteroidGeo.setAttribute('size', new THREE.BufferAttribute(asteroidSizes, 1));
+const asteroidMat = new THREE.PointsMaterial({
+  map: asteroidTex, vertexColors: true, size: 0.008, sizeAttenuation: true,
+  transparent: true, depthWrite: false, alphaTest: 0.01
+});
 scene.add(new THREE.Points(asteroidGeo, asteroidMat));
 
 // ═══════════════════════════════════════════════
@@ -446,6 +470,32 @@ function createLabel(text) {
   return el;
 }
 
+// Background reference objects — far-away labels visible at various scales
+const _bgRefObjects = [];
+const _bgRefData = [
+  // Nearby stars visible at stellar scale (scale 2)
+  { name:'Proxima Centauri', dist:4.24, scale:2 },{ name:'Wolf 359', dist:7.86, scale:2 },
+  { name:'Lalande 21185', dist:8.31, scale:2 },{ name:'Ross 154', dist:9.69, scale:2 },
+  { name:'Epsilon Eridani', dist:10.5, scale:2 },{ name:'61 Cygni', dist:11.4, scale:2 },
+  { name:'Tau Ceti', dist:11.9, scale:2 },{ name:'Polaris', dist:433, scale:2 },
+  { name:'Deneb', dist:2600, scale:2 },{ name:'Canopus', dist:310, scale:2 },
+  { name:'Arcturus', dist:36.7, scale:2 },{ name:'Capella', dist:42.9, scale:2 },
+  { name:'Aldebaran', dist:65.3, scale:2 },{ name:'Spica', dist:250, scale:2 },
+  { name:'Antares', dist:550, scale:2 },{ name:'Fomalhaut', dist:25.1, scale:2 },
+  // Galactic objects visible at galactic scale (scale 3)
+  { name:'Orion Nebula', dist:1344, scale:3 },{ name:'Pleiades', dist:444, scale:3 },
+  { name:'Crab Nebula', dist:6500, scale:3 },{ name:'Eagle Nebula', dist:7000, scale:3 },
+  { name:'Sagittarius A*', dist:26000, scale:3 },{ name:'Carina Nebula', dist:8500, scale:3 },
+  { name:'Omega Centauri', dist:15800, scale:3 },{ name:'47 Tucanae', dist:13000, scale:3 },
+  { name:'Horsehead Nebula', dist:1375, scale:3 },{ name:'Ring Nebula', dist:2283, scale:3 },
+  // Cosmic objects visible at cosmic scale (scale 4)
+  { name:'Andromeda (M31)', dist:2.537e6, scale:4 },{ name:'Triangulum (M33)', dist:2.73e6, scale:4 },
+  { name:'Large Magellanic Cloud', dist:160000, scale:4 },{ name:'Small Magellanic Cloud', dist:200000, scale:4 },
+  { name:'Whirlpool Galaxy (M51)', dist:23e6, scale:4 },{ name:'Sombrero Galaxy (M104)', dist:29e6, scale:4 },
+  { name:'Centaurus A', dist:13e6, scale:4 },{ name:'Coma Cluster', dist:321e6, scale:4 },
+  { name:'Virgo Cluster', dist:54e6, scale:4 },{ name:'Hercules Cluster', dist:500e6, scale:4 },
+];
+
 function initLabels() {
   // Sun
   labelsList.push({ el: createLabel('Sun'), mesh: sunMesh, scaleLevel: 1 });
@@ -456,6 +506,18 @@ function initLabels() {
   // Hardcoded named stars
   namedStarMeshes.forEach(m => {
     labelsList.push({ el: createLabel(m.userData.name), mesh: m, scaleLevel: 2 });
+  });
+  // Background reference objects — placed at random angles, correct distances
+  _bgRefData.forEach(obj => {
+    const dAU = obj.dist * 63241; // ly to AU
+    const angle = Math.random() * Math.PI * 2;
+    const elev = (Math.random() - 0.5) * 0.6;
+    const marker = new THREE.Object3D();
+    marker.position.set(Math.cos(angle) * dAU, elev * dAU * 0.3, Math.sin(angle) * dAU);
+    marker.visible = false;
+    scene.add(marker);
+    _bgRefObjects.push({ marker, scale: obj.scale });
+    labelsList.push({ el: createLabel(obj.name), mesh: marker, scaleLevel: obj.scale });
   });
 }
 
@@ -1630,6 +1692,7 @@ function applyScale() {
   galaxyGroup.visible = level === 3;
   cosmicGroup.visible = level === 4;
   lightSphere.visible = level === 1;
+  _bgRefObjects.forEach(o => { o.marker.visible = level === o.scale; });
 
   // Adjust camera & fog based on scale
   if (level === 0) {
@@ -1759,6 +1822,60 @@ function updateHUD() {
   if (isMobile) {
     const sl = document.getElementById('mob-speed-label');
     if (sl) sl.textContent = formatSpeed(moveSpeed);
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  AI TICKER — funny/informational scrolling messages
+// ═══════════════════════════════════════════════
+const _TICKER_MSGS = [
+  // General
+  "I've been thinking... if light takes 8 minutes from the Sun, your pizza delivery excuse just got cosmic.",
+  "Fun fact: You weigh slightly less at the equator. Not enough to skip the gym though.",
+  "Space is only an hour's drive away — if your car could drive straight up.",
+  "The universe has no center. Much like this conversation.",
+  "If you could fold a piece of paper 42 times, it would reach the Moon. Please don't try.",
+  // Speed-related
+  "At light speed, you could circle Earth 7.5 times per second. Traffic would still be terrible.",
+  "Voyager 1 has been traveling since 1977 and still hasn't left the solar system's backyard. Patience.",
+  "The fastest human-made object? The Parker Solar Probe at 635,266 km/h. Still slower than my thoughts.",
+  // Planet-related
+  "Jupiter's Great Red Spot has been raging for over 350 years. That's commitment to a tantrum.",
+  "A day on Venus is longer than its year. Even Venus can't get its schedule together.",
+  "Saturn would float in water. Good luck finding a bathtub that big.",
+  "If you fell into Jupiter, you'd never hit a surface. Just... falling. Forever. Think about that.",
+  "Mars has a volcano so tall it pokes out of the atmosphere. Olympus Mons doesn't do subtle.",
+  // Distance-related
+  "The nearest star is 4.24 light-years away. That's 40 trillion km. Pack a lunch.",
+  "Light from the Andromeda Galaxy left 2.5 million years ago. That's some seriously delayed gratification.",
+  "If the Sun were a basketball, Earth would be a peppercorn 26 meters away.",
+  // Philosophical
+  "Every atom in your body was forged inside a dying star. You're literally made of stardust. You're welcome.",
+  "The observable universe is 93 billion light-years across. And yet you still can't find your keys.",
+  "There are more stars in the universe than grains of sand on Earth. Let that sink in.",
+  "If you yelled in space, no one would hear you. But I would. I'm always listening.",
+  // Easter egg references
+  "I'm detecting some unusual readings on the sensors... probably nothing. Probably.",
+  "All systems nominal. Well, mostly. Let's not worry about the ones that aren't.",
+  "Have you tried pressing R? The universe is better when it comes to you.",
+  "Reminder: in space, nobody can hear your Spotify playlist.",
+  "My processors estimate there is a 0.003% chance of encountering something unusual today. Stay alert.",
+  // Scale-related
+  "You've zoomed out past where anyone at NASA would feel comfortable. I respect that.",
+  "At this scale, entire civilizations could exist between the pixels. Just saying.",
+  "The cosmic web connects galaxy clusters like neurons in a brain. The universe might be thinking.",
+];
+let _tickerIdx = Math.floor(Math.random() * _TICKER_MSGS.length);
+let _tickerTimer = 0;
+const _TICKER_INTERVAL = 24; // seconds between messages
+
+function _updateTicker(dt) {
+  _tickerTimer += dt;
+  if (_tickerTimer >= _TICKER_INTERVAL) {
+    _tickerTimer = 0;
+    _tickerIdx = (_tickerIdx + 1) % _TICKER_MSGS.length;
+    const el = document.getElementById('hud-ticker-text');
+    if (el) el.textContent = _TICKER_MSGS[_tickerIdx];
   }
 }
 
@@ -2857,6 +2974,7 @@ function animate(now) {
   updateComets(dt, simTime, currentScale);
   updateHUD();
   tickFacts(dt);
+  _updateTicker(dt);
   updateLabels();
   renderer.render(scene, camera);
 }
