@@ -2469,20 +2469,22 @@ document.getElementById('splash-explore-btn').addEventListener('click', (e) => {
     const _watchClose = setInterval(() => {
       if (!controlsOpen && _introPhase === 'controls') {
         clearInterval(_watchClose);
-        _introPhase = 'tip';
-        const tip = document.getElementById('cruise-tip');
-        if (tip) {
-          tip.classList.add('active');
-          setTimeout(() => { tip.classList.remove('active'); _introPhase = 'done'; }, 5000);
+        _introPhase = 'flyby';
+        // Alien flyby first, then show R tip after alien exits
+        const flyby = document.getElementById('alien-flyby');
+        if (flyby) {
+          flyby.classList.add('active');
+          setTimeout(() => {
+            flyby.classList.remove('active');
+            // Now show the R tip
+            _introPhase = 'tip';
+            const tip = document.getElementById('cruise-tip');
+            if (tip) {
+              tip.classList.add('active');
+              setTimeout(() => { tip.classList.remove('active'); _introPhase = 'done'; }, 5000);
+            }
+          }, 3700); // matches animation duration
         }
-        // Mars Attacks flyby (image zips across screen, no alert box)
-        setTimeout(() => {
-          const flyby = document.getElementById('alien-flyby');
-          if (flyby) {
-            flyby.classList.add('active');
-            setTimeout(() => flyby.classList.remove('active'), 5000);
-          }
-        }, 400);
       }
     }, 200);
   }
