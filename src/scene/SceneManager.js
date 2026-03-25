@@ -1919,7 +1919,7 @@ document.getElementById('mission-report').addEventListener('click', e => {
   const canvas = document.getElementById('splash-bg');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  let w, h, t = 0, animId = null;
+  let w, h, animId = null;
 
   function resize() {
     w = canvas.width = window.innerWidth;
@@ -1928,31 +1928,18 @@ document.getElementById('mission-report').addEventListener('click', e => {
   resize();
   window.addEventListener('resize', resize);
 
-  // Wave rings expanding from center
-  const waves = [];
-  for (let i = 0; i < 18; i++) {
-    waves.push({
-      radius: i * 0.06, // staggered start
-      speed: 0.012 + Math.random() * 0.008,
-      hue: [195, 220, 260, 280, 310, 15, 30][i % 7],
-      width: 1.5 + Math.random() * 2,
-      alpha: 0.06 + Math.random() * 0.06,
-      wobble: Math.random() * Math.PI * 2,
-      wobbleAmp: 0.02 + Math.random() * 0.04,
-      wobbleFreq: 2 + Math.floor(Math.random() * 5)
-    });
-  }
-
-  // Sparse dust motes that drift along wave fronts
-  const motes = [];
-  for (let i = 0; i < 60; i++) {
-    motes.push({
+  // Small stars expanding slowly from center
+  const N = 200;
+  const stars = [];
+  for (let i = 0; i < N; i++) {
+    stars.push({
       angle: Math.random() * Math.PI * 2,
-      wave: Math.floor(Math.random() * waves.length),
-      offset: (Math.random() - 0.5) * 0.04,
-      size: 0.8 + Math.random() * 1.5,
-      alpha: 0.15 + Math.random() * 0.35,
-      hue: [195, 240, 280, 320, 30][Math.floor(Math.random() * 5)]
+      dist: Math.random() * 0.5,
+      speed: 0.04 + Math.random() * 0.12,
+      size: 0.4 + Math.random() * 1.2,
+      brightness: 120 + Math.floor(Math.random() * 136), // 120-255
+      twinklePhase: Math.random() * Math.PI * 2,
+      twinkleSpeed: 0.005 + Math.random() * 0.015
     });
   }
 
@@ -1963,89 +1950,47 @@ document.getElementById('mission-report').addEventListener('click', e => {
       return;
     }
     animId = requestAnimationFrame(draw);
-    t += 0.003;
     const cx = w / 2, cy = h / 2;
-    const maxR = Math.max(w, h) * 0.7;
+    const maxR = Math.max(w, h) * 0.55;
 
-    // Fade trails — slow fade for wave persistence
-    ctx.fillStyle = 'rgba(2,10,20,0.06)';
+    // Slow fade — leaves faint trails
+    ctx.fillStyle = 'rgba(0,0,0,0.04)';
     ctx.fillRect(0, 0, w, h);
 
-    // Central core glow — pulsing
-    const corePulse = 0.85 + 0.15 * Math.sin(t * 1.2);
-    const coreR = maxR * 0.06 * corePulse;
-    const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR * 3);
-    coreGrad.addColorStop(0, `rgba(220,220,220,${0.08 * corePulse})`);
-    coreGrad.addColorStop(0.3, `rgba(160,160,160,${0.04 * corePulse})`);
-    coreGrad.addColorStop(0.7, `rgba(80,80,80,${0.015 * corePulse})`);
-    coreGrad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = coreGrad;
+    // Subtle center glow
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * 0.08);
+    glow.addColorStop(0, 'rgba(255,255,255,0.025)');
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
     ctx.beginPath();
-    ctx.arc(cx, cy, coreR * 3, 0, Math.PI * 2);
+    ctx.arc(cx, cy, maxR * 0.08, 0, Math.PI * 2);
     ctx.fill();
 
-    // Draw expanding wave rings
-    ctx.lineWidth = 1;
-    waves.forEach(wv => {
-      wv.radius += wv.speed * 0.003;
-      wv.wobble += 0.008;
-      if (wv.radius > 1.2) wv.radius -= 1.2; // loop
+    // Stars
+    stars.forEach(s => {
+      s.dist += s.speed * 0.0004;
+      s.twinklePhase += s.twinkleSpeed;
+      if (s.dist > 1.1) { s.dist = 0; s.angle = Math.random() * Math.PI * 2; }
 
-      const r = wv.radius * maxR;
-      if (r < 2) return;
-      const fade = wv.radius < 0.1 ? wv.radius / 0.1 : wv.radius > 0.9 ? (1.2 - wv.radius) / 0.3 : 1;
-      const a = wv.alpha * fade;
-      if (a < 0.003) return;
+      const r = s.dist * maxR;
+      const x = cx + Math.cos(s.angle) * r;
+      const y = cy + Math.sin(s.angle) * r;
 
-      ctx.strokeStyle = `rgba(200,200,200,${a})`;
-      ctx.lineWidth = wv.width * fade;
+      // Fade in near center, fade out at edges
+      const distFade = s.dist < 0.05 ? s.dist / 0.05 : s.dist > 0.85 ? (1.1 - s.dist) / 0.25 : 1;
+      const twinkle = 0.6 + 0.4 * Math.sin(s.twinklePhase);
+      const alpha = distFade * twinkle * 0.7;
+
+      const b = s.brightness;
+      ctx.fillStyle = `rgba(${b},${b},${b},${alpha})`;
       ctx.beginPath();
-
-      // Wobbly ring — slightly distorted circle
-      for (let i = 0; i <= 120; i++) {
-        const ang = (i / 120) * Math.PI * 2;
-        const wobR = r + Math.sin(ang * wv.wobbleFreq + wv.wobble) * r * wv.wobbleAmp;
-        const x = cx + Math.cos(ang) * wobR;
-        const y = cy + Math.sin(ang) * wobR;
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.closePath();
-      ctx.stroke();
-
-      // Inner glow of the wave — subtle filled ring
-      if (a > 0.02 && wv.width > 1.5) {
-        const glowGrad = ctx.createRadialGradient(cx, cy, Math.max(0, r - 15), cx, cy, r + 15);
-        glowGrad.addColorStop(0, 'rgba(0,0,0,0)');
-        glowGrad.addColorStop(0.4, `rgba(180,180,180,${a * 0.25})`);
-        glowGrad.addColorStop(0.6, `rgba(180,180,180,${a * 0.25})`);
-        glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = glowGrad;
-        ctx.beginPath();
-        ctx.arc(cx, cy, r + 15, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    });
-
-    // Dust motes riding wave fronts
-    motes.forEach(m => {
-      m.angle += 0.003;
-      const wv = waves[m.wave];
-      const r = (wv.radius + m.offset) * maxR;
-      if (r < 5 || wv.radius > 1.1) return;
-      const fade = wv.radius < 0.1 ? wv.radius / 0.1 : wv.radius > 0.85 ? (1.1 - wv.radius) / 0.25 : 1;
-      const x = cx + Math.cos(m.angle) * r;
-      const y = cy + Math.sin(m.angle) * r;
-      ctx.fillStyle = `rgba(210,210,210,${m.alpha * fade})`;
-      ctx.beginPath();
-      ctx.arc(x, y, m.size, 0, Math.PI * 2);
+      ctx.arc(x, y, s.size, 0, Math.PI * 2);
       ctx.fill();
     });
   }
 
   draw();
 
-  // Restart animation when splash becomes visible again
   const observer = new MutationObserver(() => {
     if (!document.getElementById('splash').classList.contains('hidden') && !animId) draw();
   });
