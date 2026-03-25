@@ -296,7 +296,7 @@ function App() {
                 </div>
               </div>
               <div className="lh-globe-wrapper">
-                <div className="lh-globe-label">SOLAR SYSTEM {'\u00B7'} OVERVIEW</div>
+                <div className="lh-globe-label">AND BEYOND</div>
                 <div className="lh-globe-container">
                   <canvas id="solsys-canvas"></canvas>
                 </div>
