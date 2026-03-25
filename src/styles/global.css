@@ -276,32 +276,7 @@
   .lh-company-stat{display:flex;justify-content:space-between;padding:4px 0;font-size:12px;color:rgba(255,255,255,0.7)}
   .lh-company-stat span{color:#0ef;font-weight:700}
 
-  .lh-dual-globes{display:flex;gap:16px;justify-content:center;position:relative}
-  .lh-rocket-trails{position:absolute;top:0;left:0;right:0;bottom:0;pointer-events:none;overflow:hidden;z-index:5}
-  .lh-trail-rocket{position:absolute;font-size:14px;opacity:0;filter:drop-shadow(0 0 4px rgba(255,140,20,0.6));animation:rocketJourney var(--dur) linear infinite}
-  .lh-trail-spark{position:absolute;width:2px;height:2px;background:rgba(255,140,20,0.6);border-radius:50%;opacity:0;animation:trailSpark var(--dur) linear infinite}
-  @keyframes rocketJourney{
-    0%{left:10%;top:55%;opacity:0;transform:rotate(-45deg) scale(0.6)}
-    3%{opacity:1}
-    15%{left:15%;top:20%;transform:rotate(-30deg) scale(0.8)}
-    25%{left:25%;top:10%;opacity:1;transform:rotate(-15deg) scale(0.7)}
-    35%{left:42%;top:45%;transform:rotate(15deg) scale(0.8)}
-    40%{left:48%;top:55%;opacity:1;transform:rotate(30deg) scale(0.7)}
-    45%{left:48%;top:50%;transform:rotate(-20deg) scale(0.6)}
-    55%{left:55%;top:15%;transform:rotate(-35deg) scale(0.7)}
-    65%{left:70%;top:40%;opacity:1;transform:rotate(0deg) scale(0.8)}
-    75%{left:80%;top:30%;transform:rotate(-10deg) scale(0.7)}
-    85%{left:92%;top:15%;transform:rotate(-40deg) scale(0.6)}
-    92%{opacity:0.8}
-    100%{left:105%;top:5%;opacity:0;transform:rotate(-50deg) scale(0.4)}
-  }
-  @keyframes trailSpark{
-    0%{opacity:0}5%{opacity:0.7}8%{opacity:0}
-    25%{opacity:0}30%{opacity:0.5}33%{opacity:0}
-    55%{opacity:0}58%{opacity:0.6}61%{opacity:0}
-    85%{opacity:0}88%{opacity:0.4}91%{opacity:0}
-    100%{opacity:0}
-  }
+  .lh-dual-globes{display:flex;gap:16px;justify-content:center}
   .lh-globe-wrapper{flex:1;max-width:480px}
   .lh-globe-label{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;letter-spacing:4px;color:rgba(0,238,255,0.75);text-align:center;margin-bottom:10px;text-shadow:0 0 8px rgba(0,238,255,0.2)}
   .lh-globe-container{width:100%;height:300px;position:relative;border-radius:6px;overflow:hidden;background:#010208}

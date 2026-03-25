@@ -42,7 +42,7 @@ export function openLaunchHistory() {
   _launchHistoryActive = true;
   document.getElementById('launch-history').classList.add('open');
   _renderAll();
-  setTimeout(() => { _initEarthViewer(); _initMarsViewer(); _initSolarSystemViewer(); _initGallery(); _initSnowfall(); _initRocketTrails(); }, 60);
+  setTimeout(() => { _initEarthViewer(); _initMarsViewer(); _initSolarSystemViewer(); _initGallery(); _initSnowfall(); }, 60);
   requestAnimationFrame(t => { _ehLastT=t; _mhLastT=t; _ehAnimate(t); });
 }
 
@@ -941,34 +941,6 @@ const _GALLERY_IMAGES = [
   '/Infinita/images/astronaut.png',
 ];
 let _galleryIdx = 0;
-function _initRocketTrails() {
-  const container = document.getElementById('lh-rocket-trails');
-  if (!container || container.children.length > 0) return;
-
-  // Create 4 staggered rockets traveling Earth → Mars → Solar System → Beyond
-  for (let i = 0; i < 4; i++) {
-    const rocket = document.createElement('div');
-    rocket.className = 'lh-trail-rocket';
-    rocket.textContent = '🚀';
-    const dur = 12 + i * 4 + Math.random() * 3;
-    rocket.style.setProperty('--dur', dur + 's');
-    rocket.style.animationDelay = (-i * 3.5) + 's';
-    container.appendChild(rocket);
-
-    // Spark trail particles for each rocket
-    for (let j = 0; j < 8; j++) {
-      const spark = document.createElement('div');
-      spark.className = 'lh-trail-spark';
-      spark.style.setProperty('--dur', dur + 's');
-      spark.style.animationDelay = (-i * 3.5 - j * 0.15) + 's';
-      // Offset sparks slightly from the rocket path
-      spark.style.top = (Math.random() * 4 - 2) + '%';
-      spark.style.left = (Math.random() * 2 - 1) + '%';
-      container.appendChild(spark);
-    }
-  }
-}
-
 function _initSnowfall() {
   const container = document.getElementById('lh-snowfall');
   if (!container || container.children.length > 0) return;
