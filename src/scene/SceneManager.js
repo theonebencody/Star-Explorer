@@ -429,7 +429,7 @@ coreGrad.addColorStop(0.2, 'rgba(255,210,150,0.35)');
 coreGrad.addColorStop(0.5, 'rgba(200,160,100,0.1)');
 coreGrad.addColorStop(1, 'rgba(0,0,0,0)');
 coreCtx.fillStyle = coreGrad; coreCtx.fillRect(0,0,128,128);
-const coreSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(coreC), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
+const coreSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(coreC), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, alphaTest: 0.01 }));
 coreSprite.scale.setScalar(2e7);
 galaxyGroup.add(coreSprite);
 
@@ -478,7 +478,7 @@ const sunGalacticAngle = Math.PI * 0.85; // position in Orion Arm
 const youAreHere = new THREE.Group();
 const yahSprite = new THREE.Sprite(new THREE.SpriteMaterial({
   map: (() => { const c=document.createElement('canvas'); c.width=64; c.height=64; const ctx=c.getContext('2d'),g=ctx.createRadialGradient(32,32,0,32,32,32); g.addColorStop(0,'rgba(255,220,50,1)'); g.addColorStop(0.3,'rgba(255,200,50,0.5)'); g.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=g; ctx.fillRect(0,0,64,64); return new THREE.CanvasTexture(c); })(),
-  blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
+  blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, alphaTest: 0.01
 }));
 yahSprite.scale.setScalar(8000);
 youAreHere.add(yahSprite);
@@ -786,7 +786,7 @@ function loadDeepSkyObjects() {
 
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
       map: new THREE.CanvasTexture(sc), blending: THREE.AdditiveBlending,
-      transparent: true, depthWrite: false
+      transparent: true, depthWrite: false, alphaTest: 0.01
     }));
     sprite.position.copy(pos);
     sprite.scale.setScalar(r * 0.5);
@@ -864,7 +864,7 @@ function loadNearbyGalaxies() {
 
       const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
         map: new THREE.CanvasTexture(gc), blending: THREE.AdditiveBlending,
-        transparent: true, depthWrite: false
+        transparent: true, depthWrite: false, alphaTest: 0.01
       }));
       sprite.position.copy(pos);
       sprite.scale.setScalar(8e8 * 0.4);
