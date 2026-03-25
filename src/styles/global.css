@@ -294,6 +294,30 @@
   .lh-mission-card-status.failed{background:rgba(255,60,60,0.08);border:1px solid rgba(255,60,60,0.2);color:#f66}
   .lh-mission-card-status.partial{background:rgba(255,185,0,0.08);border:1px solid rgba(255,185,0,0.2);color:#fb4}
 
+  .lh-highlights{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+  .lh-highlight-card{background:linear-gradient(135deg,rgba(0,20,40,0.8),rgba(0,10,25,0.9));border:1px solid rgba(0,238,255,0.15);border-radius:6px;padding:18px 20px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+  .lh-highlight-card:hover{border-color:rgba(0,238,255,0.4);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,238,255,0.1)}
+  .lh-highlight-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#0ef,#07f)}
+  .lh-highlight-year{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:#0ef;margin-bottom:4px}
+  .lh-highlight-name{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:0.5px}
+  .lh-highlight-desc{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:10px}
+  .lh-highlight-first{font-size:11px;color:#fb4;letter-spacing:0.5px}
+  .lh-highlight-expand{display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(0,238,255,0.08)}
+  .lh-highlight-card.expanded .lh-highlight-expand{display:block}
+  .lh-highlight-expand-desc{font-size:12px;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:10px}
+  .lh-highlight-expand-stats{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:rgba(0,238,255,0.6)}
+  .lh-highlight-expand-stats span{color:#0ef;font-weight:700}
+
+  .lh-show-more-btn{display:block;width:100%;padding:12px;background:rgba(0,238,255,0.05);border:1px solid rgba(0,238,255,0.2);color:#0ef;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;cursor:pointer;border-radius:3px;transition:all 0.2s;text-align:center;margin-top:14px}
+  .lh-show-more-btn:hover{background:rgba(0,238,255,0.12);border-color:rgba(0,238,255,0.45);box-shadow:0 0 20px rgba(0,238,255,0.1)}
+  .lh-catalog-btn{font-size:13px;padding:16px;letter-spacing:4px;margin-top:0;margin-bottom:14px}
+
+  .lh-company-card{cursor:pointer}
+  .lh-company-expand{display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,238,255,0.06)}
+  .lh-company-card.expanded .lh-company-expand{display:block}
+  .lh-company-mission{padding:4px 0;font-size:11px;color:rgba(255,255,255,0.55);display:flex;justify-content:space-between}
+  .lh-company-mission span{color:#0ef;font-size:10px}
+
   @media (max-width: 768px) {
     .lh-scroll-body{padding:14px 12px 30px}
     .lh-header{flex-wrap:wrap;gap:8px;padding:10px 12px}

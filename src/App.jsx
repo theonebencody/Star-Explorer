@@ -271,16 +271,16 @@ function App() {
           </div>
         </div>
         <div className="lh-scroll-body" id="lh-scroll-body">
-          {/* Stats overview */}
+          {/* Hero stats */}
           <div className="lh-stats-overview" id="lh-stats-overview"></div>
 
-          {/* Company comparison */}
+          {/* Featured highlights — 3 spotlight cards */}
           <div className="lh-section">
-            <div className="lh-section-title">ORGANIZATION COMPARISON</div>
-            <div className="lh-company-grid" id="lh-company-grid"></div>
+            <div className="lh-section-title">DEFINING MOMENTS</div>
+            <div className="lh-highlights" id="lh-highlights"></div>
           </div>
 
-          {/* Dual planet displays */}
+          {/* Active Operations — the 3 planet visuals */}
           <div className="lh-section">
             <div className="lh-section-title">ACTIVE OPERATIONS</div>
             <div className="lh-dual-globes">
@@ -305,16 +305,23 @@ function App() {
             </div>
           </div>
 
-          {/* Key milestones timeline */}
+          {/* Organizations — collapsed cards that expand on click */}
           <div className="lh-section">
-            <div className="lh-section-title">KEY MILESTONES</div>
-            <div className="lh-timeline" id="lh-timeline"></div>
+            <div className="lh-section-title">ORGANIZATIONS</div>
+            <div className="lh-company-grid" id="lh-company-grid"></div>
           </div>
 
-          {/* All missions */}
+          {/* Timeline — shows only top 8, with "Show All" button */}
           <div className="lh-section">
-            <div className="lh-section-title">ALL MISSIONS</div>
-            <div className="lh-missions-grid" id="lh-missions-grid"></div>
+            <div className="lh-section-title">TIMELINE</div>
+            <div className="lh-timeline" id="lh-timeline"></div>
+            <button className="lh-show-more-btn" id="lh-timeline-more" style={{display:'none'}}>SHOW FULL TIMELINE</button>
+          </div>
+
+          {/* Mission catalog — hidden by default, revealed by button */}
+          <div className="lh-section">
+            <button className="lh-show-more-btn lh-catalog-btn" id="lh-catalog-btn">{'\u{1F680}'} EXPLORE ALL 100 MISSIONS</button>
+            <div className="lh-missions-grid" id="lh-missions-grid" style={{display:'none'}}></div>
           </div>
         </div>
       </div>
