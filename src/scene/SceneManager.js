@@ -3399,10 +3399,10 @@ function animate(now) {
       mesh.children.forEach(c => { if (c.userData._cloudSpin) c.rotation.y += dt * 0.08; });
     });
 
-    // Animate moons orbiting their parent planets
+    // Animate moons orbiting their parent planets (uses time rate)
     moonMeshes.forEach(m => {
-      const orbitalSpeed = (2 * Math.PI) / (m.data.T * DAY_S); // rad per sim-second
-      m.angle += orbitalSpeed * dt * DAY_S * (simTime > 0 ? 1 : 0);
+      const orbitalSpeed = (2 * Math.PI) / m.data.T; // rad per sim-day
+      m.angle += orbitalSpeed * daysPassed;
       const inc = (m.data.inc || 0) * Math.PI / 180;
       m.mesh.position.set(
         Math.cos(m.angle) * m.orbitR,
