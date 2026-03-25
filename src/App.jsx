@@ -244,6 +244,11 @@ function App() {
         </div>
       </div>
 
+      {/* Alien flyby (intro only — no alert box) */}
+      <div id="alien-flyby" className="alien-flyby">
+        <img src="/Infinita/images/marsattacks.jpg" alt="" className="alien-flyby-img" />
+      </div>
+
       {/* UFO Alert */}
       <div id="ufo-alert">
         <img src="/Infinita/images/marsattacks.jpg" alt="" className="ufo-alert-img" />

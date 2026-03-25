@@ -2475,8 +2475,14 @@ document.getElementById('splash-explore-btn').addEventListener('click', (e) => {
           tip.classList.add('active');
           setTimeout(() => { tip.classList.remove('active'); _introPhase = 'done'; }, 5000);
         }
-        // UFO flyby for flair
-        setTimeout(() => spawnUFO(), 300);
+        // Mars Attacks flyby (image zips across screen, no alert box)
+        setTimeout(() => {
+          const flyby = document.getElementById('alien-flyby');
+          if (flyby) {
+            flyby.classList.add('active');
+            setTimeout(() => flyby.classList.remove('active'), 3500);
+          }
+        }, 400);
       }
     }, 200);
   }
