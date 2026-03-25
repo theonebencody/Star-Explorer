@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { playExplosion } from './audioEngine.js';
 
 // ═══════════════════════════════════════════════
 //  UFO EASTER EGG (extracted from SceneManager)
@@ -243,6 +244,7 @@ function _updateIntercept(dt) {
         // Hide UFO
         _ufoGroup.visible = false;
         _ufoActive = false;
+        playExplosion();
 
         // Update alert
         _ufoAlertT = 4;

@@ -10,6 +10,7 @@ import { initUFO, spawnUFO, updateUFO } from './ufo.js';
 import { initWarp, renderWarp, hideWarp } from './warpEffect.js';
 import { initComets, updateComets } from './comets.js';
 import { buildRocket } from './rocketModels.js';
+import { initAudio, startAmbient, stopAmbient, startSimAmbient, stopSimAmbient, startHistoryAmbient, stopHistoryAmbient, playWarp, stopWarp, playLaunchRumble, stopLaunchRumble, playExplosion, playArrival, playUIClick, playCountdown } from './audioEngine.js';
 
 export function init(container) {
 'use strict';
@@ -1196,6 +1197,8 @@ function abortTravel(arrived) {
   travelSpeed  = 0;
   document.getElementById('travel-hud').classList.remove('active');
   hideWarp();
+  stopWarp();
+  if (arrived) playArrival();
   _resumeTimeAfterTravel();
   if (arrived && travelDest && !exploreMode) {
     // Cinematic orbit around the destination for non-explore arrivals
@@ -1280,6 +1283,7 @@ function updateTravel(dt) {
     }
 
     renderWarp(dt, travelActive, travelSpeed, C_AU_S, _tD);
+    playWarp(Math.min(1, travelSpeed / C_AU_S));
 
     const rem = Math.max(0, TRAVEL_DURATION - travelElapsed);
     document.getElementById('t-spd').textContent  = formatSpeed(travelSpeed);
@@ -1325,6 +1329,7 @@ function updateTravel(dt) {
     }
 
     renderWarp(dt, travelActive, travelSpeed, C_AU_S, _tD);
+    playWarp(warpInt);
 
     // HUD: show speed, remaining distance, ETA
     const distLeft = camera.position.distanceTo(stopPt);
@@ -2013,10 +2018,12 @@ let lastTime = 0;
 
 document.getElementById('splash-explore-btn').addEventListener('click', (e) => {
   e.stopPropagation();
+  initAudio();
   started = true;
   document.getElementById('splash').classList.add('hidden');
   document.getElementById('hud').classList.add('active');
   if (isMobile && window._mobileShowControls) window._mobileShowControls();
+  startAmbient();
   applyScale();
   lastTime = performance.now();
 
@@ -2035,9 +2042,13 @@ document.getElementById('splash-explore-btn').addEventListener('click', (e) => {
 });
 document.getElementById('splash-launches-btn').addEventListener('click', (e) => {
   e.stopPropagation();
+  initAudio();
   document.getElementById('splash').classList.add('hidden');
+  startHistoryAmbient();
   openLaunchHistory();
 });
+// Stop history ambient when leaving launch history
+document.getElementById('lh-back-btn').addEventListener('click', () => stopHistoryAmbient());
 
 // ═══════════════════════════════════════════════
 //  LAUNCH SIMULATOR
@@ -2264,6 +2275,7 @@ function closeLaunchSim() {
   _simActive = false; _simRunning = false;
   _clearTicker();
   _removeTrajectoryLine();
+  stopSimAmbient(); stopLaunchRumble();
   document.getElementById('launch-sim').classList.remove('open');
   document.getElementById('splash').classList.remove('hidden');
   if (_simRenderer) { _simRenderer.dispose(); _simRenderer = null; }
@@ -2371,6 +2383,7 @@ function _startLaunch() {
   _simRunning = true; _simT = 0; _simAlt = 0; _simVel = 0; _simFuel = 100; _simStage = 1; _simAccel = 0;
   if (_simRocket) _simRocket.position.set(0, 0.22, 0);
   if (_simExhaust) _simExhaust.grp.visible = true;
+  playLaunchRumble(0.8);
   document.getElementById('sim-status').textContent = 'LAUNCH IN PROGRESS';
   document.getElementById('sim-launch-btn').textContent = 'LAUNCHING...';
   document.getElementById('sim-launch-btn').classList.add('counting');
@@ -2450,6 +2463,8 @@ function _simAnimate(now) {
     // End condition
     if (_simAlt > 400) {
       _simRunning = false;
+      stopLaunchRumble();
+      playArrival();
       document.getElementById('sim-status').textContent = 'ORBIT ACHIEVED';
       document.getElementById('sim-launch-btn').textContent = 'INITIATE LAUNCH SEQUENCE';
       document.getElementById('sim-launch-btn').classList.remove('counting');
@@ -2505,7 +2520,9 @@ document.getElementById('sim-launch-btn').addEventListener('click', _startLaunch
 document.getElementById('sim-back-btn').addEventListener('click', closeLaunchSim);
 document.getElementById('splash-sim-btn').addEventListener('click', (e) => {
   e.stopPropagation();
+  initAudio();
   document.getElementById('splash').classList.add('hidden');
+  startSimAmbient();
   openLaunchSim();
 });
 
@@ -2524,6 +2541,7 @@ document.getElementById('hud-back-btn').addEventListener('click', () => {
   started = false;
   document.getElementById('hud').classList.remove('active');
   document.getElementById('splash').classList.remove('hidden');
+  stopAmbient(); stopWarp();
   if (isMobile && window._mobileHideControls) window._mobileHideControls();
   if (exploreMode) stopExploreMode();
   if (travelActive) abortTravel();
