@@ -1230,6 +1230,9 @@ const _FACTS_CYCLE = 10; // seconds per fact
 document.getElementById('facts-toggle-btn').addEventListener('click', () => {
   _factsCollapsed = !_factsCollapsed;
   document.getElementById('facts-panel').classList.toggle('collapsed', _factsCollapsed);
+  let _f = 0;
+  const _rp = () => { _positionTriviaPanel(); if (++_f < 20) requestAnimationFrame(_rp); };
+  requestAnimationFrame(_rp);
 });
 
 document.getElementById('facts-suggest-btn').addEventListener('click', () => {
@@ -2413,6 +2416,10 @@ document.getElementById('trivia-toggle').addEventListener('click', () => {
   _triviaCollapsed = !_triviaCollapsed;
   document.getElementById('trivia-panel').classList.toggle('collapsed', _triviaCollapsed);
   _positionTriviaPanel();
+  // Reposition continuously during the CSS transition
+  let _frames = 0;
+  const _reposition = () => { _positionTriviaPanel(); if (++_frames < 20) requestAnimationFrame(_reposition); };
+  requestAnimationFrame(_reposition);
 });
 
 function _positionTriviaPanel() {
