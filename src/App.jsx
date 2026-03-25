@@ -84,6 +84,10 @@ function App() {
           </div>
         </div>
 
+        <div className="matrix-rain" id="matrix-rain">
+          <canvas id="matrix-canvas"></canvas>
+        </div>
+
         <div className="hud-bl">
           <button className="lh-back-btn" id="hud-back-btn" style={{marginBottom:'8px',pointerEvents:'all'}}>{'\u2190'} BACK</button>
           <button className="mission-report-btn" id="mission-report-btn" style={{pointerEvents:'all'}}>{'\u2263'} ASTRO REPORT</button>
