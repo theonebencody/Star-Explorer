@@ -254,8 +254,11 @@
   .lh-company-stat{display:flex;justify-content:space-between;padding:3px 0;font-size:10px;color:rgba(255,255,255,0.55)}
   .lh-company-stat span{color:#0ef;font-weight:700}
 
-  .lh-globe-container{width:100%;max-width:500px;height:300px;margin:0 auto;position:relative;border-radius:6px;overflow:hidden;background:#010208}
-  #earth-canvas{width:100%!important;height:100%!important;display:block;position:static!important;top:auto!important;left:auto!important}
+  .lh-dual-globes{display:flex;gap:16px;justify-content:center}
+  .lh-globe-wrapper{flex:1;max-width:480px}
+  .lh-globe-label{font-family:'Orbitron',sans-serif;font-size:8px;font-weight:700;letter-spacing:3px;color:rgba(0,238,255,0.4);text-align:center;margin-bottom:8px}
+  .lh-globe-container{width:100%;height:300px;position:relative;border-radius:6px;overflow:hidden;background:#010208}
+  #earth-canvas,#mars-canvas{width:100%!important;height:100%!important;display:block;position:static!important;top:auto!important;left:auto!important}
 
   .lh-timeline{display:flex;flex-direction:column;gap:0}
   .lh-timeline-item{display:flex;gap:14px;padding:12px 0;border-left:2px solid rgba(0,238,255,0.15);margin-left:8px;padding-left:18px;position:relative}
@@ -286,6 +289,7 @@
     .lh-scroll-body{padding:14px 12px 30px}
     .lh-header{flex-wrap:wrap;gap:8px;padding:10px 12px}
     .lh-filter-row{min-width:auto;justify-content:center}
+    .lh-dual-globes{flex-direction:column}
     .lh-globe-container{height:200px}
     .lh-stats-overview{grid-template-columns:repeat(2,1fr)}
     .lh-company-grid{grid-template-columns:1fr}

@@ -279,11 +279,22 @@ function App() {
             <div className="lh-company-grid" id="lh-company-grid"></div>
           </div>
 
-          {/* Globe — smaller, inline */}
+          {/* Dual planet displays */}
           <div className="lh-section">
-            <div className="lh-section-title">LAUNCH SITES</div>
-            <div className="lh-globe-container">
-              <canvas id="earth-canvas"></canvas>
+            <div className="lh-section-title">ACTIVE OPERATIONS</div>
+            <div className="lh-dual-globes">
+              <div className="lh-globe-wrapper">
+                <div className="lh-globe-label">EARTH {'\u00B7'} LAUNCH OPS</div>
+                <div className="lh-globe-container">
+                  <canvas id="earth-canvas"></canvas>
+                </div>
+              </div>
+              <div className="lh-globe-wrapper">
+                <div className="lh-globe-label">MARS {'\u00B7'} EXPLORATION</div>
+                <div className="lh-globe-container">
+                  <canvas id="mars-canvas"></canvas>
+                </div>
+              </div>
             </div>
           </div>
 

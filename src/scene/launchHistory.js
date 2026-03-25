@@ -11,6 +11,10 @@ let _ehCamAngle=0,_ehLastT=0;
 let _ehLaunches=[]; // animated launch trajectories
 let _ehOrbits=[];   // orbiting objects
 let _ehScanRing=null, _ehScanRing2=null;
+// Mars viewer
+let _mhRenderer=null,_mhScene=null,_mhCam=null,_mhMars=null;
+let _mhCamAngle=0,_mhLastT=0;
+let _mhLanders=[],_mhOrbits=[],_mhScanRing=null;
 
 let _getStarted = () => false;
 
@@ -35,17 +39,19 @@ export function openLaunchHistory() {
   _launchHistoryActive = true;
   document.getElementById('launch-history').classList.add('open');
   _renderAll();
-  setTimeout(() => { _initEarthViewer(); }, 60);
-  requestAnimationFrame(t => { _ehLastT=t; _ehAnimate(t); });
+  setTimeout(() => { _initEarthViewer(); _initMarsViewer(); }, 60);
+  requestAnimationFrame(t => { _ehLastT=t; _mhLastT=t; _ehAnimate(t); });
 }
 
 export function closeLaunchHistory() {
   _launchHistoryActive = false;
   // Clean up orbit labels
   _ehOrbits.forEach(o => { if (o.label && o.label.parentElement) o.label.parentElement.removeChild(o.label); });
-  _ehOrbits = [];
-  _ehLaunches = [];
+  _ehOrbits = []; _ehLaunches = [];
+  _mhOrbits.forEach(o => { if (o.label && o.label.parentElement) o.label.parentElement.removeChild(o.label); });
+  _mhOrbits = []; _mhLanders = [];
   if (_ehRenderer) { _ehRenderer.dispose(); _ehRenderer = null; }
+  if (_mhRenderer) { _mhRenderer.dispose(); _mhRenderer = null; }
   document.getElementById('launch-history').classList.remove('open');
   if (!_getStarted()) {
     const sp = document.getElementById('splash');
@@ -410,6 +416,156 @@ function _initEarthViewer(){
   });
 }
 
+// ─── Mars Viewer ────────────────────────────────────────────────
+function _initMarsViewer() {
+  if (_mhRenderer) return;
+  const canvas = document.getElementById('mars-canvas');
+  if (!canvas) return;
+  const container = canvas.parentElement;
+  const w = container.clientWidth || 480, h = container.clientHeight || 300;
+  _mhRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  _mhRenderer.setSize(w, h, false);
+  _mhRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  _mhRenderer.setClearColor(0x080208, 1);
+  canvas.style.width = '100%'; canvas.style.height = '100%';
+  _mhScene = new THREE.Scene();
+  _mhCam = new THREE.PerspectiveCamera(40, w / h, 0.01, 500);
+  _mhCam.position.set(0, 0.5, 3.6);
+
+  // Lighting — warm orange/red sci-fi
+  _mhScene.add(new THREE.AmbientLight(0x221108, 0.3));
+  const mKey = new THREE.DirectionalLight(0xff6633, 1.0); mKey.position.set(5, 3, 4); _mhScene.add(mKey);
+  const mRim = new THREE.DirectionalLight(0xff4488, 0.4); mRim.position.set(-4, 1, -2); _mhScene.add(mRim);
+  const mTop = new THREE.PointLight(0xff8844, 0.4, 10); mTop.position.set(0, 3, 0); _mhScene.add(mTop);
+
+  // Mars — dark holographic sphere with wireframe
+  _mhMars = new THREE.Mesh(
+    new THREE.SphereGeometry(1, 48, 48),
+    new THREE.MeshPhongMaterial({ color: 0x120808, emissive: 0x1a0a04, shininess: 5, transparent: true, opacity: 0.85 })
+  );
+  _mhScene.add(_mhMars);
+
+  // Wireframe overlay — orange grid
+  const mWire = new THREE.Mesh(
+    new THREE.SphereGeometry(1.005, 28, 20),
+    new THREE.MeshBasicMaterial({ color: 0xff6633, wireframe: true, transparent: true, opacity: 0.1 })
+  );
+  _mhMars.add(mWire);
+
+  // Mars surface texture overlay (faint additive)
+  const marsTex = _mkTex(256, 128, _pTexFns.Mars);
+  _mhMars.add(new THREE.Mesh(
+    new THREE.SphereGeometry(1.003, 48, 48),
+    new THREE.MeshBasicMaterial({ map: marsTex, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false })
+  ));
+
+  // Glow halos — orange/red
+  [{ col: '255,100,50', a: 0.2, s: 2.3 }, { col: '255,60,30', a: 0.1, s: 2.7 }].forEach(g => {
+    const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+    const ctx = c.getContext('2d'), gr = ctx.createRadialGradient(64,64,30,64,64,64);
+    gr.addColorStop(0, `rgba(${g.col},0)`); gr.addColorStop(0.65, `rgba(${g.col},0)`);
+    gr.addColorStop(0.82, `rgba(${g.col},${g.a})`); gr.addColorStop(1, `rgba(${g.col},0)`);
+    ctx.fillStyle = gr; ctx.fillRect(0,0,128,128);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, alphaTest: 0.01 }));
+    sp.scale.setScalar(g.s); _mhScene.add(sp);
+  });
+
+  // Scan ring
+  const mScanGeo = new THREE.RingGeometry(1.3, 1.33, 64);
+  _mhScanRing = new THREE.Mesh(mScanGeo, new THREE.MeshBasicMaterial({ color: 0xff6633, side: THREE.DoubleSide, transparent: true, opacity: 0.12 }));
+  _mhScanRing.rotation.x = Math.PI / 2;
+  _mhScene.add(_mhScanRing);
+
+  // Stars
+  const msp = new Float32Array(1000*3), msc = new Float32Array(1000*3);
+  for (let i = 0; i < 1000; i++) {
+    const th = Math.random()*Math.PI*2, ph = Math.acos(2*Math.random()-1), r = 60+Math.random()*120;
+    msp[i*3] = r*Math.sin(ph)*Math.cos(th); msp[i*3+1] = r*Math.sin(ph)*Math.sin(th); msp[i*3+2] = r*Math.cos(ph);
+    const b = 0.4+Math.random()*0.6; msc[i*3] = b; msc[i*3+1] = b*0.8; msc[i*3+2] = b*0.6;
+  }
+  const msGeo = new THREE.BufferGeometry();
+  msGeo.setAttribute('position', new THREE.BufferAttribute(msp, 3));
+  msGeo.setAttribute('color', new THREE.BufferAttribute(msc, 3));
+  _mhScene.add(new THREE.Points(msGeo, new THREE.PointsMaterial({ size: 0.4, vertexColors: true, sizeAttenuation: true, transparent: true, opacity: 0.8 })));
+
+  // Landers coming in for landing — 3 animated descent trajectories
+  _mhLanders = [];
+  for (let i = 0; i < 3; i++) {
+    const landAngle = Math.random() * Math.PI * 2;
+    const landLat = (Math.random() - 0.3) * 0.8;
+    const surfacePos = new THREE.Vector3(Math.cos(landAngle) * Math.cos(landLat), Math.sin(landLat), Math.sin(landAngle) * Math.cos(landLat)).multiplyScalar(1.01);
+    const startPos = surfacePos.clone().multiplyScalar(2.5 + Math.random() * 0.5);
+    startPos.x += (Math.random() - 0.5) * 0.5;
+    startPos.z += (Math.random() - 0.5) * 0.5;
+
+    const ctrl = surfacePos.clone().add(startPos).multiplyScalar(0.5);
+    ctrl.y += 0.3;
+    const curve = new THREE.QuadraticBezierCurve3(startPos, ctrl, surfacePos);
+    const pts = curve.getPoints(30);
+
+    const tPos = new Float32Array(30*3), tCol = new Float32Array(30*3);
+    pts.forEach((p, j) => {
+      tPos[j*3] = p.x; tPos[j*3+1] = p.y; tPos[j*3+2] = p.z;
+      const fade = j / 30;
+      tCol[j*3] = fade; tCol[j*3+1] = fade * 0.4; tCol[j*3+2] = fade * 0.2;
+    });
+    const tGeo = new THREE.BufferGeometry();
+    tGeo.setAttribute('position', new THREE.BufferAttribute(tPos, 3));
+    tGeo.setAttribute('color', new THREE.BufferAttribute(tCol, 3));
+    const trail = new THREE.Line(tGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.4, depthWrite: false }));
+    _mhScene.add(trail);
+
+    // Lander dot
+    const dc = document.createElement('canvas'); dc.width = 16; dc.height = 16;
+    const dctx = dc.getContext('2d'), dg = dctx.createRadialGradient(8,8,0,8,8,8);
+    dg.addColorStop(0, 'rgba(255,140,40,1)'); dg.addColorStop(0.4, 'rgba(255,80,20,0.5)'); dg.addColorStop(1, 'rgba(255,40,0,0)');
+    dctx.fillStyle = dg; dctx.fillRect(0,0,16,16);
+    const dot = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(dc), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
+    dot.scale.setScalar(0.04);
+    _mhScene.add(dot);
+
+    _mhLanders.push({ trail, dot, pts, progress: i * 0.35, speed: 0.08 + Math.random() * 0.06 });
+  }
+
+  // Orbiting stations/spacecraft
+  _mhOrbits = [];
+  const mOrbitDefs = [
+    { name: 'Mars Gateway', r: 1.2, speed: 0.25, color: 0xff8844, size: 0.02 },
+    { name: 'Perseverance Relay', r: 1.15, speed: 0.35, color: 0xffaa66, size: 0.018 },
+    { name: 'Starship Cargo', r: 1.3, speed: 0.18, color: 0xcccccc, size: 0.022 },
+  ];
+  mOrbitDefs.forEach((od, i) => {
+    // Orbit ring
+    const rGeo = new THREE.RingGeometry(od.r - 0.002, od.r + 0.002, 64);
+    const rMat = new THREE.MeshBasicMaterial({ color: od.color, side: THREE.DoubleSide, transparent: true, opacity: 0.06 });
+    const ring = new THREE.Mesh(rGeo, rMat);
+    ring.rotation.x = Math.PI / 2 + (i - 1) * 0.2;
+    ring.rotation.z = i * 0.4;
+    _mhScene.add(ring);
+
+    // Sprite
+    const oc = document.createElement('canvas'); oc.width = 16; oc.height = 16;
+    const octx = oc.getContext('2d'), og = octx.createRadialGradient(8,8,0,8,8,8);
+    const c3 = new THREE.Color(od.color);
+    og.addColorStop(0, `rgba(${(c3.r*255)|0},${(c3.g*255)|0},${(c3.b*255)|0},1)`);
+    og.addColorStop(0.5, `rgba(${(c3.r*255)|0},${(c3.g*255)|0},${(c3.b*255)|0},0.3)`);
+    og.addColorStop(1, 'rgba(0,0,0,0)');
+    octx.fillStyle = og; octx.fillRect(0,0,16,16);
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(oc), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false }));
+    sp.scale.setScalar(od.size);
+    _mhScene.add(sp);
+
+    // Label
+    const lbl = document.createElement('div');
+    lbl.style.cssText = 'position:absolute;font-family:Orbitron,sans-serif;font-size:7px;color:rgba(255,136,68,0.5);letter-spacing:1px;pointer-events:none;white-space:nowrap';
+    lbl.textContent = od.name;
+    const cont = document.getElementById('mars-canvas')?.parentElement;
+    if (cont) cont.appendChild(lbl);
+
+    _mhOrbits.push({ sprite: sp, ring, angle: i * 2, r: od.r, speed: od.speed, incX: ring.rotation.x, incZ: ring.rotation.z, label: lbl });
+  });
+}
+
 function _ehAnimate(now=0){
   if(!_launchHistoryActive) return;
   requestAnimationFrame(_ehAnimate);
@@ -501,6 +657,70 @@ function _ehAnimate(now=0){
   });
 
   _ehRenderer.render(_ehScene,_ehCam);
+
+  // ── Mars viewer animation ──
+  if (_mhRenderer && _mhScene && _mhCam) {
+    _mhCamAngle += dt * 0.06;
+    _mhCam.position.set(Math.cos(_mhCamAngle) * 3.6, 0.4, Math.sin(_mhCamAngle) * 3.6);
+    _mhCam.lookAt(0, 0, 0);
+    if (_mhMars) _mhMars.rotation.y += dt * 0.05;
+    if (_mhScanRing) { _mhScanRing.rotation.z += dt * 0.25; _mhScanRing.material.opacity = 0.08 + 0.04 * Math.sin(now * 0.003); }
+
+    // Landers descending
+    const marsCanvas = document.getElementById('mars-canvas');
+    _mhLanders.forEach(l => {
+      l.progress += l.speed * dt;
+      if (l.progress > 1.4) {
+        l.progress = 0;
+        // Regenerate trajectory
+        const la = Math.random() * Math.PI * 2, ll = (Math.random()-0.3)*0.8;
+        const sp2 = new THREE.Vector3(Math.cos(la)*Math.cos(ll),Math.sin(ll),Math.sin(la)*Math.cos(ll)).multiplyScalar(1.01);
+        const st = sp2.clone().multiplyScalar(2.5+Math.random()*0.5);
+        st.x+=(Math.random()-0.5)*0.5; st.z+=(Math.random()-0.5)*0.5;
+        const ct = sp2.clone().add(st).multiplyScalar(0.5); ct.y+=0.3;
+        const curve = new THREE.QuadraticBezierCurve3(st, ct, sp2);
+        l.pts = curve.getPoints(30);
+        const p = l.trail.geometry.attributes.position.array;
+        const c = l.trail.geometry.attributes.color.array;
+        l.pts.forEach((pt, j) => {
+          p[j*3]=pt.x; p[j*3+1]=pt.y; p[j*3+2]=pt.z;
+          const fade = j / 30;
+          c[j*3]=fade; c[j*3+1]=fade*0.4; c[j*3+2]=fade*0.2;
+        });
+        l.trail.geometry.attributes.position.needsUpdate = true;
+        l.trail.geometry.attributes.color.needsUpdate = true;
+      }
+      const dc = Math.min(30, Math.floor(l.progress * 30));
+      l.trail.geometry.setDrawRange(0, Math.max(2, dc));
+      l.trail.material.opacity = l.progress > 1 ? Math.max(0, 1-(l.progress-1)*2.5) : 0.4;
+      if (dc > 0 && dc <= 30 && l.progress <= 1) {
+        const pt = l.pts[Math.min(dc-1, 29)];
+        l.dot.position.set(pt.x, pt.y, pt.z);
+        l.dot.visible = true;
+      } else { l.dot.visible = false; }
+    });
+
+    // Mars orbiting objects
+    _mhOrbits.forEach(o => {
+      o.angle += o.speed * dt;
+      const x = Math.cos(o.angle)*o.r, z = Math.sin(o.angle)*o.r;
+      const cosI=Math.cos(o.incX-Math.PI/2),sinI=Math.sin(o.incX-Math.PI/2);
+      const cosZ=Math.cos(o.incZ),sinZ=Math.sin(o.incZ);
+      const y2=z*sinI, z2=z*cosI, x3=x*cosZ-y2*sinZ, y3=x*sinZ+y2*cosZ;
+      o.sprite.position.set(x3, y3, z2);
+      if (o.label && marsCanvas) {
+        const proj = o.sprite.position.clone().project(_mhCam);
+        if (proj.z > 0 && proj.z < 1) {
+          const rect = marsCanvas.getBoundingClientRect();
+          o.label.style.left = ((proj.x+1)*0.5*rect.width) + 'px';
+          o.label.style.top = ((-proj.y+1)*0.5*rect.height - 12) + 'px';
+          o.label.style.display = '';
+        } else { o.label.style.display = 'none'; }
+      }
+    });
+
+    _mhRenderer.render(_mhScene, _mhCam);
+  }
 }
 
 export function initLaunchHistory(getStarted) {
