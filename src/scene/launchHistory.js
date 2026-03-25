@@ -500,26 +500,27 @@ function _initMarsViewer() {
   const mRim = new THREE.DirectionalLight(0xff4488, 0.4); mRim.position.set(-4, 1, -2); _mhScene.add(mRim);
   const mTop = new THREE.PointLight(0xff8844, 0.4, 10); mTop.position.set(0, 3, 0); _mhScene.add(mTop);
 
-  // Mars — dark holographic sphere with wireframe
+  // Mars — real texture with sci-fi overlays
+  const marsTex = _mkTex(512, 256, _pTexFns.Mars);
   _mhMars = new THREE.Mesh(
-    new THREE.SphereGeometry(1, 48, 48),
-    new THREE.MeshPhongMaterial({ color: 0x120808, emissive: 0x1a0a04, shininess: 5, transparent: true, opacity: 0.85 })
+    new THREE.SphereGeometry(1, 64, 64),
+    new THREE.MeshStandardMaterial({ map: marsTex, roughness: 0.8, metalness: 0.05 })
   );
   _mhScene.add(_mhMars);
 
-  // Wireframe overlay — orange grid
+  // Swap in real NASA Mars texture when loaded
+  import('./noiseUtils.js').then(m => {
+    if (m.loadRealTexture) m.loadRealTexture('Mars', (tex) => {
+      if (tex && _mhMars) { _mhMars.material.map = tex; _mhMars.material.needsUpdate = true; }
+    });
+  });
+
+  // Faint wireframe overlay for sci-fi feel
   const mWire = new THREE.Mesh(
-    new THREE.SphereGeometry(1.005, 28, 20),
-    new THREE.MeshBasicMaterial({ color: 0xff6633, wireframe: true, transparent: true, opacity: 0.1 })
+    new THREE.SphereGeometry(1.006, 28, 20),
+    new THREE.MeshBasicMaterial({ color: 0xff6633, wireframe: true, transparent: true, opacity: 0.06 })
   );
   _mhMars.add(mWire);
-
-  // Mars surface texture overlay (faint additive)
-  const marsTex = _mkTex(256, 128, _pTexFns.Mars);
-  _mhMars.add(new THREE.Mesh(
-    new THREE.SphereGeometry(1.003, 48, 48),
-    new THREE.MeshBasicMaterial({ map: marsTex, transparent: true, opacity: 0.2, blending: THREE.AdditiveBlending, depthWrite: false })
-  ));
 
   // Glow halos — orange/red
   [{ col: '255,100,50', a: 0.2, s: 2.3 }, { col: '255,60,30', a: 0.1, s: 2.7 }].forEach(g => {
