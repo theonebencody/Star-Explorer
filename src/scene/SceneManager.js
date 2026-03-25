@@ -2261,7 +2261,7 @@ function _initMatrixRain() {
   const container = document.getElementById('matrix-rain');
   if (!container || container.children.length > 0) return;
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789ΑΒΓΔΘΛΞΠΣΦΨΩαβγδθλξπσφψω@#$%&*+=<>';
-  const NUM_COLS = 30;
+  const NUM_COLS = Math.max(60, Math.floor(window.innerWidth / 16));
   const _insults = [
     'NOOB','LMAO','U MAD','GG EZ','BRUH','LOL','NERD','OOPS',
     'SCRUB','YIKES','FAIL','REKT','TRASH','PLEB','BASIC',
