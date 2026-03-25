@@ -40,6 +40,10 @@
   .controls-help{font-size:10px;opacity:0.75;line-height:1.8;max-width:300px}
   .controls-help span{color:#0ef;opacity:1}
 
+  .cruise-tip{position:absolute;top:70px;left:50%;transform:translateX(-50%);z-index:25;display:none;background:rgba(0,12,25,0.92);border:1px solid rgba(57,255,20,0.4);border-radius:6px;padding:14px 28px;font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;letter-spacing:3px;color:#39ff14;text-shadow:0 0 10px rgba(57,255,20,0.5);pointer-events:none;animation:tipPulse 1s ease-in-out infinite alternate;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .cruise-tip.active{display:block}
+  @keyframes tipPulse{from{box-shadow:0 0 12px rgba(57,255,20,0.15)}to{box-shadow:0 0 28px rgba(57,255,20,0.35)}}
+
   .hud-ticker{position:absolute;bottom:0;left:0;right:0;pointer-events:none;padding:8px 16px;background:linear-gradient(transparent,rgba(0,5,12,0.5));z-index:1;overflow:hidden}
   .hud-ticker-text{font-size:14px;color:#39ff14;letter-spacing:1.5px;font-style:italic;white-space:nowrap;display:inline-block;animation:hudTicker 22s linear infinite;text-shadow:0 0 8px rgba(57,255,20,0.4),0 0 16px rgba(57,255,20,0.15)}
   @keyframes hudTicker{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}

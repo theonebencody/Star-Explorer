@@ -2457,12 +2457,26 @@ document.getElementById('splash-explore-btn').addEventListener('click', (e) => {
   // Show welcome — stays until user closes it
   const welcomeEl = document.getElementById('welcome-intro');
   welcomeEl.classList.add('active');
+  let _introPhase = 'welcome'; // welcome → controls → tip → done
   function _dismissWelcome() {
     if (!welcomeEl.classList.contains('active')) return;
     welcomeEl.classList.remove('active');
+    _introPhase = 'controls';
     // Show controls overlay — stays until user closes it
     controlsOpen = true;
     document.getElementById('controls-overlay').classList.add('open');
+    // Watch for controls close to show the R tip
+    const _watchClose = setInterval(() => {
+      if (!controlsOpen && _introPhase === 'controls') {
+        clearInterval(_watchClose);
+        _introPhase = 'tip';
+        const tip = document.getElementById('cruise-tip');
+        if (tip) {
+          tip.classList.add('active');
+          setTimeout(() => { tip.classList.remove('active'); _introPhase = 'done'; }, 5000);
+        }
+      }
+    }, 200);
   }
   document.getElementById('welcome-close-btn').addEventListener('click', _dismissWelcome);
 });
