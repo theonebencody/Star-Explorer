@@ -331,7 +331,7 @@ function App() {
 
           {/* Mission catalog — hidden by default, revealed by button */}
           <div className="lh-section">
-            <button className="lh-show-more-btn lh-catalog-btn" id="lh-catalog-btn">{'\u{1F680}'} EXPLORE ALL 100 MISSIONS</button>
+            <button className="lh-show-more-btn lh-catalog-btn" id="lh-catalog-btn">{'\u{1F680}'} EXPLORE ALL MISSIONS BY DESTINATION</button>
             <div className="lh-missions-grid" id="lh-missions-grid" style={{display:'none'}}></div>
           </div>
         </div>

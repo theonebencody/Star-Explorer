@@ -111,26 +111,36 @@ function _statCard(value, label) {
   return `<div class="lh-stat-card"><div class="lh-stat-card-value">${value}</div><div class="lh-stat-card-label">${label}</div></div>`;
 }
 
-// ─── Highlights (Defining Moments) ──────────────────────────────
+// ─── Highlights (Defining Moments) — Curated ───────────────────
+const DEFINING_MOMENTS = [
+  'sputnik1', 'vostok1', 'friendship7', 'voskhod2', 'apollo11', 'apollo13',
+  'skylab1', 'sts1', 'hubble', 'iss_exp1', 'spirit', 'spaceshipone',
+  'falcon1f4', 'dragoncrs1', 'curiosity', 'rosetta', 'newhorizons',
+  'orbcomm2', 'falconheavy', 'crewdragon', 'jwst', 'artemis1',
+  'starshipift1', 'polaris_dawn', 'starshipift5',
+  'sx_blueghost', 'cn_tianwen2', 'bo_ng_escapade',
+];
+
 function _renderHighlights(data) {
   const el = document.getElementById('lh-highlights');
   if (!el || data.length === 0) { if (el) el.innerHTML = ''; return; }
 
-  const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date));
-  const first = sorted[0];
-  const mostFirsts = [...data].sort((a, b) => (b.firsts ? b.firsts.length : 0) - (a.firsts ? a.firsts.length : 0))[0];
-  const latest = sorted[sorted.length - 1];
+  // Build a lookup from data
+  const byId = {};
+  data.forEach(m => { byId[m.id] = m; });
 
-  // Deduplicate picks (if same mission appears twice, pick next best)
-  const picks = [first];
-  if (mostFirsts !== first) picks.push(mostFirsts);
-  else picks.push(sorted.length > 1 ? sorted[1] : null);
-  if (latest !== first && latest !== mostFirsts) picks.push(latest);
-  else picks.push(sorted.length > 2 ? sorted[sorted.length - 2] : null);
+  // Pick curated defining moments that exist in filtered data
+  let picks = DEFINING_MOMENTS.map(id => byId[id]).filter(Boolean);
+  // If filter removes all curated picks, fall back to missions with firsts
+  if (picks.length === 0) {
+    picks = [...data].filter(m => m.firsts && m.firsts.length > 0)
+      .sort((a, b) => b.firsts.length - a.firsts.length).slice(0, 6);
+  }
+  // Limit to 6 displayed
+  picks = picks.slice(0, 6);
 
   let html = '';
   picks.forEach(m => {
-    if (!m) return;
     const year = m.date.slice(0, 4);
     const desc = _truncate(m.desc, 80);
     const firstTag = (m.firsts && m.firsts.length > 0) ? m.firsts[0] : '';
@@ -162,106 +172,198 @@ function _renderCompanyGrid(data) {
   const orgs = {};
   const orgMissions = {};
   data.forEach(m => {
-    if (!orgs[m.org]) { orgs[m.org] = { launches: 0, success: 0, failed: 0, mass: 0, firsts: [] }; orgMissions[m.org] = []; }
+    if (!orgs[m.org]) { orgs[m.org] = { launches: 0, success: 0, failed: 0, mass: 0, firsts: [], rockets: new Set(), years: [] }; orgMissions[m.org] = []; }
     const o = orgs[m.org];
     o.launches++;
     if (m.status === 'success') o.success++;
     else if (m.status === 'failed') o.failed++;
     o.mass += (m.mass || 0);
-    if (m.firsts && m.firsts.length > 0 && o.firsts.length === 0) {
-      o.firsts.push(m.firsts[0]);
-    }
+    if (m.rocket) o.rockets.add(m.rocket);
+    o.years.push(parseInt(m.date.slice(0, 4)));
+    if (m.firsts) m.firsts.forEach(f => o.firsts.push(f));
     orgMissions[m.org].push(m);
   });
 
+  // Sort orgs by launch count descending
+  const sortedOrgs = Object.entries(orgs).sort((a, b) => b[1].launches - a[1].launches);
+
   let html = '';
-  for (const [orgName, o] of Object.entries(orgs)) {
+  for (const [orgName, o] of sortedOrgs) {
     const oc = _getOC(orgName);
     const massTonnes = (o.mass / 1000).toFixed(1);
-    const firstNote = o.firsts.length > 0 ? o.firsts[0] : '\u2014';
-    const missionsHtml = orgMissions[orgName].map(m => {
-      const d = new Date(m.date + 'T00:00:00Z');
-      const ds = d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', year: 'numeric' });
-      return `<div class="lh-company-mission">${m.name} <span>${ds}</span></div>`;
+    const rate = o.launches > 0 ? Math.round((o.success / o.launches) * 100) : 0;
+    const minY = Math.min(...o.years);
+    const maxY = Math.max(...o.years);
+    const yearRange = minY === maxY ? `${minY}` : `${minY}\u2013${maxY}`;
+    const rocketList = [...o.rockets].slice(0, 4).join(', ') + (o.rockets.size > 4 ? ` +${o.rockets.size - 4}` : '');
+
+    // Show top 5 notable missions (prefer ones with firsts, then recent)
+    const notable = orgMissions[orgName]
+      .sort((a, b) => (b.firsts?.length || 0) - (a.firsts?.length || 0) || b.date.localeCompare(a.date))
+      .slice(0, 5);
+    const missionsHtml = notable.map(m => {
+      const year = m.date.slice(0, 4);
+      const first = m.firsts?.length ? `<span style="color:#fb4;margin-left:6px">\u2605</span>` : '';
+      return `<div class="lh-company-mission"><span style="color:rgba(0,238,255,0.4);min-width:36px">${year}</span> ${m.name}${first}</div>`;
     }).join('');
+    const remainCount = orgMissions[orgName].length - 5;
+    const moreNote = remainCount > 0 ? `<div class="lh-company-mission" style="color:rgba(0,238,255,0.25);font-style:italic">+ ${remainCount} more missions</div>` : '';
+
     html += `<div class="lh-company-card" style="border-left-color:${oc.css}" data-org="${orgName}">` +
       `<div class="lh-company-name">${orgName}</div>` +
       `<div class="lh-company-stat">Launches <span>${o.launches}</span></div>` +
-      `<div class="lh-company-stat">Success / Fail <span>${o.success} / ${o.failed}</span></div>` +
-      `<div class="lh-company-stat">Total Mass <span>${massTonnes} t</span></div>` +
-      `<div class="lh-company-stat" style="margin-top:6px;font-size:9px;color:rgba(255,185,0,0.7);border-top:1px solid rgba(0,238,255,0.06);padding-top:6px">\u2605 ${_truncate(firstNote, 60)}</div>` +
-      `<div class="lh-company-expand">${missionsHtml}</div>` +
+      `<div class="lh-company-stat">Success Rate <span>${rate}%</span></div>` +
+      `<div class="lh-company-stat">Mass to Orbit <span>${massTonnes} t</span></div>` +
+      `<div class="lh-company-stat">Active <span>${yearRange}</span></div>` +
+      `<div class="lh-company-stat" style="font-size:9px">Rockets <span style="font-size:9px">${rocketList}</span></div>` +
+      `<div class="lh-company-expand">` +
+        `<div style="font-size:8px;letter-spacing:2px;color:rgba(0,238,255,0.35);margin-bottom:6px;text-transform:uppercase">Notable Missions</div>` +
+        missionsHtml + moreNote +
+      `</div>` +
       `</div>`;
   }
   el.innerHTML = html;
 }
 
-// ─── Key Milestones Timeline ─────────────────────────────────────
+// ─── Timeline by Era ─────────────────────────────────────────────
 function _renderTimeline(data) {
   const el = document.getElementById('lh-timeline');
   if (!el) return;
 
   const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date));
-  const LIMIT = 8;
+
+  // Group into eras
+  const eras = [
+    { label: 'THE SPACE RACE', range: [1957, 1969], color: '#fb4' },
+    { label: 'STATIONS & SHUTTLES', range: [1970, 1999], color: '#0ef' },
+    { label: 'EXPLORATION ERA', range: [2000, 2014], color: '#4fa' },
+    { label: 'COMMERCIAL REVOLUTION', range: [2015, 2022], color: '#f80' },
+    { label: 'THE NEW FRONTIER', range: [2023, 2030], color: '#e4f' },
+  ];
 
   let html = '';
-  sorted.forEach((m, i) => {
-    const year = m.date.slice(0, 4);
-    const desc = _truncate(m.desc, 100);
-    const firstTag = (m.firsts && m.firsts.length > 0)
-      ? `<div class="lh-timeline-firsts">\u2605 ${m.firsts[0]}</div>`
-      : '';
-    const failClass = m.status === 'failed' ? ' failed' : '';
-    const hiddenStyle = i >= LIMIT ? ' style="display:none"' : '';
-    html += `<div class="lh-timeline-item${failClass}" data-tl-idx="${i}"${hiddenStyle}>` +
-      `<div class="lh-timeline-year">${year}</div>` +
-      `<div class="lh-timeline-content">` +
-        `<div class="lh-timeline-name">${m.name}</div>` +
-        `<div class="lh-timeline-desc">${desc}</div>` +
-        firstTag +
+  eras.forEach(era => {
+    const eraMissions = sorted.filter(m => {
+      const y = parseInt(m.date.slice(0, 4));
+      return y >= era.range[0] && y <= era.range[1];
+    });
+    if (eraMissions.length === 0) return;
+
+    const successes = eraMissions.filter(m => m.status === 'success').length;
+    const totalFirsts = eraMissions.reduce((s, m) => s + (m.firsts?.length || 0), 0);
+
+    // Pick top 5 missions with firsts for this era
+    const highlights = eraMissions
+      .filter(m => m.firsts && m.firsts.length > 0)
+      .sort((a, b) => b.firsts.length - a.firsts.length)
+      .slice(0, 5);
+
+    html += `<div class="lh-era-card" data-era="${era.label}">` +
+      `<div class="lh-era-header" style="border-left-color:${era.color}">` +
+        `<div class="lh-era-title" style="color:${era.color}">${era.label}</div>` +
+        `<div class="lh-era-range">${era.range[0]}\u2013${era.range[1]}</div>` +
+        `<div class="lh-era-stats">` +
+          `<span>${eraMissions.length} missions</span>` +
+          `<span>${successes} successes</span>` +
+          `<span>${totalFirsts} firsts</span>` +
+        `</div>` +
+        `<div class="lh-era-chevron">\u25BC</div>` +
       `</div>` +
-      `</div>`;
+      `<div class="lh-era-body">`;
+
+    highlights.forEach(m => {
+      const year = m.date.slice(0, 4);
+      const firstTag = m.firsts[0];
+      html += `<div class="lh-timeline-item">` +
+        `<div class="lh-timeline-year">${year}</div>` +
+        `<div class="lh-timeline-content">` +
+          `<div class="lh-timeline-name">${m.name}</div>` +
+          `<div class="lh-timeline-desc">${_truncate(m.desc, 100)}</div>` +
+          `<div class="lh-timeline-firsts">\u2605 ${firstTag}</div>` +
+        `</div></div>`;
+    });
+
+    const remaining = eraMissions.length - highlights.length;
+    if (remaining > 0) {
+      html += `<div class="lh-era-more" style="color:rgba(0,238,255,0.3);font-size:10px;padding:4px 0 4px 26px;font-style:italic">+ ${remaining} more missions in this era</div>`;
+    }
+
+    html += `</div></div>`;
   });
   el.innerHTML = html;
 
+  // Hide the old "show more" button — eras handle their own expand
   const moreBtn = document.getElementById('lh-timeline-more');
-  if (moreBtn) {
-    moreBtn.style.display = sorted.length > LIMIT ? 'block' : 'none';
-  }
+  if (moreBtn) moreBtn.style.display = 'none';
 }
 
-// ─── All Missions Grid ───────────────────────────────────────────
+// ─── All Missions Grid — grouped by destination ─────────────────
 function _renderMissionsGrid(data) {
   const el = document.getElementById('lh-missions-grid');
   if (!el) return;
 
-  const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date));
+  // Group by destination type
+  const groups = {};
+  const groupOrder = ['LEO', 'ISS', 'GTO', 'Moon', 'Mars', 'Deep', 'Suborbital'];
+  const groupLabels = { LEO: 'Low Earth Orbit', ISS: 'Space Station', GTO: 'Geostationary', Moon: 'Lunar', Mars: 'Mars', Deep: 'Deep Space', Suborbital: 'Suborbital' };
+
+  data.forEach(m => {
+    const key = m.destType || 'LEO';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(m);
+  });
 
   let html = '';
-  sorted.forEach(m => {
-    const oc = _getOC(m.org);
-    const d = new Date(m.date + 'T00:00:00Z');
-    const ds = d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
-    const desc = _truncate(m.desc, 120);
-    const mass = _fmtMass(m.mass);
+  groupOrder.forEach(key => {
+    const missions = groups[key];
+    if (!missions || missions.length === 0) return;
+    missions.sort((a, b) => b.date.localeCompare(a.date)); // newest first
 
-    const statusLabel = m.status === 'success' ? 'SUCCESS' : m.status === 'failed' ? 'FAILED' : 'PARTIAL';
-    const statusClass = m.status;
+    const dc = DEST_COLORS[key] || '#0ef';
+    const label = groupLabels[key] || key;
+    const preview = missions.slice(0, 4);
+    const remainCount = missions.length - 4;
 
-    html += `<div class="lh-mission-card">` +
-      `<div class="lh-mission-card-header">` +
-        `<div class="lh-mission-card-name">${m.name}</div>` +
-        `<div class="lh-mission-card-date">${ds}</div>` +
+    html += `<div class="lh-dest-group" data-dest="${key}">` +
+      `<div class="lh-dest-header" style="border-left-color:${dc}">` +
+        `<span class="lh-dest-label" style="color:${dc}">${label}</span>` +
+        `<span class="lh-dest-count">${missions.length} missions</span>` +
+        `<span class="lh-dest-chevron">\u25BC</span>` +
       `</div>` +
-      `<span class="lh-mission-card-org" style="background:${oc.bg};border:1px solid ${oc.bd};color:${oc.css}">${m.org}</span>` +
-      `<span class="lh-mission-card-status ${statusClass}">${statusLabel}</span>` +
-      `<div class="lh-mission-card-desc">${desc}</div>` +
-      `<div class="lh-mission-card-stats">` +
-        `<div>Rocket: <span>${m.rocket}</span></div>` +
-        `<div>Mass: <span>${mass}</span></div>` +
-        `<div>Dest: <span>${m.destination}</span></div>` +
-      `</div>` +
+      `<div class="lh-dest-body">`;
+
+    preview.forEach(m => {
+      const oc = _getOC(m.org);
+      const year = m.date.slice(0, 4);
+      html += `<div class="lh-mission-card">` +
+        `<div class="lh-mission-card-header">` +
+          `<div class="lh-mission-card-name">${m.name}</div>` +
+          `<div class="lh-mission-card-date">${year}</div>` +
+        `</div>` +
+        `<span class="lh-mission-card-org" style="background:${oc.bg};border:1px solid ${oc.bd};color:${oc.css}">${m.org}</span>` +
+        `<div class="lh-mission-card-desc">${_truncate(m.desc, 80)}</div>` +
       `</div>`;
+    });
+
+    if (remainCount > 0) {
+      html += `<div class="lh-dest-more-missions" style="display:none">`;
+      missions.slice(4).forEach(m => {
+        const oc = _getOC(m.org);
+        const year = m.date.slice(0, 4);
+        html += `<div class="lh-mission-card">` +
+          `<div class="lh-mission-card-header">` +
+            `<div class="lh-mission-card-name">${m.name}</div>` +
+            `<div class="lh-mission-card-date">${year}</div>` +
+          `</div>` +
+          `<span class="lh-mission-card-org" style="background:${oc.bg};border:1px solid ${oc.bd};color:${oc.css}">${m.org}</span>` +
+          `<div class="lh-mission-card-desc">${_truncate(m.desc, 80)}</div>` +
+        `</div>`;
+      });
+      html += `</div>`;
+      html += `<button class="lh-show-more-btn lh-dest-expand-btn" data-dest="${key}">SHOW ALL ${missions.length} MISSIONS</button>`;
+    }
+
+    html += `</div></div>`;
   });
   el.innerHTML = html;
 }
@@ -1026,7 +1128,7 @@ export function initLaunchHistory(getStarted) {
   });
   document.getElementById('lh-back-btn').addEventListener('click',closeLaunchHistory);
 
-  // Timeline "Show Full Timeline" button
+  // Timeline "Show Full Timeline" button (kept for backwards compat)
   const tlMoreBtn = document.getElementById('lh-timeline-more');
   if (tlMoreBtn) {
     tlMoreBtn.addEventListener('click', () => {
@@ -1044,18 +1146,17 @@ export function initLaunchHistory(getStarted) {
       const grid = document.getElementById('lh-missions-grid');
       if (!grid) return;
       if (grid.style.display === 'none') {
-        // Populate if empty
         if (!grid.innerHTML) _renderMissionsGrid(_filteredData());
         grid.style.display = '';
-        catalogBtn.textContent = 'HIDE MISSIONS';
+        catalogBtn.textContent = 'HIDE MISSION CATALOG';
       } else {
         grid.style.display = 'none';
-        catalogBtn.textContent = '\uD83D\uDE80 EXPLORE ALL 100 MISSIONS';
+        catalogBtn.textContent = '\uD83D\uDE80 EXPLORE ALL MISSIONS BY DESTINATION';
       }
     });
   }
 
-  // Highlight card expand/collapse (event delegation)
+  // Highlight card expand/collapse
   const hlContainer = document.getElementById('lh-highlights');
   if (hlContainer) {
     hlContainer.addEventListener('click', (e) => {
@@ -1064,12 +1165,56 @@ export function initLaunchHistory(getStarted) {
     });
   }
 
-  // Company card expand/collapse (event delegation)
+  // Company card expand/collapse
   const compGrid = document.getElementById('lh-company-grid');
   if (compGrid) {
     compGrid.addEventListener('click', (e) => {
       const card = e.target.closest('.lh-company-card');
       if (card) card.classList.toggle('expanded');
+    });
+  }
+
+  // Era expand/collapse (event delegation on timeline)
+  const timeline = document.getElementById('lh-timeline');
+  if (timeline) {
+    timeline.addEventListener('click', (e) => {
+      const header = e.target.closest('.lh-era-header');
+      if (header) {
+        const card = header.closest('.lh-era-card');
+        if (card) card.classList.toggle('collapsed');
+      }
+    });
+  }
+
+  // Destination group expand/collapse + "show all" buttons (event delegation on missions grid)
+  const missionsGrid = document.getElementById('lh-missions-grid');
+  if (missionsGrid) {
+    missionsGrid.addEventListener('click', (e) => {
+      // Header click — toggle collapse
+      const header = e.target.closest('.lh-dest-header');
+      if (header) {
+        const group = header.closest('.lh-dest-group');
+        if (group) group.classList.toggle('collapsed');
+        return;
+      }
+      // "Show all" button
+      const expandBtn = e.target.closest('.lh-dest-expand-btn');
+      if (expandBtn) {
+        const group = expandBtn.closest('.lh-dest-group');
+        if (group) {
+          const more = group.querySelector('.lh-dest-more-missions');
+          if (more) {
+            if (more.style.display === 'none') {
+              more.style.display = '';
+              expandBtn.textContent = 'SHOW LESS';
+            } else {
+              more.style.display = 'none';
+              const dest = expandBtn.dataset.dest;
+              expandBtn.textContent = `SHOW ALL MISSIONS`;
+            }
+          }
+        }
+      }
     });
   }
 

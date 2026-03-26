@@ -342,8 +342,34 @@
   .lh-company-card{cursor:pointer}
   .lh-company-expand{display:none;margin-top:10px;padding-top:10px;border-top:1px solid rgba(0,238,255,0.06)}
   .lh-company-card.expanded .lh-company-expand{display:block}
-  .lh-company-mission{padding:4px 0;font-size:11px;color:rgba(255,255,255,0.55);display:flex;justify-content:space-between}
-  .lh-company-mission span{color:#0ef;font-size:10px}
+  .lh-company-mission{padding:4px 0;font-size:11px;color:rgba(255,255,255,0.55);display:flex;gap:8px;align-items:baseline}
+  .lh-company-mission span{color:#0ef;font-size:10px;flex-shrink:0}
+
+  /* ── Era Timeline ── */
+  .lh-era-card{margin-bottom:10px;border-radius:4px;overflow:hidden;background:rgba(0,10,22,0.5);border:1px solid rgba(0,238,255,0.06)}
+  .lh-era-header{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;border-left:3px solid #0ef;transition:background 0.15s;position:relative}
+  .lh-era-header:hover{background:rgba(0,238,255,0.03)}
+  .lh-era-title{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;letter-spacing:3px}
+  .lh-era-range{font-size:10px;color:rgba(0,238,255,0.4);letter-spacing:1px}
+  .lh-era-stats{display:flex;gap:12px;font-size:9px;color:rgba(0,238,255,0.5);margin-left:auto}
+  .lh-era-stats span{white-space:nowrap}
+  .lh-era-chevron{font-size:10px;color:rgba(0,238,255,0.3);transition:transform 0.3s}
+  .lh-era-body{padding:4px 12px 12px;transition:max-height 0.3s ease,opacity 0.2s ease;max-height:600px;opacity:1;overflow:hidden}
+  .lh-era-card.collapsed .lh-era-body{max-height:0;opacity:0;padding:0 12px}
+  .lh-era-card.collapsed .lh-era-chevron{transform:rotate(-90deg)}
+
+  /* ── Destination Groups ── */
+  .lh-dest-group{margin-bottom:12px;border-radius:4px;overflow:hidden;background:rgba(0,10,22,0.5);border:1px solid rgba(0,238,255,0.06)}
+  .lh-dest-header{padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;border-left:3px solid #0ef;transition:background 0.15s}
+  .lh-dest-header:hover{background:rgba(0,238,255,0.03)}
+  .lh-dest-label{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;letter-spacing:2px}
+  .lh-dest-count{font-size:9px;color:rgba(0,238,255,0.4);letter-spacing:1px;margin-left:auto}
+  .lh-dest-chevron{font-size:10px;color:rgba(0,238,255,0.3);transition:transform 0.3s}
+  .lh-dest-body{padding:8px 12px 12px;transition:max-height 0.3s ease,opacity 0.2s ease;max-height:3000px;opacity:1;overflow:hidden}
+  .lh-dest-group.collapsed .lh-dest-body{max-height:0;opacity:0;padding:0 12px}
+  .lh-dest-group.collapsed .lh-dest-chevron{transform:rotate(-90deg)}
+  .lh-dest-body .lh-mission-card{margin-bottom:6px}
+  .lh-dest-expand-btn{font-size:10px;padding:10px;letter-spacing:2px;margin-top:6px}
 
   @media (max-width: 768px) {
     .lh-scroll-body{padding:14px 12px 30px}
