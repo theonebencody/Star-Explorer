@@ -38,6 +38,26 @@ function _truncate(str, len) {
   return str.length > len ? str.slice(0, len) + '...' : str;
 }
 
+function _videoEmbed(videoId) {
+  if (!videoId) return '';
+  return `<div class="lh-video-wrap"><iframe src="https://www.youtube-nocookie.com/embed/${videoId}" loading="lazy" allowfullscreen frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>`;
+}
+
+function _missionCardHtml(m) {
+  const oc = _getOC(m.org);
+  const year = m.date.slice(0, 4);
+  const hasVideo = !!m.video;
+  return `<div class="lh-mission-card${hasVideo ? ' lh-mission-card-expandable' : ''}">` +
+    `<div class="lh-mission-card-header">` +
+      `<div class="lh-mission-card-name">${m.name}${hasVideo ? ' <span class="lh-video-icon">\u25B6</span>' : ''}</div>` +
+      `<div class="lh-mission-card-date">${year}</div>` +
+    `</div>` +
+    `<span class="lh-mission-card-org" style="background:${oc.bg};border:1px solid ${oc.bd};color:${oc.css}">${m.org}</span>` +
+    `<div class="lh-mission-card-desc">${_truncate(m.desc, 80)}</div>` +
+    (hasVideo ? `<div class="lh-mission-card-video" style="display:none">${_videoEmbed(m.video)}</div>` : '') +
+  `</div>`;
+}
+
 export function openLaunchHistory() {
   _launchHistoryActive = true;
   document.getElementById('launch-history').classList.add('open');
@@ -150,6 +170,7 @@ function _renderHighlights(data) {
       `</div>` +
       `<div class="lh-dm-chevron">\u25BC</div>` +
       `<div class="lh-dm-detail">` +
+        _videoEmbed(m.video) +
         `<div class="lh-dm-desc">${m.desc || ''}</div>` +
         `<div class="lh-dm-stats">` +
           `<span>Rocket: <b>${m.rocket || '\u2014'}</b></span>` +
@@ -338,12 +359,14 @@ function _openOrgDetail(orgName) {
     const ds = d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
     const statusDot = m.status === 'success' ? '\u25CF' : m.status === 'failed' ? '\u25CF' : '\u25CB';
     const statusColor = m.status === 'success' ? '#4fa' : m.status === 'failed' ? '#f66' : '#fb4';
-    html += `<div class="lh-od-mission-row">` +
+    const hasDetail = m.video || (m.firsts && m.firsts.length > 0);
+    html += `<div class="lh-od-mission-row${hasDetail ? ' lh-od-expandable' : ''}">` +
       `<span class="lh-od-mission-status" style="color:${statusColor}">${statusDot}</span>` +
       `<span class="lh-od-mission-date">${ds}</span>` +
-      `<span class="lh-od-mission-name">${m.name}</span>` +
+      `<span class="lh-od-mission-name">${m.name}${m.video ? ' <span class="lh-video-icon">\u25B6</span>' : ''}</span>` +
       `<span class="lh-od-mission-rocket">${m.rocket}</span>` +
       `<span class="lh-od-mission-dest">${m.destination || '\u2014'}</span>` +
+      (hasDetail ? `<div class="lh-od-mission-detail">${_videoEmbed(m.video)}<div class="lh-od-mission-desc">${_truncate(m.desc, 200)}</div></div>` : '') +
       `</div>`;
   });
   html += `</div></div>`;
@@ -370,6 +393,12 @@ function _openOrgDetail(orgName) {
       if (chevron) chevron.style.transform = collapsed ? '' : 'rotate(-90deg)';
     });
   }
+
+  // Wire expandable mission rows in org detail
+  overlay.addEventListener('click', (e) => {
+    const row = e.target.closest('.lh-od-expandable');
+    if (row) row.classList.toggle('expanded');
+  });
 }
 
 // ─── Timeline by Era ─────────────────────────────────────────────
@@ -480,31 +509,13 @@ function _renderMissionsGrid(data) {
       `<div class="lh-dest-body">`;
 
     preview.forEach(m => {
-      const oc = _getOC(m.org);
-      const year = m.date.slice(0, 4);
-      html += `<div class="lh-mission-card">` +
-        `<div class="lh-mission-card-header">` +
-          `<div class="lh-mission-card-name">${m.name}</div>` +
-          `<div class="lh-mission-card-date">${year}</div>` +
-        `</div>` +
-        `<span class="lh-mission-card-org" style="background:${oc.bg};border:1px solid ${oc.bd};color:${oc.css}">${m.org}</span>` +
-        `<div class="lh-mission-card-desc">${_truncate(m.desc, 80)}</div>` +
-      `</div>`;
+      html += _missionCardHtml(m);
     });
 
     if (remainCount > 0) {
       html += `<div class="lh-dest-more-missions" style="display:none">`;
       missions.slice(4).forEach(m => {
-        const oc = _getOC(m.org);
-        const year = m.date.slice(0, 4);
-        html += `<div class="lh-mission-card">` +
-          `<div class="lh-mission-card-header">` +
-            `<div class="lh-mission-card-name">${m.name}</div>` +
-            `<div class="lh-mission-card-date">${year}</div>` +
-          `</div>` +
-          `<span class="lh-mission-card-org" style="background:${oc.bg};border:1px solid ${oc.bd};color:${oc.css}">${m.org}</span>` +
-          `<div class="lh-mission-card-desc">${_truncate(m.desc, 80)}</div>` +
-        `</div>`;
+        html += _missionCardHtml(m);
       });
       html += `</div>`;
       html += `<button class="lh-show-more-btn lh-dest-expand-btn" data-dest="${key}">SHOW ALL ${missions.length} MISSIONS</button>`;
@@ -1337,7 +1348,7 @@ export function initLaunchHistory(getStarted) {
     });
   }
 
-  // Destination group expand/collapse + "show all" buttons (event delegation on missions grid)
+  // Destination group expand/collapse + "show all" + video expand (event delegation)
   const missionsGrid = document.getElementById('lh-missions-grid');
   if (missionsGrid) {
     missionsGrid.addEventListener('click', (e) => {
@@ -1360,10 +1371,18 @@ export function initLaunchHistory(getStarted) {
               expandBtn.textContent = 'SHOW LESS';
             } else {
               more.style.display = 'none';
-              const dest = expandBtn.dataset.dest;
               expandBtn.textContent = `SHOW ALL MISSIONS`;
             }
           }
+        }
+        return;
+      }
+      // Mission card with video — toggle expand
+      const card = e.target.closest('.lh-mission-card-expandable');
+      if (card) {
+        const videoWrap = card.querySelector('.lh-mission-card-video');
+        if (videoWrap) {
+          videoWrap.style.display = videoWrap.style.display === 'none' ? 'block' : 'none';
         }
       }
     });

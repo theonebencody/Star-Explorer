@@ -336,6 +336,21 @@
   .lh-dm-firsts{margin-top:4px}
   .lh-dm-first-tag{font-size:10px;color:#fb4;letter-spacing:0.3px;padding:1px 0}
 
+  /* ── Video Embeds ── */
+  .lh-video-wrap{position:relative;width:100%;padding-bottom:56.25%;margin:10px 0;border-radius:4px;overflow:hidden;background:#000}
+  .lh-video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+  .lh-video-icon{color:#0ef;font-size:9px;opacity:0.5;margin-left:4px}
+
+  /* Expandable mission rows in org detail */
+  .lh-od-expandable{cursor:pointer;flex-wrap:wrap}
+  .lh-od-mission-detail{display:none;width:100%;padding:8px 0 4px 20px}
+  .lh-od-expandable.expanded .lh-od-mission-detail{display:block}
+  .lh-od-mission-desc{font-size:10px;color:rgba(255,255,255,0.5);line-height:1.7;margin-top:6px}
+
+  /* Expandable mission cards */
+  .lh-mission-card-expandable{cursor:pointer}
+  .lh-mission-card-video{margin-top:8px}
+
   .lh-timeline-wrap{position:relative;overflow:hidden}
   .lh-snowfall{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
   .lh-snowflake{position:absolute;background:white;border-radius:50%;opacity:0;animation:snowDrift var(--dur) linear infinite}
