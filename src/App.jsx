@@ -222,7 +222,7 @@ function App() {
       {/* Welcome Intro */}
       <div id="welcome-intro" className="welcome-overlay">
         <div className="welcome-card">
-          <button className="panel-close-btn" id="welcome-close-btn" style={{position:'absolute',top:'12px',right:'12px'}}>{'\u2715'}</button>
+          <button className="panel-close-btn" id="welcome-close-btn" style={{position:'absolute',top:'12px',right:'12px',transform:'none'}}>{'\u2715'}</button>
           <div className="welcome-icon">{'\u2B21'}</div>
           <div className="welcome-title">WELCOME, EXPLORER</div>
           <div className="welcome-text">
