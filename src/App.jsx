@@ -21,7 +21,7 @@ function App() {
         <canvas id="splash-bg" className="splash-bg-canvas"></canvas>
         <div className="splash-inner">
           <div className="splash-title">INFINITA</div>
-          <div className="splash-sub">Navigate the cosmos</div>
+          <div className="splash-sub">Life on Earth is finite, life beyond is infinite</div>
           <div className="splash-buttons">
             <button className="splash-btn splash-btn-primary" id="splash-explore-btn">
               <div className="splash-btn-icon">{'\u2B21'}</div>
