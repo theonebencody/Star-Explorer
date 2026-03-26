@@ -2851,6 +2851,23 @@ document.getElementById('splash-launches-btn').addEventListener('click', (e) => 
 });
 
 // ═══════════════════════════════════════════════
+//  SPLASH HOVER DESCRIPTIONS
+// ═══════════════════════════════════════════════
+const _hoverBox = document.getElementById('splash-hover-box');
+document.querySelectorAll('.splash-btn[data-hover-desc]').forEach(btn => {
+  btn.addEventListener('mouseenter', () => {
+    const desc = btn.getAttribute('data-hover-desc');
+    if (_hoverBox && desc) {
+      _hoverBox.innerHTML = '<div class="splash-hover-box-inner"><div class="splash-hover-box-text">' + desc + '</div></div>';
+      _hoverBox.classList.add('visible');
+    }
+  });
+  btn.addEventListener('mouseleave', () => {
+    if (_hoverBox) _hoverBox.classList.remove('visible');
+  });
+});
+
+// ═══════════════════════════════════════════════
 //  LAUNCH SIMULATOR  (Flight Profile Viewer)
 // ═══════════════════════════════════════════════
 
