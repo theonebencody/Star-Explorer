@@ -134,30 +134,30 @@ function _renderHighlights(data) {
   // If filter removes all curated picks, fall back to missions with firsts
   if (picks.length === 0) {
     picks = [...data].filter(m => m.firsts && m.firsts.length > 0)
-      .sort((a, b) => b.firsts.length - a.firsts.length).slice(0, 6);
+      .sort((a, b) => b.firsts.length - a.firsts.length).slice(0, 12);
   }
-  // Limit to 6 displayed
-  picks = picks.slice(0, 6);
 
   let html = '';
   picks.forEach(m => {
     const year = m.date.slice(0, 4);
-    const desc = _truncate(m.desc, 80);
     const firstTag = (m.firsts && m.firsts.length > 0) ? m.firsts[0] : '';
-    const allFirsts = (m.firsts || []).map(f => `<div>\u2605 ${f}</div>`).join('');
-    html += `<div class="lh-highlight-card" data-mission="${m.name}">` +
-      `<div class="lh-highlight-year">${year}</div>` +
-      `<div class="lh-highlight-name">${m.name}</div>` +
-      `<div class="lh-highlight-desc">${desc}</div>` +
-      (firstTag ? `<div class="lh-highlight-first">\u2605 ${firstTag}</div>` : '') +
-      `<div class="lh-highlight-expand">` +
-        `<div class="lh-highlight-expand-desc">${m.desc || ''}</div>` +
-        `<div class="lh-highlight-expand-stats">` +
-          `<div>Rocket: <span>${m.rocket || '\u2014'}</span></div>` +
-          `<div>Mass: <span>${_fmtMass(m.mass || 0)}</span></div>` +
-          `<div>Dest: <span>${m.destination || '\u2014'}</span></div>` +
+    const allFirsts = (m.firsts || []).map(f => `<div class="lh-dm-first-tag">\u2605 ${f}</div>`).join('');
+    html += `<div class="lh-dm-row" data-mission="${m.name}">` +
+      `<div class="lh-dm-year">${year}</div>` +
+      `<div class="lh-dm-main">` +
+        `<div class="lh-dm-name">${m.name}</div>` +
+        (firstTag ? `<div class="lh-dm-first">${firstTag}</div>` : '') +
+      `</div>` +
+      `<div class="lh-dm-chevron">\u25BC</div>` +
+      `<div class="lh-dm-detail">` +
+        `<div class="lh-dm-desc">${m.desc || ''}</div>` +
+        `<div class="lh-dm-stats">` +
+          `<span>Rocket: <b>${m.rocket || '\u2014'}</b></span>` +
+          `<span>Mass: <b>${_fmtMass(m.mass || 0)}</b></span>` +
+          `<span>Dest: <b>${m.destination || '\u2014'}</b></span>` +
+          `<span>Org: <b>${m.org || '\u2014'}</b></span>` +
         `</div>` +
-        (allFirsts ? `<div style="margin-top:8px;font-size:11px;color:#fb4">${allFirsts}</div>` : '') +
+        (allFirsts ? `<div class="lh-dm-firsts">${allFirsts}</div>` : '') +
       `</div>` +
       `</div>`;
   });
@@ -1303,12 +1303,12 @@ export function initLaunchHistory(getStarted) {
     });
   }
 
-  // Highlight card expand/collapse
+  // Defining moments row expand/collapse
   const hlContainer = document.getElementById('lh-highlights');
   if (hlContainer) {
     hlContainer.addEventListener('click', (e) => {
-      const card = e.target.closest('.lh-highlight-card');
-      if (card) card.classList.toggle('expanded');
+      const row = e.target.closest('.lh-dm-row');
+      if (row) row.classList.toggle('expanded');
     });
   }
 

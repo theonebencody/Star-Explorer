@@ -281,9 +281,11 @@ function App() {
           {/* Hero stats */}
           <div className="lh-stats-overview" id="lh-stats-overview"></div>
 
-          {/* Featured highlights — 3 spotlight cards */}
-          <div className="lh-section">
+          {/* Featured highlights — defining moments with astronaut backdrop */}
+          <div className="lh-section lh-defining-section">
+            <img src="/Infinita/images/astronaut.png" alt="" className="lh-defining-bg-img" />
             <div className="lh-section-title">DEFINING MOMENTS</div>
+            <div className="lh-defining-subtitle">The missions that changed everything</div>
             <div className="lh-highlights" id="lh-highlights"></div>
           </div>
 
@@ -326,7 +328,6 @@ function App() {
             <div className="lh-section-title">TIMELINE</div>
             <div className="lh-timeline-wrap">
               <div className="lh-snowfall" id="lh-snowfall"></div>
-              <img src="/Infinita/images/astronaut.png" alt="" className="lh-timeline-bg-img" />
               <div className="lh-timeline" id="lh-timeline"></div>
               <button className="lh-show-more-btn" id="lh-timeline-more" style={{display:'none'}}>SHOW FULL TIMELINE</button>
             </div>

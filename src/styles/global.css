@@ -313,25 +313,33 @@
   .lh-mission-card-status.failed{background:rgba(255,60,60,0.08);border:1px solid rgba(255,60,60,0.2);color:#f66}
   .lh-mission-card-status.partial{background:rgba(255,185,0,0.08);border:1px solid rgba(255,185,0,0.2);color:#fb4}
 
-  .lh-highlights{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
-  .lh-highlight-card{background:linear-gradient(135deg,rgba(0,20,40,0.8),rgba(0,10,25,0.9));border:1px solid rgba(0,238,255,0.15);border-radius:6px;padding:18px 20px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
-  .lh-highlight-card:hover{border-color:rgba(0,238,255,0.4);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,238,255,0.1)}
-  .lh-highlight-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#0ef,#07f)}
-  .lh-highlight-year{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:#0ef;margin-bottom:4px}
-  .lh-highlight-name{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:0.5px}
-  .lh-highlight-desc{font-size:12px;color:rgba(255,255,255,0.6);line-height:1.7;margin-bottom:10px}
-  .lh-highlight-first{font-size:11px;color:#fb4;letter-spacing:0.5px}
-  .lh-highlight-expand{display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(0,238,255,0.08)}
-  .lh-highlight-card.expanded .lh-highlight-expand{display:block}
-  .lh-highlight-expand-desc{font-size:12px;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:10px}
-  .lh-highlight-expand-stats{display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:rgba(0,238,255,0.6)}
-  .lh-highlight-expand-stats span{color:#0ef;font-weight:700}
+  /* ── Defining Moments Section ── */
+  .lh-defining-section{position:relative;overflow:hidden}
+  .lh-defining-bg-img{position:absolute;right:-5%;top:50%;transform:translateY(-50%);width:70%;max-width:500px;opacity:0.15;pointer-events:none;filter:brightness(1.2) contrast(1.1);z-index:0}
+  .lh-defining-section .lh-section-title{position:relative;z-index:1}
+  .lh-defining-subtitle{font-size:11px;color:rgba(0,238,255,0.3);letter-spacing:2px;margin-bottom:16px;position:relative;z-index:1}
+
+  .lh-highlights{display:flex;flex-direction:column;gap:0;position:relative;z-index:1}
+  .lh-dm-row{display:flex;align-items:center;gap:14px;padding:10px 14px;border-bottom:1px solid rgba(0,238,255,0.05);cursor:pointer;transition:background 0.12s;flex-wrap:wrap}
+  .lh-dm-row:hover{background:rgba(0,238,255,0.03)}
+  .lh-dm-year{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:#0ef;min-width:48px;flex-shrink:0}
+  .lh-dm-main{flex:1;min-width:0}
+  .lh-dm-name{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#fff;letter-spacing:0.5px;margin-bottom:2px}
+  .lh-dm-first{font-size:10px;color:#fb4;letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lh-dm-chevron{font-size:10px;color:rgba(0,238,255,0.25);transition:transform 0.3s;flex-shrink:0}
+  .lh-dm-row.expanded .lh-dm-chevron{transform:rotate(180deg)}
+  .lh-dm-detail{display:none;width:100%;padding:10px 0 6px 62px}
+  .lh-dm-row.expanded .lh-dm-detail{display:block}
+  .lh-dm-desc{font-size:11px;color:rgba(255,255,255,0.65);line-height:1.8;margin-bottom:8px}
+  .lh-dm-stats{display:flex;flex-wrap:wrap;gap:12px;font-size:10px;color:rgba(0,238,255,0.5);margin-bottom:6px}
+  .lh-dm-stats b{color:#0ef;font-weight:700}
+  .lh-dm-firsts{margin-top:4px}
+  .lh-dm-first-tag{font-size:10px;color:#fb4;letter-spacing:0.3px;padding:1px 0}
 
   .lh-timeline-wrap{position:relative;overflow:hidden}
   .lh-snowfall{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
   .lh-snowflake{position:absolute;background:white;border-radius:50%;opacity:0;animation:snowDrift var(--dur) linear infinite}
   @keyframes snowDrift{0%{transform:translateY(-10px) translateX(0);opacity:0}10%{opacity:var(--op)}90%{opacity:var(--op)}100%{transform:translateY(var(--fall)) translateX(var(--sway));opacity:0}}
-  .lh-timeline-bg-img{position:absolute;right:-5%;top:50%;transform:translateY(-50%);width:80%;max-width:600px;opacity:0.3;pointer-events:none;filter:brightness(1.0) contrast(1.2);z-index:0}
   .lh-timeline-wrap .lh-timeline{position:relative;z-index:1}
   .lh-timeline-wrap .lh-show-more-btn{position:relative;z-index:1}
 
