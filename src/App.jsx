@@ -38,9 +38,9 @@ function App() {
               <div className="splash-btn-label">LAUNCH SIMULATOR <span className="beta-tag">NOT READY</span></div>
               <div className="splash-btn-sub">Design and simulate your own mission</div>
             </button>
-            <button className="splash-btn splash-btn-disabled">
+            <button className="splash-btn" id="splash-planner-btn">
               <div className="splash-btn-icon">{'\uD83D\uDDFA'}</div>
-              <div className="splash-btn-label">MISSION PLANNER <span className="beta-tag">NOT BUILT</span></div>
+              <div className="splash-btn-label">MISSION PLANNER <span className="beta-tag">BETA</span></div>
               <div className="splash-btn-sub">Plan your journey across the cosmos</div>
             </button>
           </div>
@@ -384,6 +384,92 @@ function App() {
           <div className="fp-telem"><span className="fp-telem-lbl">VEL</span><span className="fp-telem-val" id="fp-t-vel">0 m/s</span></div>
           <div className="fp-telem"><span className="fp-telem-lbl">ACCEL</span><span className="fp-telem-val" id="fp-t-accel">0 g</span></div>
           <div className="fp-telem"><span className="fp-telem-lbl">STAGE</span><span className="fp-telem-val" id="fp-t-stage">BOOSTER</span></div>
+        </div>
+      </div>
+
+      {/* Mission Planner Overlay */}
+      <div id="mission-planner" className="lh-overlay">
+        <div className="mp-header">
+          <button className="lh-back-btn" id="mp-back-btn">{'\u2190'} BACK</button>
+          <div className="mp-title">MISSION PLANNER</div>
+          <div className="mp-exec-controls" id="mp-exec-controls" style={{display:'none'}}>
+            <button className="fp-ctrl-btn" id="mp-play-btn">{'\u25B6'}</button>
+            <button className="fp-ctrl-btn" id="mp-pause-btn">{'\u23F8'}</button>
+            <select className="fp-speed-select" id="mp-speed-select">
+              <option value="0.5">0.5x</option>
+              <option value="1" selected>1x</option>
+              <option value="2">2x</option>
+              <option value="5">5x</option>
+              <option value="10">10x</option>
+            </select>
+          </div>
+        </div>
+        <div className="mp-body">
+          {/* 3D Viewport */}
+          <div className="mp-viewport" id="mp-viewport"></div>
+
+          {/* Planning sidebar */}
+          <div className="mp-sidebar" id="mp-plan-panel">
+            <div className="mp-section">
+              <div className="mp-section-title">PRESET MISSIONS</div>
+              <div className="mp-templates-grid" id="mp-templates"></div>
+            </div>
+
+            <div className="mp-section">
+              <div className="mp-section-title">SELECT ROCKET</div>
+              <div className="mp-rocket-grid" id="mp-rocket-grid"></div>
+            </div>
+
+            <div className="mp-section">
+              <div className="mp-section-title">DESTINATION</div>
+              <div className="mp-dest-grid" id="mp-dest-grid"></div>
+            </div>
+
+            <div className="mp-section">
+              <div className="mp-section-title">MISSION TYPE</div>
+              <div className="mp-stop-row">
+                <button className="mp-stop-btn" data-stop="flyby">FLYBY</button>
+                <button className="mp-stop-btn selected" data-stop="orbit">ORBIT</button>
+                <button className="mp-stop-btn" data-stop="landing">LANDING</button>
+              </div>
+            </div>
+
+            <div className="mp-section">
+              <div className="mp-section-title">MISSION BRIEFING</div>
+              <div className="mp-briefing" id="mp-briefing"></div>
+            </div>
+
+            <div className="mp-action-row">
+              <button className="mp-approve-btn" id="mp-approve-btn" disabled>{'\u2713'} APPROVE MISSION</button>
+              <button className="mp-deny-btn" id="mp-deny-btn">{'\u2715'} RESET</button>
+            </div>
+          </div>
+
+          {/* Execution sidebar (hidden during planning) */}
+          <div className="mp-sidebar mp-exec-sidebar" id="mp-exec-panel" style={{display:'none'}}>
+            <div className="mp-section">
+              <div className="mp-section-title">MISSION TELEMETRY</div>
+              <div className="mp-telem-grid">
+                <div className="mp-telem-row"><span className="mp-telem-lbl">ELAPSED</span><span className="mp-telem-val" id="mp-t-elapsed">0 days</span></div>
+                <div className="mp-telem-row"><span className="mp-telem-lbl">REMAINING</span><span className="mp-telem-val" id="mp-t-remaining">{'\u2014'}</span></div>
+                <div className="mp-telem-row"><span className="mp-telem-lbl">PROGRESS</span><span className="mp-telem-val" id="mp-t-progress">0%</span></div>
+                <div className="mp-telem-row"><span className="mp-telem-lbl">DIST</span><span className="mp-telem-val" id="mp-t-dist">1.00 AU</span></div>
+                <div className="mp-telem-row"><span className="mp-telem-lbl">PHASE</span><span className="mp-telem-val" id="mp-t-phase">STANDBY</span></div>
+              </div>
+            </div>
+            <div className="mp-progress-wrap">
+              <div className="mp-progress-track">
+                <div className="mp-progress-bar" id="mp-progress-bar"></div>
+              </div>
+            </div>
+            <div className="mp-arrival" id="mp-arrival" style={{display:'none'}}>
+              <div className="mp-arrival-title">{'\u2713'} MISSION COMPLETE</div>
+              <div className="mp-arrival-text">Spacecraft has arrived at destination.</div>
+            </div>
+            <div className="mp-action-row">
+              <button className="mp-deny-btn" id="mp-replan-btn">{'\u21BA'} NEW MISSION</button>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -14,6 +14,7 @@ import { initSatellites, toggleSatellites, updateSatellites, isSatellitesVisible
 import { ensureLoaded, fetchGaiaStars, fetchNearbyGalaxies } from '../data/catalogManager.js';
 import { DEEP_SKY_OBJECTS } from '../data/messierNGC.js';
 import { STARSHIP_PROFILE, seekToTime } from './flightProfiles.js';
+import { openMissionPlanner, closeMissionPlanner, initMissionPlanner } from './missionPlanner.js';
 
 export function init(container) {
 'use strict';
@@ -3427,6 +3428,14 @@ document.getElementById('splash-sim-btn').addEventListener('click', function(e) 
   document.getElementById('splash').classList.add('hidden');
   openLaunchSim();
 });
+// Mission Planner button
+document.getElementById('splash-planner-btn').addEventListener('click', function(e) {
+  e.stopPropagation();
+  document.getElementById('splash').classList.add('hidden');
+  openMissionPlanner();
+});
+initMissionPlanner();
+
 document.getElementById('hud-back-btn').addEventListener('click', () => {
   started = false;
   document.getElementById('hud').classList.remove('active');
