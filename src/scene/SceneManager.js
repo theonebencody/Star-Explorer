@@ -2897,7 +2897,7 @@ const _FP_PHASE_IMAGES = [
   { id: 'maxq',       minT: 62,   src: '/Infinita/images/starship/starship8maxq.jpeg', label: 'MAX Q — ASCENT' },
   { id: 'hotstage',   minT: 160,  src: '/Infinita/images/starship/starship8hotstage.jpg', label: 'HOT-STAGING' },
   { id: 'boostback',  minT: 240,  src: '/Infinita/images/starship/SpaceXCatchesBooster.jpg', label: 'BOOSTER CATCH' },
-  { id: 'orbit',      minT: 530,  src: '/Infinita/images/starship/starship8orbit.webp', label: 'ORBIT ACHIEVED' },
+  { id: 'orbit',      minT: 380,  src: '/Infinita/images/starship/starship8orbit.webp', label: 'ORBIT ACHIEVED' },
 ];
 let _fpCurrentPhase = '';
 

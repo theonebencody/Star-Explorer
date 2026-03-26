@@ -376,7 +376,7 @@ function App() {
           </div>
         </div>
         <div className="fp-scrub-row">
-          <input type="range" className="fp-scrub" id="fp-scrub" min="0" max="540" defaultValue="0" step="1" />
+          <input type="range" className="fp-scrub" id="fp-scrub" min="0" max="420" defaultValue="0" step="1" />
         </div>
         <div className="fp-telemetry" id="fp-telemetry">
           <div className="fp-telem"><span className="fp-telem-lbl">T+</span><span className="fp-telem-val" id="fp-t-time">00:00</span></div>

@@ -7,7 +7,7 @@ export const STARSHIP_PROFILE = {
   image: '/Infinita/images/starship.jpg',
   totalHeight: 121, // meters
   maxAlt: 200,      // km target orbit
-  maxTime: 540,     // seconds total mission
+  maxTime: 420,     // seconds total mission
 
   stages: [
     {
@@ -70,7 +70,7 @@ export const STARSHIP_PROFILE = {
       short: 'Booster returns for tower catch. Ship presses on.',
     },
     {
-      t: 530, alt: 200, vel: 7800,
+      t: 400, alt: 200, vel: 7800,
       label: 'ORBIT INSERTION',
       stage: 'orbit',
       desc: 'Ship Engine Cutoff at orbital velocity of 7.8 km/s. Starship is now in a 200 km low Earth orbit. The payload door opens to deploy satellites or prepare for the next mission phase.',
