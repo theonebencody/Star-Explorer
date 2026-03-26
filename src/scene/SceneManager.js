@@ -2893,14 +2893,14 @@ function closeLaunchSim() {
 
 // ── Flight Phase Images ─────────────────────────
 const _FP_PHASE_IMAGES = [
-  { id: 'prelaunch', minT: -999, maxT: 0, src: '/Infinita/images/generated/fp-phase-prelaunch.png', label: 'PRE-LAUNCH' },
-  { id: 'liftoff',   minT: 0,   maxT: 62, src: '/Infinita/images/generated/fp-phase-liftoff.png', label: 'LIFTOFF' },
-  { id: 'maxq',      minT: 62,  maxT: 170, src: '/Infinita/images/generated/fp-phase-maxq.png', label: 'MAX Q — ASCENT' },
-  { id: 'hotstage',  minT: 170, maxT: 176, src: '/Infinita/images/generated/fp-phase-hotstage.png', label: 'HOT-STAGING' },
-  { id: 'separation',minT: 176, maxT: 181, src: '/Infinita/images/generated/fp-phase-separation.png', label: 'STAGE SEPARATION' },
-  { id: 'boostback', minT: 181, maxT: 300, src: '/Infinita/images/generated/fp-phase-boostback.png', label: 'BOOSTBACK BURN' },
-  { id: 'ship',      minT: 300, maxT: 530, src: '/Infinita/images/generated/fp-phase-ship.png', label: 'SHIP — ORBIT BURN' },
-  { id: 'orbit',     minT: 530, maxT: 9999, src: '/Infinita/images/generated/fp-phase-orbit.png', label: 'ORBIT ACHIEVED' },
+  { id: 'prelaunch',  minT: -999, src: '/Infinita/images/generated/fp-phase-prelaunch.png', label: 'PRE-LAUNCH' },
+  { id: 'liftoff',    minT: 0,    src: '/Infinita/images/generated/fp-phase-liftoff.png', label: 'LIFTOFF' },
+  { id: 'maxq',       minT: 62,   src: '/Infinita/images/generated/fp-phase-maxq.png', label: 'MAX Q — ASCENT' },
+  { id: 'hotstage',   minT: 160,  src: '/Infinita/images/generated/fp-phase-hotstage.png', label: 'HOT-STAGING' },
+  { id: 'separation', minT: 175,  src: '/Infinita/images/generated/fp-phase-separation.png', label: 'SEPARATION' },
+  { id: 'boostback',  minT: 200,  src: '/Infinita/images/generated/fp-phase-boostback.png', label: 'BOOSTER CATCH' },
+  { id: 'ship',       minT: 280,  src: '/Infinita/images/generated/fp-phase-ship.png', label: 'SHIP — ORBIT BURN' },
+  { id: 'orbit',      minT: 530,  src: '/Infinita/images/generated/fp-phase-orbit.png', label: 'ORBIT ACHIEVED' },
 ];
 let _fpCurrentPhase = '';
 
