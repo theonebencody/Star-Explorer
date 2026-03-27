@@ -1161,19 +1161,18 @@ function _buildGalaxyModel(opts = {}) {
   const galaxyCanvas = _paintGalaxyCanvas(texSize, opts);
   const galaxyTex = new THREE.CanvasTexture(galaxyCanvas);
 
-  // Main galaxy — use a billboard sprite so it always faces the camera
-  // This ensures the painted galaxy is always fully visible regardless of tilt
+  // Main galaxy — billboard sprite always faces camera
   const galaxySprite = new THREE.Sprite(new THREE.SpriteMaterial({
     map: galaxyTex,
     transparent: true,
     depthWrite: false,
   }));
-  // Squash vertically based on tilt to simulate inclination (Andromeda ~77° = very elongated)
   const aspect = Math.max(0.25, Math.cos(tilt));
-  galaxySprite.scale.set(R * 2.2, R * 2.2 * aspect, 1);
+  const baseW = R * 2.2, baseH = R * 2.2 * aspect;
+  galaxySprite.scale.set(baseW, baseH, 1);
   group.add(galaxySprite);
 
-  // Bright core glow — always facing camera
+  // Bright core glow
   const cc = document.createElement('canvas'); cc.width = 128; cc.height = 128;
   const cctx = cc.getContext('2d');
   const cg = cctx.createRadialGradient(64, 64, 0, 64, 64, 64);
@@ -1186,8 +1185,17 @@ function _buildGalaxyModel(opts = {}) {
   const coreSp = new THREE.Sprite(new THREE.SpriteMaterial({
     map: new THREE.CanvasTexture(cc), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
   }));
-  coreSp.scale.set(R * 0.8, R * 0.8 * aspect, 1);
+  const coreBaseW = R * 0.8, coreBaseH = R * 0.8 * aspect;
+  coreSp.scale.set(coreBaseW, coreBaseH, 1);
   group.add(coreSp);
+
+  // Store animation data on the group for the animate loop
+  group.userData._galaxyAnim = {
+    galaxySprite, coreSp,
+    baseW, baseH, coreBaseW, coreBaseH,
+    time: Math.random() * 100, // offset so multiple galaxies don't pulse in sync
+    rotSpeed: 0.003 + Math.random() * 0.002, // slow rotation
+  };
 
   return group;
 }
@@ -3876,6 +3884,27 @@ function animate(now) {
   updateComets(dt, simTime, currentScale);
   if (currentScale === 0) updateSatellites(simTime);
   if (galaxyGroup.visible) galaxyGroup.rotation.y += dt * 0.0008;
+
+  // Animate generated galaxy models — slow rotation, breathing pulse, core shimmer
+  Object.values(_galaxyModels).forEach(g => {
+    if (!g.visible || !g.userData._galaxyAnim) return;
+    const a = g.userData._galaxyAnim;
+    a.time += dt;
+
+    // Slow rotation
+    g.rotation.y += a.rotSpeed * dt;
+
+    // Gentle breathing pulse (scale oscillates ±3%)
+    const breath = 1 + Math.sin(a.time * 0.4) * 0.03;
+    a.galaxySprite.scale.set(a.baseW * breath, a.baseH * breath, 1);
+
+    // Core glow shimmer (faster, ±8%)
+    const shimmer = 1 + Math.sin(a.time * 1.2) * 0.08 + Math.sin(a.time * 2.7) * 0.04;
+    a.coreSp.scale.set(a.coreBaseW * shimmer, a.coreBaseH * shimmer, 1);
+
+    // Subtle opacity pulse on core
+    a.coreSp.material.opacity = 0.85 + Math.sin(a.time * 0.8) * 0.15;
+  });
   // Pulse "You Are Here" marker
   if (youAreHere.visible) { yahSprite.scale.setScalar(8000 * (1 + 0.15 * Math.sin(performance.now() * 0.003))); }
   updateHUD();
