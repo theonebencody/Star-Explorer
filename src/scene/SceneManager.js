@@ -416,25 +416,57 @@ scene.add(new THREE.Points(starGeo, starMat));
 const bgStarCount = isMobile ? 4000 : 12000;
 const bgStarPos = new Float32Array(bgStarCount * 3);
 const bgStarCol = new Float32Array(bgStarCount * 3);
+const bgStarSizes = new Float32Array(bgStarCount);
 for (let i = 0; i < bgStarCount; i++) {
   const theta = Math.random() * Math.PI * 2;
   const phi = Math.acos(2 * Math.random() - 1);
-  const r = 500; // constant distance — unit sphere scaled later
+  const r = 500;
   bgStarPos[i*3]   = r * Math.sin(phi) * Math.cos(theta);
   bgStarPos[i*3+1] = r * Math.sin(phi) * Math.sin(theta);
   bgStarPos[i*3+2] = r * Math.cos(phi);
+  // Realistic spectral color distribution
+  const roll = Math.random();
   const b = 0.3 + Math.random() * 0.7;
-  const tint = Math.random();
-  bgStarCol[i*3]   = tint < 0.1 ? b * 0.7 : b;
-  bgStarCol[i*3+1] = tint < 0.1 ? b * 0.8 : tint > 0.95 ? b * 0.85 : b;
-  bgStarCol[i*3+2] = tint < 0.1 ? b       : tint > 0.95 ? b * 0.7  : b;
+  if (roll < 0.02) { // O/B blue-white (rare, bright)
+    bgStarCol[i*3] = b*0.7; bgStarCol[i*3+1] = b*0.8; bgStarCol[i*3+2] = b;
+    bgStarSizes[i] = 0.8 + Math.random() * 0.6;
+  } else if (roll < 0.08) { // A white
+    bgStarCol[i*3] = b*0.95; bgStarCol[i*3+1] = b*0.95; bgStarCol[i*3+2] = b;
+    bgStarSizes[i] = 0.6 + Math.random() * 0.4;
+  } else if (roll < 0.18) { // F yellow-white
+    bgStarCol[i*3] = b; bgStarCol[i*3+1] = b*0.96; bgStarCol[i*3+2] = b*0.85;
+    bgStarSizes[i] = 0.5 + Math.random() * 0.3;
+  } else if (roll < 0.30) { // G yellow (Sun-like)
+    bgStarCol[i*3] = b; bgStarCol[i*3+1] = b*0.92; bgStarCol[i*3+2] = b*0.7;
+    bgStarSizes[i] = 0.5 + Math.random() * 0.2;
+  } else if (roll < 0.50) { // K orange
+    bgStarCol[i*3] = b; bgStarCol[i*3+1] = b*0.75; bgStarCol[i*3+2] = b*0.5;
+    bgStarSizes[i] = 0.4 + Math.random() * 0.2;
+  } else { // M red (most common)
+    bgStarCol[i*3] = b; bgStarCol[i*3+1] = b*0.55; bgStarCol[i*3+2] = b*0.35;
+    bgStarSizes[i] = 0.3 + Math.random() * 0.2;
+  }
 }
+// Soft star point texture for background stars
+const _bgStarTex = (() => {
+  const c = document.createElement('canvas'); c.width = 16; c.height = 16;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(8,8,0,8,8,8);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.2, 'rgba(255,255,255,0.6)');
+  g.addColorStop(0.5, 'rgba(255,255,255,0.1)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g; ctx.fillRect(0,0,16,16);
+  return new THREE.CanvasTexture(c);
+})();
+
 const bgStarGeo = new THREE.BufferGeometry();
 bgStarGeo.setAttribute('position', new THREE.BufferAttribute(bgStarPos, 3));
 bgStarGeo.setAttribute('color', new THREE.BufferAttribute(bgStarCol, 3));
 const bgStarMesh = new THREE.Points(bgStarGeo, new THREE.PointsMaterial({
-  size: 0.6, vertexColors: true, sizeAttenuation: false,
-  transparent: true, opacity: 0.85, depthWrite: false, fog: false
+  size: 1.2, vertexColors: true, sizeAttenuation: false,
+  transparent: true, opacity: 0.9, depthWrite: false, fog: false,
+  map: _bgStarTex, blending: THREE.AdditiveBlending
 }));
 bgStarMesh.frustumCulled = false;
 bgStarMesh.renderOrder = -1;
@@ -459,14 +491,35 @@ STAR_DATA.forEach(s => {
   mesh.userData = s;
   scene.add(mesh);
   namedStarMeshes.push(mesh);
-  // Add glow sprite to each named star
-  const gc=document.createElement('canvas'); gc.width=64; gc.height=64;
-  const gctx=gc.getContext('2d'),gg=gctx.createRadialGradient(32,32,0,32,32,32);
+  // Add glow sprite with diffraction spikes to each named star
+  const gc=document.createElement('canvas'); gc.width=128; gc.height=128;
+  const gctx=gc.getContext('2d');
   const gcol=`${(col.r*255)|0},${(col.g*255)|0},${(col.b*255)|0}`;
-  gg.addColorStop(0,`rgba(${gcol},0.9)`); gg.addColorStop(0.25,`rgba(${gcol},0.4)`); gg.addColorStop(1,'rgba(0,0,0,0)');
-  gctx.fillStyle=gg; gctx.fillRect(0,0,64,64);
+  // Core glow
+  const gg=gctx.createRadialGradient(64,64,0,64,64,64);
+  gg.addColorStop(0,`rgba(255,255,255,0.95)`);
+  gg.addColorStop(0.05,`rgba(${gcol},0.8)`);
+  gg.addColorStop(0.2,`rgba(${gcol},0.3)`);
+  gg.addColorStop(0.5,`rgba(${gcol},0.06)`);
+  gg.addColorStop(1,'rgba(0,0,0,0)');
+  gctx.fillStyle=gg; gctx.fillRect(0,0,128,128);
+  // Diffraction spikes (4-point star)
+  gctx.save(); gctx.globalCompositeOperation='lighter';
+  const spikeAlpha = Math.min(0.4, 0.1 + (1 - s.mag/6) * 0.3);
+  for (let a = 0; a < 4; a++) {
+    const angle = a * Math.PI/2 + Math.PI/4;
+    gctx.save(); gctx.translate(64,64); gctx.rotate(angle);
+    const lg = gctx.createLinearGradient(0,0,56,0);
+    lg.addColorStop(0, `rgba(${gcol},${spikeAlpha})`);
+    lg.addColorStop(0.3, `rgba(${gcol},${spikeAlpha*0.3})`);
+    lg.addColorStop(1, 'rgba(0,0,0,0)');
+    gctx.fillStyle = lg;
+    gctx.fillRect(0,-0.8,56,1.6);
+    gctx.restore();
+  }
+  gctx.restore();
   const gSp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(gc),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));
-  gSp.scale.setScalar(r*8); mesh.add(gSp);
+  gSp.scale.setScalar(r*10); mesh.add(gSp);
 });
 
 // ═══════════════════════════════════════════════
@@ -904,15 +957,91 @@ function loadDeepSkyObjects() {
     const col = typeColors[obj.type] || 0xaaaaff;
     const r = obj.type === 'galaxy' ? 8e8 : 2500;
 
-    // Glow sprite for each object
+    // Unique canvas textures per object type for visual variety
     const sc = document.createElement('canvas'); sc.width = 64; sc.height = 64;
     const sctx = sc.getContext('2d');
-    const sg = sctx.createRadialGradient(32,32,0,32,32,32);
     const c3 = new THREE.Color(col);
-    sg.addColorStop(0, `rgba(${(c3.r*255)|0},${(c3.g*255)|0},${(c3.b*255)|0},0.9)`);
-    sg.addColorStop(0.3, `rgba(${(c3.r*255)|0},${(c3.g*255)|0},${(c3.b*255)|0},0.35)`);
-    sg.addColorStop(1, 'rgba(0,0,0,0)');
-    sctx.fillStyle = sg; sctx.fillRect(0,0,64,64);
+    const cr = (c3.r*255)|0, cg = (c3.g*255)|0, cb = (c3.b*255)|0;
+
+    if (obj.type === 'nebula') {
+      // Nebulae: irregular, wispy, multi-colored (Hα red + OIII teal)
+      // Draw multiple offset blobs for cloudlike shape
+      for (let k = 0; k < 5; k++) {
+        const ox = 32 + (Math.random()-0.5)*16, oy = 32 + (Math.random()-0.5)*16;
+        const nr = 12 + Math.random()*14;
+        const ng = sctx.createRadialGradient(ox, oy, 0, ox, oy, nr);
+        // Mix Hα pink-red and OIII teal for emission nebulae
+        const isHa = Math.random() > 0.4;
+        const ncr = isHa ? 220+Math.random()*35 : 60+Math.random()*40;
+        const ncg = isHa ? 80+Math.random()*40 : 180+Math.random()*60;
+        const ncb = isHa ? 100+Math.random()*30 : 200+Math.random()*55;
+        ng.addColorStop(0, `rgba(${ncr|0},${ncg|0},${ncb|0},${0.3+Math.random()*0.3})`);
+        ng.addColorStop(0.5, `rgba(${ncr|0},${ncg|0},${ncb|0},${0.08+Math.random()*0.08})`);
+        ng.addColorStop(1, 'rgba(0,0,0,0)');
+        sctx.fillStyle = ng; sctx.fillRect(0,0,64,64);
+      }
+    } else if (obj.type === 'planetary_nebula') {
+      // Planetary nebulae: ring-shaped with bright rim and dim center
+      const ng = sctx.createRadialGradient(32,32,8,32,32,26);
+      ng.addColorStop(0, `rgba(${cr},${cg},${cb},0.15)`);
+      ng.addColorStop(0.5, `rgba(${cr},${cg},${cb},0.05)`);
+      ng.addColorStop(0.75, `rgba(${cr},${cg},${cb},0.6)`);
+      ng.addColorStop(0.9, `rgba(${cr},${cg},${cb},0.3)`);
+      ng.addColorStop(1, 'rgba(0,0,0,0)');
+      sctx.fillStyle = ng; sctx.fillRect(0,0,64,64);
+      // Bright central star
+      const cs = sctx.createRadialGradient(32,32,0,32,32,4);
+      cs.addColorStop(0, 'rgba(255,255,255,0.9)');
+      cs.addColorStop(1, 'rgba(255,255,255,0)');
+      sctx.fillStyle = cs; sctx.fillRect(0,0,64,64);
+    } else if (obj.type === 'snr') {
+      // Supernova remnants: filamentary shell
+      for (let k = 0; k < 8; k++) {
+        const a = (k/8)*Math.PI*2 + Math.random()*0.4;
+        const ir = 14+Math.random()*4, or = 20+Math.random()*6;
+        const fx = 32+Math.cos(a)*((ir+or)/2), fy = 32+Math.sin(a)*((ir+or)/2);
+        const fg = sctx.createRadialGradient(fx, fy, 0, fx, fy, 6+Math.random()*4);
+        fg.addColorStop(0, `rgba(${cr},${cg},${cb},${0.4+Math.random()*0.3})`);
+        fg.addColorStop(1, 'rgba(0,0,0,0)');
+        sctx.fillStyle = fg; sctx.fillRect(0,0,64,64);
+      }
+    } else if (obj.type === 'globular') {
+      // Globular clusters: dense core fading smoothly, speckled
+      const gg = sctx.createRadialGradient(32,32,0,32,32,28);
+      gg.addColorStop(0, `rgba(${cr},${cg},${cb},0.85)`);
+      gg.addColorStop(0.15, `rgba(${cr},${cg},${cb},0.55)`);
+      gg.addColorStop(0.4, `rgba(${cr},${cg},${cb},0.18)`);
+      gg.addColorStop(0.7, `rgba(${cr},${cg},${cb},0.04)`);
+      gg.addColorStop(1, 'rgba(0,0,0,0)');
+      sctx.fillStyle = gg; sctx.fillRect(0,0,64,64);
+      // Sprinkle individual star points
+      for (let k = 0; k < 40; k++) {
+        const sr = Math.pow(Math.random(),2)*24;
+        const sa = Math.random()*Math.PI*2;
+        sctx.beginPath();
+        sctx.arc(32+Math.cos(sa)*sr, 32+Math.sin(sa)*sr, 0.5+Math.random(), 0, Math.PI*2);
+        sctx.fillStyle = `rgba(255,${220+Math.random()*35|0},${180+Math.random()*40|0},${0.5+Math.random()*0.4})`;
+        sctx.fill();
+      }
+    } else if (obj.type === 'open_cluster') {
+      // Open clusters: scattered bright stars, no dense core
+      for (let k = 0; k < 25; k++) {
+        const sr = Math.random()*20;
+        const sa = Math.random()*Math.PI*2;
+        const ss = 0.8+Math.random()*1.5;
+        const sg2 = sctx.createRadialGradient(32+Math.cos(sa)*sr, 32+Math.sin(sa)*sr, 0, 32+Math.cos(sa)*sr, 32+Math.sin(sa)*sr, ss*2);
+        sg2.addColorStop(0, `rgba(255,${240+Math.random()*15|0},${200+Math.random()*55|0},${0.6+Math.random()*0.3})`);
+        sg2.addColorStop(1, 'rgba(0,0,0,0)');
+        sctx.fillStyle = sg2; sctx.fillRect(0,0,64,64);
+      }
+    } else {
+      // Default: simple radial gradient (galaxies, etc.)
+      const sg = sctx.createRadialGradient(32,32,0,32,32,32);
+      sg.addColorStop(0, `rgba(${cr},${cg},${cb},0.9)`);
+      sg.addColorStop(0.3, `rgba(${cr},${cg},${cb},0.35)`);
+      sg.addColorStop(1, 'rgba(0,0,0,0)');
+      sctx.fillStyle = sg; sctx.fillRect(0,0,64,64);
+    }
 
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
       map: new THREE.CanvasTexture(sc), blending: THREE.AdditiveBlending,
