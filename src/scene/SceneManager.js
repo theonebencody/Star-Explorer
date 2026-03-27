@@ -2416,7 +2416,8 @@ function applyScale() {
     fromNear, fromFar, fromFog,
     toNear: params.near, toFar: params.far, toFog: params.fog,
     fromSpeed, toSpeed: params.speed,
-    targetPos: params.pos ? new THREE.Vector3(...params.pos) : null
+    // Don't move camera if we're viewing a galaxy (instant travel already positioned it)
+    targetPos: (params.pos && !_viewingGalaxy) ? new THREE.Vector3(...params.pos) : null
   };
 
   // Immediately update near/far to max range to avoid clipping during transition
