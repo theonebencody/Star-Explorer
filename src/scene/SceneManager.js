@@ -1040,137 +1040,141 @@ function travelToMesh(mesh, scaleLevel, name, orbitR) {
 
 // simbadMarkerRadius imported from simbad.js
 
-// ── Soft circle texture for galaxy particles ──
-const _galaxyParticleTex = (() => {
-  const c = document.createElement('canvas'); c.width = 32; c.height = 32;
+// ── Procedural galaxy texture painter ────────────────────────────
+function _paintGalaxyCanvas(size, opts) {
+  const c = document.createElement('canvas');
+  c.width = size; c.height = size;
   const ctx = c.getContext('2d');
-  const g = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
-  g.addColorStop(0, 'rgba(255,255,255,1)');
-  g.addColorStop(0.3, 'rgba(255,255,255,0.6)');
-  g.addColorStop(0.7, 'rgba(255,255,255,0.15)');
-  g.addColorStop(1, 'rgba(255,255,255,0)');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, 32, 32);
-  return new THREE.CanvasTexture(c);
-})();
-
-// ── Procedural galaxy model builder (for external viewing at Cosmic scale) ──
-function _buildGalaxyModel(opts = {}) {
-  const group = new THREE.Group();
-  const scale = opts.scale || 1;
-  const tilt = opts.tilt || 0.4;
+  const cx = size / 2, cy = size / 2;
   const arms = opts.arms || 2;
   const wind = opts.wind || 2.5;
   const isElliptical = opts.elliptical || false;
 
-  // Galaxy radius ~110,000 ly * scale → in AU
-  // Particle sizes scaled for visibility at ~3x galaxy radius viewing distance
-  const KLY = 63241;
-  const R = 50000 * KLY * scale;          // galaxy radius in AU (~3.16e9 * scale)
-  const bulgeR = 12000 * KLY * scale;
-  const R0 = 3000 * KLY * scale;
-  const pSize = R * 0.006;                // particle size ~0.6% of galaxy radius
+  // Black background
+  ctx.fillStyle = 'rgba(0,0,0,0)';
+  ctx.clearRect(0, 0, size, size);
 
-  // A. Spiral Disc (or elliptical body)
-  const discN = isMobile ? 5000 : 15000;
-  const dP = new Float32Array(discN * 3);
-  const dC = new Float32Array(discN * 3);
+  // Draw galaxy using many soft dots
+  const N = isElliptical ? 30000 : 50000;
+  const maxR = size * 0.42;
 
-  for (let i = 0; i < discN; i++) {
-    let x, y, z2;
+  for (let i = 0; i < N; i++) {
+    let px, py;
     if (isElliptical) {
-      const r2 = Math.pow(Math.random(), 1.5) * R;
-      const th = Math.random() * Math.PI * 2;
-      const ph = Math.acos(2 * Math.random() - 1);
-      x = r2 * Math.sin(ph) * Math.cos(th);
-      y = r2 * Math.sin(ph) * Math.sin(th) * 0.6;
-      z2 = r2 * Math.cos(ph);
+      const r = Math.pow(Math.random(), 1.8) * maxR;
+      const a = Math.random() * Math.PI * 2;
+      px = cx + Math.cos(a) * r;
+      py = cy + Math.sin(a) * r * 0.65;
     } else {
-      const inArm = i < discN * 0.7;
-      const armIdx = inArm ? Math.floor(Math.random() * arms) : Math.floor(Math.random() * arms) + 0.5;
+      const inArm = i < N * 0.65;
+      const armIdx = inArm ? Math.floor(Math.random() * arms) : Math.random() * arms;
       const armBase = (armIdx / arms) * Math.PI * 2;
-      const dist = Math.pow(Math.random(), 0.7) * R;
-      const spiralAngle = armBase + Math.log(1 + dist / R0) * wind;
-      const spread = _gaussRand() * dist * (inArm ? 0.06 : 0.14);
-      x = Math.cos(spiralAngle) * dist + Math.cos(spiralAngle + Math.PI / 2) * spread;
-      y = _gaussRand() * dist * 0.008;
-      z2 = Math.sin(spiralAngle) * dist + Math.sin(spiralAngle + Math.PI / 2) * spread;
+      const dist = Math.pow(Math.random(), 0.65) * maxR;
+      const spiralAngle = armBase + Math.log(1 + dist / (maxR * 0.08)) * wind;
+      const spread = (inArm ? 0.06 : 0.15) * dist;
+      const sx = (Math.random() - 0.5) * 2 * spread;
+      const sy = (Math.random() - 0.5) * 2 * spread;
+      px = cx + Math.cos(spiralAngle) * dist + sx;
+      py = cy + Math.sin(spiralAngle) * dist + sy;
     }
-    dP[i * 3] = x; dP[i * 3 + 1] = y; dP[i * 3 + 2] = z2;
 
-    const distFromCenter = Math.sqrt(x * x + z2 * z2) / R;
-    let temp;
-    if (isElliptical) {
-      temp = 3500 + Math.random() * 2000;
+    const distFromCenter = Math.sqrt((px - cx) ** 2 + (py - cy) ** 2) / maxR;
+
+    // Color: golden center → blue-white arms
+    let r, g, b, alpha;
+    if (isElliptical || distFromCenter < 0.2) {
+      // Warm golden core
+      const t = Math.random();
+      r = 255; g = 200 + t * 40; b = 130 + t * 50;
+      alpha = (1 - distFromCenter * 0.8) * (0.04 + Math.random() * 0.03);
+    } else if (i < N * 0.65) {
+      // Blue-white arm stars
+      const t = Math.random();
+      r = 140 + t * 80; g = 160 + t * 70; b = 220 + t * 35;
+      alpha = (1 - distFromCenter * 0.6) * (0.02 + Math.random() * 0.02);
     } else {
-      const inArm = i < discN * 0.7;
-      if (distFromCenter < 0.15) temp = 3500 + Math.random() * 2000;
-      else if (inArm) temp = 7000 + Math.random() * 18000;
-      else temp = 3500 + Math.random() * 3500;
+      // Dimmer inter-arm stars
+      const t = Math.random();
+      r = 200 + t * 55; g = 180 + t * 50; b = 150 + t * 40;
+      alpha = (1 - distFromCenter * 0.7) * (0.01 + Math.random() * 0.01);
     }
-    const c = tempToColor(temp);
-    dC[i * 3] = c.r; dC[i * 3 + 1] = c.g; dC[i * 3 + 2] = c.b;
-  }
-  const dG = new THREE.BufferGeometry();
-  dG.setAttribute('position', new THREE.BufferAttribute(dP, 3));
-  dG.setAttribute('color', new THREE.BufferAttribute(dC, 3));
-  group.add(new THREE.Points(dG, new THREE.PointsMaterial({
-    size: pSize, vertexColors: true, sizeAttenuation: true, transparent: true, opacity: 0.7,
-    map: _galaxyParticleTex, blending: THREE.AdditiveBlending, depthWrite: false
-  })));
 
-  // B. Central Bulge — denser, warmer
-  const bN = isMobile ? 800 : 2500;
-  const bP = new Float32Array(bN * 3);
-  const bC = new Float32Array(bN * 3);
-  for (let i = 0; i < bN; i++) {
-    const r2 = bulgeR * Math.pow(Math.random(), 2.5);
-    const th = Math.random() * Math.PI * 2;
-    const ph = Math.acos(2 * Math.random() - 1);
-    bP[i * 3] = r2 * Math.sin(ph) * Math.cos(th);
-    bP[i * 3 + 1] = r2 * Math.sin(ph) * Math.sin(th) * 0.5;
-    bP[i * 3 + 2] = r2 * Math.cos(ph);
-    const c = tempToColor(3500 + Math.random() * 2500);
-    bC[i * 3] = c.r; bC[i * 3 + 1] = c.g; bC[i * 3 + 2] = c.b;
-  }
-  const bG = new THREE.BufferGeometry();
-  bG.setAttribute('position', new THREE.BufferAttribute(bP, 3));
-  bG.setAttribute('color', new THREE.BufferAttribute(bC, 3));
-  group.add(new THREE.Points(bG, new THREE.PointsMaterial({
-    size: pSize * 1.8, vertexColors: true, sizeAttenuation: true, transparent: true, opacity: 0.85,
-    map: _galaxyParticleTex, blending: THREE.AdditiveBlending, depthWrite: false
-  })));
+    // Add pink/red HII regions in spiral arms
+    if (!isElliptical && i < N * 0.65 && Math.random() < 0.03 && distFromCenter > 0.2) {
+      r = 255; g = 100 + Math.random() * 60; b = 120 + Math.random() * 40;
+      alpha = 0.06 + Math.random() * 0.04;
+    }
 
-  // C. Core Glow — large sprite visible from far away
+    const dotR = (1 - distFromCenter * 0.5) * (1.5 + Math.random() * 2);
+    ctx.beginPath();
+    ctx.arc(px, py, dotR, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${r|0},${g|0},${b|0},${alpha})`;
+    ctx.fill();
+  }
+
+  // Bright central bulge glow
+  const bulgeGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * 0.35);
+  bulgeGrad.addColorStop(0, 'rgba(255,240,200,0.7)');
+  bulgeGrad.addColorStop(0.2, 'rgba(255,220,170,0.4)');
+  bulgeGrad.addColorStop(0.5, 'rgba(220,180,120,0.1)');
+  bulgeGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = bulgeGrad;
+  ctx.fillRect(0, 0, size, size);
+
+  // Soft outer halo
+  const haloGrad = ctx.createRadialGradient(cx, cy, maxR * 0.1, cx, cy, maxR * 1.1);
+  haloGrad.addColorStop(0, 'rgba(180,190,255,0.05)');
+  haloGrad.addColorStop(0.5, 'rgba(120,140,200,0.02)');
+  haloGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = haloGrad;
+  ctx.fillRect(0, 0, size, size);
+
+  return c;
+}
+
+// ── Procedural galaxy model builder (canvas-textured sprite) ──
+function _buildGalaxyModel(opts = {}) {
+  const group = new THREE.Group();
+  const scale = opts.scale || 1;
+  const tilt = opts.tilt || 0.4;
+
+  const KLY = 63241;
+  const R = 50000 * KLY * scale; // galaxy radius in AU
+
+  // Paint galaxy texture on canvas
+  const texSize = isMobile ? 512 : 1024;
+  const galaxyCanvas = _paintGalaxyCanvas(texSize, opts);
+  const galaxyTex = new THREE.CanvasTexture(galaxyCanvas);
+
+  // Main galaxy disc — a flat plane with the painted texture
+  const planeGeo = new THREE.PlaneGeometry(R * 2, R * 2);
+  const planeMat = new THREE.MeshBasicMaterial({
+    map: galaxyTex,
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+  });
+  const plane = new THREE.Mesh(planeGeo, planeMat);
+  plane.rotation.x = -Math.PI / 2; // flat on XZ plane
+  group.add(plane);
+
+  // Core glow sprite (3D depth — visible from any angle)
   const cc = document.createElement('canvas'); cc.width = 128; cc.height = 128;
   const cctx = cc.getContext('2d');
   const cg = cctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-  cg.addColorStop(0, 'rgba(255,235,200,0.8)');
-  cg.addColorStop(0.15, 'rgba(255,215,160,0.5)');
-  cg.addColorStop(0.4, 'rgba(200,160,100,0.15)');
+  cg.addColorStop(0, 'rgba(255,240,200,0.6)');
+  cg.addColorStop(0.2, 'rgba(255,215,160,0.3)');
+  cg.addColorStop(0.5, 'rgba(200,160,100,0.08)');
   cg.addColorStop(1, 'rgba(0,0,0,0)');
   cctx.fillStyle = cg; cctx.fillRect(0, 0, 128, 128);
   const coreSp = new THREE.Sprite(new THREE.SpriteMaterial({
     map: new THREE.CanvasTexture(cc), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
   }));
-  coreSp.scale.setScalar(R * 0.5); // core glow = 50% of galaxy radius
+  coreSp.scale.setScalar(R * 0.6);
   group.add(coreSp);
 
-  // D. Outer glow halo — makes galaxy visible from far away
-  const hc = document.createElement('canvas'); hc.width = 128; hc.height = 128;
-  const hctx = hc.getContext('2d');
-  const hg = hctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-  hg.addColorStop(0, 'rgba(150,170,255,0.12)');
-  hg.addColorStop(0.3, 'rgba(120,140,220,0.06)');
-  hg.addColorStop(0.7, 'rgba(80,100,180,0.02)');
-  hg.addColorStop(1, 'rgba(0,0,0,0)');
-  hctx.fillStyle = hg; hctx.fillRect(0, 0, 128, 128);
-  const haloSp = new THREE.Sprite(new THREE.SpriteMaterial({
-    map: new THREE.CanvasTexture(hc), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false
-  }));
-  haloSp.scale.setScalar(R * 2.5); // halo much larger than galaxy
-  group.add(haloSp);
-
-  // Apply tilt
+  // Apply tilt (galaxy inclination)
   group.rotation.x = tilt;
 
   return group;
