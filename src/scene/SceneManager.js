@@ -1183,6 +1183,7 @@ function travelToSIMBADResult(result, skipTravel = false) {
   const r        = simbadMarkerRadius(typeInfo.scale, typeInfo.label);
   const col      = sp ? tempToColor(spTypeToTemp(sp)) : typeInfo.color;
   const isGalaxy = typeInfo.label === 'Galaxy';
+  console.log('[SIMBAD Travel]', name, 'otype:', otype, 'label:', typeInfo.label, 'scale:', typeInfo.scale, 'isGalaxy:', isGalaxy, 'dist AU:', distAU, 'pos:', pos.x.toExponential(2), pos.y.toExponential(2), pos.z.toExponential(2), 'r:', r, 'cam pos:', camera.position.x.toExponential(2), camera.position.y.toExponential(2), camera.position.z.toExponential(2), 'currentScale:', currentScale);
 
   let mesh;
   if (isGalaxy && !_galaxyModels[name]) {
@@ -1805,6 +1806,7 @@ document.getElementById('travel-engage-btn').addEventListener('click', () => {
 });
 document.getElementById('travel-instant-btn').addEventListener('click', () => {
   if (!travelDest) return;
+  console.log('[INSTANT] travelDest:', travelDest.name, 'scale:', travelDest.scaleLevel, 'radius:', travelDest.radius, 'hasSimbad:', !!travelDest.simbadResult, 'pos:', travelDest.position?.x?.toExponential?.(2), travelDest.position?.y?.toExponential?.(2), travelDest.position?.z?.toExponential?.(2));
   closeTravelPanel();
   // Switch scale
   if (travelDest.scaleLevel !== undefined && currentScale !== travelDest.scaleLevel) {
@@ -1815,8 +1817,10 @@ document.getElementById('travel-instant-btn').addEventListener('click', () => {
   // Teleport camera directly to viewing position
   const objR = travelDest.radius || 0.05;
   const stopR = Math.max(objR * 4, objR * 6);
+  console.log('[INSTANT] objR:', objR, 'stopR:', stopR, 'camera.far:', camera.far, 'currentScale:', currentScale);
   const dir = new THREE.Vector3().subVectors(travelDest.position, camera.position).normalize();
   camera.position.copy(travelDest.position).addScaledVector(dir, -stopR);
+  console.log('[INSTANT] final cam pos:', camera.position.x.toExponential(2), camera.position.y.toExponential(2), camera.position.z.toExponential(2), 'galaxy models:', Object.keys(_galaxyModels));
   // Face the destination
   yaw = Math.atan2(-dir.x, -dir.z);
   pitch = Math.asin(Math.max(-1, Math.min(1, dir.y)));
