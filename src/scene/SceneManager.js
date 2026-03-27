@@ -1228,6 +1228,16 @@ function _ensureGalaxyModel(dest) {
   const galaxyR = 50000 * 63241 * (galaxyOpts.scale || 1); // galaxy radius in AU
   dest.radius = galaxyR;
   dest.scaleLevel = 3;
+
+  // Hide catalog galaxy sprites and deep sky sprites near the destination
+  // so they don't appear as ugly blocks around the camera
+  const hideRadius = galaxyR * 10;
+  galaxyCatalogMeshes.forEach(s => {
+    if (s.position.distanceTo(dest.position) < hideRadius) s.visible = false;
+  });
+  deepSkyMeshes.forEach(s => {
+    if (s.position.distanceTo(dest.position) < hideRadius) s.visible = false;
+  });
 }
 
 function travelToSIMBADResult(result, skipTravel = false) {
@@ -1257,18 +1267,22 @@ function travelToSIMBADResult(result, skipTravel = false) {
     const galaxyGroup = _buildGalaxyModel(galaxyOpts);
     galaxyGroup.position.copy(pos);
     galaxyGroup.userData = { name, type: 'Galaxy', distAU };
-    galaxyGroup.visible = true; // ensure visible immediately
+    galaxyGroup.visible = true;
     scene.add(galaxyGroup);
     _galaxyModels[name] = galaxyGroup;
+
+    // Hide nearby catalog/deep sky sprites so they don't block the view
+    const galaxyR = 50000 * 63241 * (galaxyOpts.scale || 1);
+    const hideR = galaxyR * 10;
+    galaxyCatalogMeshes.forEach(s => { if (s.position.distanceTo(pos) < hideR) s.visible = false; });
+    deepSkyMeshes.forEach(s => { if (s.position.distanceTo(pos) < hideR) s.visible = false; });
 
     // Add companion galaxies for Andromeda
     if (isAndromeda) {
       const KLY = 63241;
-      // M32 — compact elliptical, south of core, ~22 kly from M31 center
       const m32 = _buildGalaxyModel({ scale: 0.12, tilt: 0.2, elliptical: true });
       m32.position.set(-15000 * KLY, -5000 * KLY, 8000 * KLY);
       galaxyGroup.add(m32);
-      // M110 — dwarf elliptical, northwest, ~120 kly from M31 center
       const m110 = _buildGalaxyModel({ scale: 0.2, tilt: 0.8, elliptical: true });
       m110.position.set(40000 * KLY, 12000 * KLY, -30000 * KLY);
       galaxyGroup.add(m110);
