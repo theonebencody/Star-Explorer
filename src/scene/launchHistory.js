@@ -96,35 +96,85 @@ function _renderAll() {
   _renderMissionsGrid(data);
 }
 
+// ─── Global Space Stats (real-world totals, source: Jonathan McDowell) ────
+const GLOBAL_STATS = {
+  totalAttempts: 7223,
+  totalSuccess: 6822,
+  totalFailures: 401,
+  yearSpan: '1957 \u2013 2026',
+  nations: 20,
+  byNation: [
+    { name: 'Soviet Union', attempts: 2449, note: '1957\u20131991' },
+    { name: 'United States', attempts: 2376, note: 'NASA + commercial' },
+    { name: 'Russia', attempts: 888, note: '1992\u2013present' },
+    { name: 'China', attempts: 748, note: 'CASC / Long March' },
+    { name: 'France / ESA', attempts: 351, note: 'Ariane, Vega' },
+    { name: 'Japan', attempts: 143, note: 'JAXA' },
+    { name: 'India', attempts: 101, note: 'ISRO' },
+    { name: 'New Zealand', attempts: 72, note: 'Rocket Lab' },
+    { name: 'Others', attempts: 95, note: 'UK, S. Korea, Israel, Iran, etc.' },
+  ],
+  byCompany: [
+    { name: 'SpaceX', launches: 631, note: 'Falcon 9/Heavy + Starship' },
+    { name: 'CASC (China)', launches: 600, note: 'Long March series' },
+    { name: 'Arianespace', launches: 300, note: 'Ariane, Vega, Soyuz-FG' },
+    { name: 'ULA', launches: 200, note: 'Atlas V, Delta IV, Vulcan' },
+    { name: 'Rocket Lab', launches: 80, note: 'Electron' },
+  ],
+};
+
 // ─── Stats Overview ──────────────────────────────────────────────
 function _renderStatsOverview(data) {
   const el = document.getElementById('lh-stats-overview');
   if (!el) return;
 
-  const total = data.length;
-  const successes = data.filter(m => m.status === 'success').length;
-  const rate = total > 0 ? Math.round((successes / total) * 100) : 0;
+  const isFiltered = _lhFilter !== 'All';
 
-  const totalMassKg = data.filter(m => m.status === 'success').reduce((s, m) => s + (m.mass || 0), 0);
-  const totalMassTonnes = (totalMassKg / 1000).toFixed(1);
+  if (isFiltered) {
+    // Filtered view — show stats from our curated data
+    const total = data.length;
+    const successes = data.filter(m => m.status === 'success').length;
+    const rate = total > 0 ? Math.round((successes / total) * 100) : 0;
+    const totalMassKg = data.filter(m => m.status === 'success').reduce((s, m) => s + (m.mass || 0), 0);
+    const totalMassTonnes = (totalMassKg / 1000).toFixed(1);
+    const totalFirsts = data.reduce((s, m) => s + (m.firsts ? m.firsts.length : 0), 0);
 
-  const countries = new Set();
-  data.forEach(m => countries.add(m.org));
+    el.innerHTML =
+      _statCard(total, 'Missions in Database') +
+      _statCard(rate + '%', 'Success Rate') +
+      _statCard(totalMassTonnes + ' t', 'Mass to Orbit') +
+      _statCard(totalFirsts, 'Firsts Achieved');
+  } else {
+    // Global view — show real-world totals
+    const g = GLOBAL_STATS;
+    const rate = Math.round((g.totalSuccess / g.totalAttempts) * 100);
 
-  const years = data.map(m => parseInt(m.date.slice(0, 4)));
-  const minYear = Math.min(...years);
-  const maxYear = Math.max(...years);
-  const yearSpan = minYear === maxYear ? `${minYear}` : `${minYear} - ${maxYear}`;
+    // Nation breakdown mini-table
+    const nationRows = g.byNation.map(n =>
+      `<div class="lh-stat-nation-row"><span class="lh-stat-nation-name">${n.name}</span><span class="lh-stat-nation-val">${n.attempts.toLocaleString()}</span></div>`
+    ).join('');
 
-  const totalFirsts = data.reduce((s, m) => s + (m.firsts ? m.firsts.length : 0), 0);
+    const companyRows = g.byCompany.map(c =>
+      `<div class="lh-stat-nation-row"><span class="lh-stat-nation-name">${c.name}</span><span class="lh-stat-nation-val">${c.launches.toLocaleString()}</span></div>`
+    ).join('');
 
-  el.innerHTML =
-    _statCard(total, 'Total Missions') +
-    _statCard(rate + '%', 'Success Rate') +
-    _statCard(totalMassTonnes + ' t', 'Mass to Orbit') +
-    _statCard(countries.size, 'Organizations') +
-    _statCard(yearSpan, 'Year Span') +
-    _statCard(totalFirsts, 'Firsts Achieved');
+    el.innerHTML =
+      _statCard(g.totalAttempts.toLocaleString(), 'Orbital Launch Attempts') +
+      _statCard(g.totalSuccess.toLocaleString(), 'Successful Orbits') +
+      _statCard(rate + '%', 'Success Rate') +
+      _statCard(g.totalFailures.toLocaleString(), 'Failures') +
+      _statCard(g.nations + '+', 'Nations') +
+      _statCard(g.yearSpan, 'Since') +
+      `<div class="lh-stat-card lh-stat-card-wide">` +
+        `<div class="lh-stat-card-label">LAUNCHES BY NATION</div>` +
+        `<div class="lh-stat-nation-list">${nationRows}</div>` +
+      `</div>` +
+      `<div class="lh-stat-card lh-stat-card-wide">` +
+        `<div class="lh-stat-card-label">TOP LAUNCH PROVIDERS</div>` +
+        `<div class="lh-stat-nation-list">${companyRows}</div>` +
+      `</div>` +
+      `<div class="lh-stat-source">Data: Jonathan McDowell (planet4589.org) \u00B7 ${data.length} missions detailed below</div>`;
+  }
 }
 
 function _statCard(value, label) {

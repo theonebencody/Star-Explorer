@@ -268,8 +268,14 @@
 
   .lh-stats-overview{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:28px}
   .lh-stat-card{background:rgba(0,15,30,0.6);border:1px solid rgba(0,238,255,0.12);border-radius:4px;padding:16px 18px;text-align:center}
+  .lh-stat-card-wide{grid-column:span 2;text-align:left;padding:14px 18px}
   .lh-stat-card-value{font-family:'Orbitron',sans-serif;font-size:24px;font-weight:900;color:#0ef;margin-bottom:6px}
-  .lh-stat-card-label{font-size:10px;letter-spacing:2px;color:rgba(0,238,255,0.6);text-transform:uppercase}
+  .lh-stat-card-label{font-size:10px;letter-spacing:2px;color:rgba(0,238,255,0.6);text-transform:uppercase;margin-bottom:8px}
+  .lh-stat-nation-list{display:flex;flex-direction:column;gap:0}
+  .lh-stat-nation-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(0,238,255,0.04);font-size:11px}
+  .lh-stat-nation-name{color:rgba(255,255,255,0.6)}
+  .lh-stat-nation-val{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#0ef}
+  .lh-stat-source{grid-column:1/-1;text-align:center;font-size:9px;color:rgba(0,238,255,0.2);letter-spacing:1px;padding:4px 0}
 
   .lh-section{margin-bottom:32px}
   .lh-section-title{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:4px;color:rgba(0,238,255,0.7);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid rgba(0,238,255,0.12)}
