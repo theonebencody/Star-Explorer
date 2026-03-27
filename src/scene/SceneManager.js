@@ -59,24 +59,25 @@ const sunGroup = new THREE.Group();
 scene.add(sunGroup);
 
 const sunGeo = new THREE.SphereGeometry(SUN_RADIUS_VIS, 64, 64);
-const sunMat = new THREE.MeshBasicMaterial({ color: 0xfff4e0 });
+const sunMat = new THREE.MeshBasicMaterial({ color: 0xffddaa });
 const sunMesh = new THREE.Mesh(sunGeo, sunMat);
 sunGroup.add(sunMesh);
 
-// Sun point light
-const sunLight = new THREE.PointLight(0xfff0dd, 2.5, 200, 1);
+// Sun point light — warmer, more orange-red
+const sunLight = new THREE.PointLight(0xffe0b0, 2.8, 200, 1);
 sunGroup.add(sunLight);
 
-// Sun glow sprites
+// Sun glow sprites — warmer/redder tones
+const _sunGlowSprites = [];
 for (let i = 0; i < 3; i++) {
   const canvas = document.createElement('canvas');
   canvas.width = 128; canvas.height = 128;
   const ctx = canvas.getContext('2d');
   const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-  const alpha = [0.3, 0.15, 0.06][i];
-  const col = ['255,244,200', '255,200,100', '255,150,50'][i];
+  const alpha = [0.35, 0.18, 0.08][i];
+  const col = ['255,220,160', '255,170,70', '255,120,30'][i];
   grad.addColorStop(0, `rgba(${col},${alpha})`);
-  grad.addColorStop(0.5, `rgba(${col},${alpha * 0.3})`);
+  grad.addColorStop(0.4, `rgba(${col},${alpha * 0.4})`);
   grad.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 128, 128);
@@ -85,6 +86,44 @@ for (let i = 0; i < 3; i++) {
   const sprite = new THREE.Sprite(spriteMat);
   sprite.scale.setScalar([0.8, 1.5, 3.0][i]);
   sunGroup.add(sprite);
+  _sunGlowSprites.push({ sprite, baseScale: [0.8, 1.5, 3.0][i] });
+}
+
+// ── Solar Flares — animated arcs that erupt and fade ──
+const _solarFlares = [];
+const _FLARE_COUNT = 6;
+for (let i = 0; i < _FLARE_COUNT; i++) {
+  const fc = document.createElement('canvas'); fc.width = 64; fc.height = 64;
+  const fctx = fc.getContext('2d');
+  // Elongated arc shape
+  const fg = fctx.createRadialGradient(32, 48, 0, 32, 32, 30);
+  fg.addColorStop(0, 'rgba(255,180,60,0.8)');
+  fg.addColorStop(0.3, 'rgba(255,120,20,0.4)');
+  fg.addColorStop(0.6, 'rgba(255,60,10,0.1)');
+  fg.addColorStop(1, 'rgba(0,0,0,0)');
+  fctx.fillStyle = fg; fctx.fillRect(0, 0, 64, 64);
+  const flareMat = new THREE.SpriteMaterial({
+    map: new THREE.CanvasTexture(fc), blending: THREE.AdditiveBlending,
+    transparent: true, depthWrite: false, opacity: 0
+  });
+  const flareSprite = new THREE.Sprite(flareMat);
+  flareSprite.scale.set(0.08, 0.15, 1);
+  // Position randomly around Sun surface
+  const angle = (i / _FLARE_COUNT) * Math.PI * 2;
+  flareSprite.position.set(
+    Math.cos(angle) * SUN_RADIUS_VIS * 1.05,
+    (Math.random() - 0.5) * SUN_RADIUS_VIS * 0.6,
+    Math.sin(angle) * SUN_RADIUS_VIS * 1.05
+  );
+  sunGroup.add(flareSprite);
+  _solarFlares.push({
+    sprite: flareSprite, mat: flareMat,
+    angle, phase: Math.random() * 100, // random start time
+    lifetime: 3 + Math.random() * 5, // seconds before next eruption
+    timer: Math.random() * 8, // offset so they don't all fire at once
+    active: false, progress: 0,
+    baseY: flareSprite.position.y,
+  });
 }
 
 // ═══════════════════════════════════════════════
@@ -343,18 +382,21 @@ scene.add(new THREE.Points(kuiperGeo, new THREE.PointsMaterial({
   sunMat.map=tex; sunMat.needsUpdate=true;
 })();
 
-// Extra outer corona glow layers
-[5.5,10.0].forEach((sc,i)=>{
-  const cc=document.createElement('canvas'); cc.width=128; cc.height=128;
-  const cctx=cc.getContext('2d');
-  const cg=cctx.createRadialGradient(64,64,0,64,64,64);
-  const cols=['255,110,10','255,70,0'],alphas=[0.045,0.022];
-  cg.addColorStop(0,`rgba(${cols[i]},${alphas[i]})`);
-  cg.addColorStop(0.45,`rgba(${cols[i]},${alphas[i]*0.35})`);
-  cg.addColorStop(1,'rgba(0,0,0,0)');
-  cctx.fillStyle=cg; cctx.fillRect(0,0,128,128);
-  const sm=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cc),blending:THREE.AdditiveBlending,transparent:true,depthWrite:false});
-  const ss=new THREE.Sprite(sm); ss.scale.setScalar(sc); sunGroup.add(ss);
+// Extra outer corona glow layers — warm red-orange
+const _sunCoronaSprites = [];
+[5.5, 10.0, 16.0].forEach((sc, i) => {
+  const cc = document.createElement('canvas'); cc.width = 128; cc.height = 128;
+  const cctx = cc.getContext('2d');
+  const cg = cctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+  const cols = ['255,140,30', '255,90,10', '255,50,0'];
+  const alphas = [0.055, 0.028, 0.012];
+  cg.addColorStop(0, `rgba(${cols[i]},${alphas[i]})`);
+  cg.addColorStop(0.4, `rgba(${cols[i]},${alphas[i] * 0.35})`);
+  cg.addColorStop(1, 'rgba(0,0,0,0)');
+  cctx.fillStyle = cg; cctx.fillRect(0, 0, 128, 128);
+  const sm = new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cc), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false });
+  const ss = new THREE.Sprite(sm); ss.scale.setScalar(sc); sunGroup.add(ss);
+  _sunCoronaSprites.push({ sprite: ss, baseScale: sc });
 });
 
 // _pTexFns imported from noiseUtils.js
@@ -4115,6 +4157,61 @@ function animate(now) {
 
     // Update Sun rotation and pulse
     sunMesh.rotation.y += dt * 0.1;
+
+    // Sun glow pulsing — subtle brightness oscillation
+    const sunT = performance.now() * 0.001;
+    _sunGlowSprites.forEach((g, i) => {
+      const pulse = 1 + Math.sin(sunT * (0.5 + i * 0.3)) * 0.06 + Math.sin(sunT * (1.2 + i * 0.7)) * 0.03;
+      g.sprite.scale.setScalar(g.baseScale * pulse);
+    });
+    // Corona breathing
+    _sunCoronaSprites.forEach((c, i) => {
+      const breath = 1 + Math.sin(sunT * (0.2 + i * 0.15)) * 0.08;
+      c.sprite.scale.setScalar(c.baseScale * breath);
+    });
+    // Solar flare eruptions
+    _solarFlares.forEach(f => {
+      f.timer += dt;
+      if (!f.active && f.timer > f.lifetime) {
+        // Start a new eruption
+        f.active = true;
+        f.progress = 0;
+        f.timer = 0;
+        f.lifetime = 3 + Math.random() * 6;
+        // Randomize position around Sun
+        f.angle += Math.random() * Math.PI * 0.5;
+        f.sprite.position.set(
+          Math.cos(f.angle) * SUN_RADIUS_VIS * 1.05,
+          (Math.random() - 0.5) * SUN_RADIUS_VIS * 0.5,
+          Math.sin(f.angle) * SUN_RADIUS_VIS * 1.05
+        );
+        f.baseY = f.sprite.position.y;
+      }
+      if (f.active) {
+        f.progress += dt * (0.3 + Math.random() * 0.1);
+        if (f.progress >= 1) {
+          f.active = false;
+          f.mat.opacity = 0;
+        } else {
+          // Arc upward then fade
+          const rise = Math.sin(f.progress * Math.PI);
+          const fade = f.progress < 0.3 ? f.progress / 0.3 : 1 - (f.progress - 0.3) / 0.7;
+          f.mat.opacity = fade * 0.7;
+          f.sprite.scale.set(
+            0.06 + rise * 0.08,
+            0.1 + rise * 0.2,
+            1
+          );
+          // Move outward from surface
+          const outR = SUN_RADIUS_VIS * (1.05 + rise * 0.4);
+          f.sprite.position.set(
+            Math.cos(f.angle) * outR,
+            f.baseY + rise * SUN_RADIUS_VIS * 0.5,
+            Math.sin(f.angle) * outR
+          );
+        }
+      }
+    });
 
     // Light speed sphere
     if (lightSphere.visible) {
