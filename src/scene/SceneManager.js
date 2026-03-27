@@ -15,6 +15,7 @@ import { ensureLoaded, fetchGaiaStars, fetchNearbyGalaxies } from '../data/catal
 import { DEEP_SKY_OBJECTS } from '../data/messierNGC.js';
 import { STARSHIP_PROFILE, seekToTime } from './flightProfiles.js';
 import { openMissionPlanner, closeMissionPlanner, initMissionPlanner } from './missionPlanner.js';
+import { initGalaxyRenderer, buildGalaxy, updateGalaxies } from './galaxyRenderer.js';
 
 export function init(container) {
 'use strict';
@@ -1057,7 +1058,13 @@ function travelToMesh(mesh, scaleLevel, name, orbitR) {
 
 // simbadMarkerRadius imported from simbad.js
 
-// ── Procedural galaxy texture painter ────────────────────────────
+// Init galaxy renderer with scene refs
+initGalaxyRenderer(scene, camera, isMobile);
+
+// _buildGalaxyModel now delegates to the galaxy rendering engine
+function _buildGalaxyModel(opts) { return buildGalaxy(opts); }
+
+/* ── OLD galaxy code replaced by galaxyRenderer.js ──
 function _paintGalaxyCanvas(size, opts) {
   const c = document.createElement('canvas');
   c.width = size; c.height = size;
@@ -1189,16 +1196,9 @@ function _buildGalaxyModel(opts = {}) {
   coreSp.scale.set(coreBaseW, coreBaseH, 1);
   group.add(coreSp);
 
-  // Store animation data on the group for the animate loop
-  group.userData._galaxyAnim = {
-    galaxySprite, coreSp,
-    baseW, baseH, coreBaseW, coreBaseH,
-    time: Math.random() * 100, // offset so multiple galaxies don't pulse in sync
-    rotSpeed: 0.003 + Math.random() * 0.002, // slow rotation
-  };
-
   return group;
 }
+END OF OLD CODE */
 
 // Track generated galaxy models so we don't create duplicates
 const _galaxyModels = {};
@@ -3885,26 +3885,8 @@ function animate(now) {
   if (currentScale === 0) updateSatellites(simTime);
   if (galaxyGroup.visible) galaxyGroup.rotation.y += dt * 0.0008;
 
-  // Animate generated galaxy models — slow rotation, breathing pulse, core shimmer
-  Object.values(_galaxyModels).forEach(g => {
-    if (!g.visible || !g.userData._galaxyAnim) return;
-    const a = g.userData._galaxyAnim;
-    a.time += dt;
-
-    // Slow rotation
-    g.rotation.y += a.rotSpeed * dt;
-
-    // Gentle breathing pulse (scale oscillates ±3%)
-    const breath = 1 + Math.sin(a.time * 0.4) * 0.03;
-    a.galaxySprite.scale.set(a.baseW * breath, a.baseH * breath, 1);
-
-    // Core glow shimmer (faster, ±8%)
-    const shimmer = 1 + Math.sin(a.time * 1.2) * 0.08 + Math.sin(a.time * 2.7) * 0.04;
-    a.coreSp.scale.set(a.coreBaseW * shimmer, a.coreBaseH * shimmer, 1);
-
-    // Subtle opacity pulse on core
-    a.coreSp.material.opacity = 0.85 + Math.sin(a.time * 0.8) * 0.15;
-  });
+  // Animate generated galaxy models (shader-based engine)
+  updateGalaxies(dt);
   // Pulse "You Are Here" marker
   if (youAreHere.visible) { yahSprite.scale.setScalar(8000 * (1 + 0.15 * Math.sin(performance.now() * 0.003))); }
   updateHUD();
