@@ -2428,17 +2428,7 @@ document.addEventListener('keydown', e => {
   }
   if (e.code === 'Escape' && exploreMode) { stopExploreMode(); return; }
   if (e.code === 'KeyR') {
-    // Trigger alien flyby if R is pressed while tip is showing
-    if (_introPhase === 'tip') {
-      _introPhase = 'flyby';
-      const tip = document.getElementById('cruise-tip');
-      if (tip) tip.classList.remove('active');
-      const flyby = document.getElementById('alien-flyby');
-      if (flyby) {
-        flyby.classList.add('active');
-        setTimeout(() => { flyby.classList.remove('active'); _introPhase = 'done'; }, 3700);
-      }
-    }
+    if (_introPhase === 'tip') _introPhase = 'done';
     exploreMode ? stopExploreMode() : startExploreMode(); e.preventDefault(); return;
   }
   if (e.code === 'KeyT') { openTravelPanel(); e.preventDefault(); return; }
