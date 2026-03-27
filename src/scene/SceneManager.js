@@ -981,7 +981,7 @@ function loadNearbyGalaxies() {
       }));
       sprite.position.copy(pos);
       sprite.scale.setScalar(8e8 * 0.4);
-      sprite.visible = (currentScale === 3);
+      sprite.visible = (currentScale === 3) && !_viewingGalaxy;
       scene.add(sprite);
       galaxyCatalogMeshes.push(sprite);
 
@@ -1182,8 +1182,8 @@ function _buildGalaxyModel(opts = {}) {
 
 // Track generated galaxy models so we don't create duplicates
 const _galaxyModels = {};
-// Track sprites hidden because camera is near a galaxy model
-const _hiddenNearGalaxy = new Set();
+// When viewing a galaxy close-up, hide all catalog/deep sky sprites
+let _viewingGalaxy = null; // { position, radius } or null
 
 // Galaxy name patterns for local matches (nav computer, explore mode)
 const _GALAXY_NAMES = /andromeda|m31|triangulum|m33|whirlpool|m51|sombrero|m104|pinwheel|m101|bode|m81|cigar|m82|magellanic|centaurus/i;
@@ -1231,14 +1231,8 @@ function _ensureGalaxyModel(dest) {
   dest.radius = galaxyR;
   dest.scaleLevel = 3;
 
-  // Mark catalog/deep sky sprites near the destination to stay hidden
-  const hideRadius = galaxyR * 10;
-  galaxyCatalogMeshes.forEach(s => {
-    if (s.position.distanceTo(dest.position) < hideRadius) { s.visible = false; _hiddenNearGalaxy.add(s); }
-  });
-  deepSkyMeshes.forEach(s => {
-    if (s.position.distanceTo(dest.position) < hideRadius) { s.visible = false; _hiddenNearGalaxy.add(s); }
-  });
+  // Flag that we're viewing a galaxy — hides all catalog/deep sky sprites
+  _viewingGalaxy = { position: dest.position.clone(), radius: galaxyR };
 }
 
 function travelToSIMBADResult(result, skipTravel = false) {
@@ -1272,11 +1266,9 @@ function travelToSIMBADResult(result, skipTravel = false) {
     scene.add(galaxyGroup);
     _galaxyModels[name] = galaxyGroup;
 
-    // Mark nearby catalog/deep sky sprites to stay hidden
+    // Flag that we're viewing a galaxy
     const galaxyR = 50000 * 63241 * (galaxyOpts.scale || 1);
-    const hideR = galaxyR * 10;
-    galaxyCatalogMeshes.forEach(s => { if (s.position.distanceTo(pos) < hideR) { s.visible = false; _hiddenNearGalaxy.add(s); } });
-    deepSkyMeshes.forEach(s => { if (s.position.distanceTo(pos) < hideR) { s.visible = false; _hiddenNearGalaxy.add(s); } });
+    _viewingGalaxy = { position: pos.clone(), radius: galaxyR };
 
     // Add companion galaxies for Andromeda
     if (isAndromeda) {
@@ -2374,9 +2366,9 @@ function _setScaleVisibility(level) {
   namedStarMeshes.forEach(m => m.visible = level === 1);
   liveStarMeshes.forEach(m => m.visible = level === (m.userData._scaleLevel || 1));
   exoplanetMarkers.forEach(m => m.visible = level === 1);
-  deepSkyMeshes.forEach(m => m.visible = (level === 2 || level === 3) && !_hiddenNearGalaxy.has(m));
+  deepSkyMeshes.forEach(m => m.visible = (level === 2 || level === 3) && !_viewingGalaxy);
   galaxyGroup.visible = level === 2;
-  galaxyCatalogMeshes.forEach(m => m.visible = level === 3 && !_hiddenNearGalaxy.has(m));
+  galaxyCatalogMeshes.forEach(m => m.visible = level === 3 && !_viewingGalaxy);
   Object.values(_galaxyModels).forEach(g => g.visible = level === 3);
   cosmicGroup.visible = level === 3;
   lightSphere.visible = level === 0;
@@ -2385,6 +2377,9 @@ function _setScaleVisibility(level) {
 
 function applyScale() {
   const level = currentScale;
+
+  // Clear galaxy viewing mode when leaving cosmic scale
+  if (level !== 3) _viewingGalaxy = null;
 
   // Lazy-load catalogs
   if (level === 1) loadGaiaStars();
@@ -3749,7 +3744,7 @@ document.getElementById('hud-back-btn').addEventListener('click', () => {
   if (exploreMode) stopExploreMode();
   if (travelActive) abortTravel();
   if (_arrivalOrbit.active) _arrivalOrbit.active = false;
-  _hiddenNearGalaxy.clear();
+  _viewingGalaxy = null;
 });
 initLaunchHistory(() => started);
 // UFO system removed
