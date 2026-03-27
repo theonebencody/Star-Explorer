@@ -631,26 +631,43 @@ const cosmicGroup = new THREE.Group();
 cosmicGroup.visible = false;
 scene.add(cosmicGroup);
 
+// Cosmic filament texture — soft glow instead of square blocks
+const _cosmicTex = (() => {
+  const c = document.createElement('canvas'); c.width = 32; c.height = 32;
+  const ctx = c.getContext('2d');
+  const g = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+  g.addColorStop(0, 'rgba(255,255,255,1)');
+  g.addColorStop(0.3, 'rgba(255,255,255,0.4)');
+  g.addColorStop(0.7, 'rgba(255,255,255,0.05)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 32, 32);
+  return new THREE.CanvasTexture(c);
+})();
+
 const clusterCount = 500;
 const cPositions = new Float32Array(clusterCount * 3);
 const cColors = new Float32Array(clusterCount * 3);
 for (let i = 0; i < clusterCount; i++) {
-  // Filamentary structure
   const filament = Math.floor(Math.random() * 8);
   const fAngle = (filament / 8) * Math.PI * 2;
-  const dist = Math.random() * 5e12; // in AU
+  const dist = Math.random() * 5e12;
   const spread = (Math.random() - 0.5) * dist * 0.3;
   cPositions[i * 3] = Math.cos(fAngle) * dist + spread;
   cPositions[i * 3 + 1] = (Math.random() - 0.5) * dist * 0.2;
   cPositions[i * 3 + 2] = Math.sin(fAngle) * dist + spread * 0.5;
-  cColors[i * 3] = 0.6 + Math.random() * 0.4;
-  cColors[i * 3 + 1] = 0.5 + Math.random() * 0.3;
-  cColors[i * 3 + 2] = 0.3 + Math.random() * 0.2;
+  // Cooler blue-purple-white tones instead of brown
+  const t = Math.random();
+  cColors[i * 3] = 0.5 + t * 0.3;
+  cColors[i * 3 + 1] = 0.5 + t * 0.4;
+  cColors[i * 3 + 2] = 0.7 + t * 0.3;
 }
 const cosmicGeo = new THREE.BufferGeometry();
 cosmicGeo.setAttribute('position', new THREE.BufferAttribute(cPositions, 3));
 cosmicGeo.setAttribute('color', new THREE.BufferAttribute(cColors, 3));
-const cosmicMat = new THREE.PointsMaterial({ size: 5e10, vertexColors: true, sizeAttenuation: true, transparent: true, opacity: 0.6 });
+const cosmicMat = new THREE.PointsMaterial({
+  size: 5e10, vertexColors: true, sizeAttenuation: true, transparent: true, opacity: 0.4,
+  map: _cosmicTex, blending: THREE.AdditiveBlending, depthWrite: false
+});
 cosmicGroup.add(new THREE.Points(cosmicGeo, cosmicMat));
 
 // ═══════════════════════════════════════════════
@@ -2370,7 +2387,7 @@ function _setScaleVisibility(level) {
   galaxyGroup.visible = level === 2;
   galaxyCatalogMeshes.forEach(m => m.visible = level === 3 && !_viewingGalaxy);
   Object.values(_galaxyModels).forEach(g => g.visible = level === 3);
-  cosmicGroup.visible = level === 3;
+  cosmicGroup.visible = level === 3 && !_viewingGalaxy;
   lightSphere.visible = level === 0;
   _bgRefObjects.forEach(o => { o.marker.visible = level === o.scale; });
 }
