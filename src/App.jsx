@@ -269,11 +269,13 @@ function App() {
           <div className="lh-title">LAUNCH HISTORY</div>
           <div className="lh-filter-row">
             <button className="lh-filter-btn active" data-org="All">ALL</button>
-            <button className="lh-filter-btn" data-org="NASA">NASA</button>
-            <button className="lh-filter-btn" data-org="SpaceX">SPACEX</button>
             <button className="lh-filter-btn" data-org="Soviet">SOVIET</button>
+            <button className="lh-filter-btn" data-org="NASA">USA</button>
+            <button className="lh-filter-btn" data-org="Roscosmos">RUSSIA</button>
             <button className="lh-filter-btn" data-org="CNSA">CHINA</button>
-            <button className="lh-filter-btn" data-org="ESA/NASA">ESA</button>
+            <button className="lh-filter-btn" data-org="SpaceX">SPACEX</button>
+            <button className="lh-filter-btn" data-org="ESA">ESA</button>
+            <button className="lh-filter-btn" data-org="JAXA">JAPAN</button>
             <button className="lh-filter-btn" data-org="ISRO">INDIA</button>
           </div>
         </div>
@@ -335,7 +337,7 @@ function App() {
 
           {/* Mission catalog — hidden by default, revealed by button */}
           <div className="lh-section">
-            <button className="lh-show-more-btn lh-catalog-btn" id="lh-catalog-btn">{'\u{1F680}'} EXPLORE ALL MISSIONS BY DESTINATION</button>
+            <button className="lh-show-more-btn lh-catalog-btn" id="lh-catalog-btn">{'\u{1F680}'} BROWSE MISSIONS BY DESTINATION</button>
             <div className="lh-missions-grid" id="lh-missions-grid" style={{display:'none'}}></div>
           </div>
         </div>

@@ -24,8 +24,15 @@ let _getStarted = () => false;
 function _getOC(org){ return ORG_COLORS[org]||{css:'#8ac',bg:'rgba(136,170,204,0.1)',bd:'rgba(136,170,204,0.28)'}; }
 
 function _filteredData() {
-  return LAUNCH_DATA.filter(m => _lhFilter==='All' || m.org===_lhFilter ||
-    (_lhFilter==='Roscosmos' && (m.org==='Soviet'||m.org==='Roscosmos')));
+  if (_lhFilter === 'All') return LAUNCH_DATA;
+  return LAUNCH_DATA.filter(m => {
+    if (m.org === _lhFilter) return true;
+    if (_lhFilter === 'Roscosmos' && m.org === 'Soviet') return true;
+    if (_lhFilter === 'Soviet' && m.org === 'Roscosmos') return true;
+    if (_lhFilter === 'NASA' && m.org === 'SpaceX/NASA') return true;
+    if (_lhFilter === 'ESA' && m.org === 'ESA/NASA') return true;
+    return false;
+  });
 }
 
 function _fmtMass(kg) {
@@ -301,6 +308,22 @@ function _renderCompanyGrid(data) {
   el.innerHTML = html;
 }
 
+function _missionRowHtml(m) {
+  const d = new Date(m.date + 'T00:00:00Z');
+  const ds = d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
+  const statusDot = m.status === 'success' ? '\u25CF' : m.status === 'failed' ? '\u25CF' : '\u25CB';
+  const statusColor = m.status === 'success' ? '#4fa' : m.status === 'failed' ? '#f66' : '#fb4';
+  const hasDetail = m.video || (m.firsts && m.firsts.length > 0);
+  return `<div class="lh-od-mission-row${hasDetail ? ' lh-od-expandable' : ''}">` +
+    `<span class="lh-od-mission-status" style="color:${statusColor}">${statusDot}</span>` +
+    `<span class="lh-od-mission-date">${ds}</span>` +
+    `<span class="lh-od-mission-name">${m.name}${m.video ? ' <span class="lh-video-icon">\u25B6</span>' : ''}</span>` +
+    `<span class="lh-od-mission-rocket">${m.rocket}</span>` +
+    `<span class="lh-od-mission-dest">${m.destination || '\u2014'}</span>` +
+    (hasDetail ? `<div class="lh-od-mission-detail">${_videoEmbed(m.video)}<div class="lh-od-mission-desc">${_truncate(m.desc, 200)}</div></div>` : '') +
+    `</div>`;
+}
+
 // ─── Organization Detail Page ───────────────────────────────────
 function _openOrgDetail(orgName) {
   const overlay = document.getElementById('lh-org-detail');
@@ -335,9 +358,19 @@ function _openOrgDetail(orgName) {
   missions.forEach(m => { rocketCounts[m.rocket] = (rocketCounts[m.rocket] || 0) + 1; });
   const rocketEntries = Object.entries(rocketCounts).sort((a, b) => b[1] - a[1]);
 
-  // Build bar chart for launches by year
-  const maxCount = Math.max(...yearEntries.map(e => e[1]), 1);
-  const barHtml = yearEntries.map(([y, c]) => {
+  // Build bar chart for launches by year (group into 5-year bins if > 25 years)
+  let barData = yearEntries;
+  if (yearEntries.length > 25) {
+    const bins = {};
+    yearEntries.forEach(([y, c]) => {
+      const bin = Math.floor(parseInt(y) / 5) * 5;
+      const label = `${bin}\u2013${bin + 4}`;
+      bins[label] = (bins[label] || 0) + c;
+    });
+    barData = Object.entries(bins).sort((a, b) => a[0].localeCompare(b[0]));
+  }
+  const maxCount = Math.max(...barData.map(e => e[1]), 1);
+  const barHtml = barData.map(([y, c]) => {
     const pct = Math.round((c / maxCount) * 100);
     return `<div class="lh-od-bar-row"><span class="lh-od-bar-year">${y}</span><div class="lh-od-bar-track"><div class="lh-od-bar-fill" style="width:${pct}%;background:${oc.css}"></div></div><span class="lh-od-bar-val">${c}</span></div>`;
   }).join('');
@@ -366,12 +399,15 @@ function _openOrgDetail(orgName) {
     `</div>`;
 
   // Rocket fleet
+  const topRockets = rocketEntries.slice(0, 10);
+  const moreRockets = rocketEntries.length > 10 ? rocketEntries.length - 10 : 0;
   html += `<div class="lh-od-section">` +
     `<div class="lh-od-section-title">ROCKET FLEET</div>` +
     `<div class="lh-od-rockets">`;
-  rocketEntries.forEach(([rocket, count]) => {
+  topRockets.forEach(([rocket, count]) => {
     html += `<div class="lh-od-rocket"><span class="lh-od-rocket-name">${rocket}</span><span class="lh-od-rocket-count">${count} flights</span></div>`;
   });
+  if (moreRockets > 0) html += `<div class="lh-od-rocket" style="color:rgba(0,238,255,0.25);font-style:italic">+ ${moreRockets} more rocket types</div>`;
   html += `</div></div>`;
 
   // Destinations
@@ -400,25 +436,18 @@ function _openOrgDetail(orgName) {
     html += `</div>`;
   }
 
-  // Full mission log (collapsible)
+  // Full mission log (collapsible, starts collapsed, capped at 100 with load-more)
+  const MISSION_LOG_LIMIT = 100;
   html += `<div class="lh-od-section">` +
-    `<div class="lh-od-section-title lh-od-missions-toggle" style="cursor:pointer">ALL MISSIONS <span class="lh-od-toggle-chevron">\u25BC</span></div>` +
-    `<div class="lh-od-missions-list">`;
-  sorted.forEach(m => {
-    const d = new Date(m.date + 'T00:00:00Z');
-    const ds = d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' });
-    const statusDot = m.status === 'success' ? '\u25CF' : m.status === 'failed' ? '\u25CF' : '\u25CB';
-    const statusColor = m.status === 'success' ? '#4fa' : m.status === 'failed' ? '#f66' : '#fb4';
-    const hasDetail = m.video || (m.firsts && m.firsts.length > 0);
-    html += `<div class="lh-od-mission-row${hasDetail ? ' lh-od-expandable' : ''}">` +
-      `<span class="lh-od-mission-status" style="color:${statusColor}">${statusDot}</span>` +
-      `<span class="lh-od-mission-date">${ds}</span>` +
-      `<span class="lh-od-mission-name">${m.name}${m.video ? ' <span class="lh-video-icon">\u25B6</span>' : ''}</span>` +
-      `<span class="lh-od-mission-rocket">${m.rocket}</span>` +
-      `<span class="lh-od-mission-dest">${m.destination || '\u2014'}</span>` +
-      (hasDetail ? `<div class="lh-od-mission-detail">${_videoEmbed(m.video)}<div class="lh-od-mission-desc">${_truncate(m.desc, 200)}</div></div>` : '') +
-      `</div>`;
+    `<div class="lh-od-section-title lh-od-missions-toggle" style="cursor:pointer">ALL ${sorted.length} MISSIONS <span class="lh-od-toggle-chevron" style="transform:rotate(-90deg)">\u25BC</span></div>` +
+    `<div class="lh-od-missions-list" style="max-height:0px;opacity:0">`;
+  const initialBatch = sorted.slice(0, MISSION_LOG_LIMIT);
+  initialBatch.forEach(m => {
+    html += _missionRowHtml(m);
   });
+  if (sorted.length > MISSION_LOG_LIMIT) {
+    html += `<button class="lh-show-more-btn lh-od-load-more" data-org="${orgName}" data-offset="${MISSION_LOG_LIMIT}">LOAD ${Math.min(200, sorted.length - MISSION_LOG_LIMIT)} MORE OF ${sorted.length}</button>`;
+  }
   html += `</div></div>`;
 
   html += `</div>`; // close lh-od-body
@@ -447,7 +476,26 @@ function _openOrgDetail(orgName) {
   // Wire expandable mission rows in org detail
   overlay.addEventListener('click', (e) => {
     const row = e.target.closest('.lh-od-expandable');
-    if (row) row.classList.toggle('expanded');
+    if (row) { row.classList.toggle('expanded'); return; }
+
+    // Load-more button
+    const loadMore = e.target.closest('.lh-od-load-more');
+    if (loadMore) {
+      const org = loadMore.dataset.org;
+      const offset = parseInt(loadMore.dataset.offset) || 0;
+      const missions = _orgMissionsCache[org];
+      if (!missions) return;
+      const sorted2 = [...missions].sort((a, b) => b.date.localeCompare(a.date));
+      const nextBatch = sorted2.slice(offset, offset + 200);
+      let newHtml = '';
+      nextBatch.forEach(m => { newHtml += _missionRowHtml(m); });
+      const nextOffset = offset + 200;
+      if (nextOffset < sorted2.length) {
+        newHtml += `<button class="lh-show-more-btn lh-od-load-more" data-org="${org}" data-offset="${nextOffset}">LOAD ${Math.min(200, sorted2.length - nextOffset)} MORE OF ${sorted2.length}</button>`;
+      }
+      loadMore.insertAdjacentHTML('beforebegin', newHtml);
+      loadMore.remove();
+    }
   });
 }
 
@@ -563,12 +611,9 @@ function _renderMissionsGrid(data) {
     });
 
     if (remainCount > 0) {
-      html += `<div class="lh-dest-more-missions" style="display:none">`;
-      missions.slice(4).forEach(m => {
-        html += _missionCardHtml(m);
-      });
-      html += `</div>`;
-      html += `<button class="lh-show-more-btn lh-dest-expand-btn" data-dest="${key}">SHOW ALL ${missions.length} MISSIONS</button>`;
+      // Don't pre-render all — lazy load on click
+      html += `<div class="lh-dest-more-missions" style="display:none"></div>`;
+      html += `<button class="lh-show-more-btn lh-dest-expand-btn" data-dest="${key}">SHOW ${Math.min(50, remainCount)} MORE OF ${missions.length}</button>`;
     }
 
     html += `</div></div>`;
@@ -1359,7 +1404,7 @@ export function initLaunchHistory(getStarted) {
         catalogBtn.textContent = 'HIDE MISSION CATALOG';
       } else {
         grid.style.display = 'none';
-        catalogBtn.textContent = '\uD83D\uDE80 EXPLORE ALL MISSIONS BY DESTINATION';
+        catalogBtn.textContent = '\uD83D\uDE80 BROWSE MISSIONS BY DESTINATION';
       }
     });
   }
@@ -1409,20 +1454,30 @@ export function initLaunchHistory(getStarted) {
         if (group) group.classList.toggle('collapsed');
         return;
       }
-      // "Show all" button
+      // "Show more" button — lazy render next batch
       const expandBtn = e.target.closest('.lh-dest-expand-btn');
       if (expandBtn) {
         const group = expandBtn.closest('.lh-dest-group');
-        if (group) {
+        const destKey = expandBtn.dataset.dest;
+        if (group && destKey) {
           const more = group.querySelector('.lh-dest-more-missions');
-          if (more) {
-            if (more.style.display === 'none') {
-              more.style.display = '';
-              expandBtn.textContent = 'SHOW LESS';
-            } else {
-              more.style.display = 'none';
-              expandBtn.textContent = `SHOW ALL MISSIONS`;
-            }
+          if (more) more.style.display = '';
+          // Find missions for this destination from filtered data
+          const allData = _filteredData();
+          const destMissions = allData.filter(m => (m.destType || 'LEO') === destKey)
+            .sort((a, b) => b.date.localeCompare(a.date));
+          const currentCount = group.querySelectorAll('.lh-mission-card').length;
+          const nextBatch = destMissions.slice(currentCount, currentCount + 50);
+          if (nextBatch.length > 0 && more) {
+            let batchHtml = '';
+            nextBatch.forEach(m => { batchHtml += _missionCardHtml(m); });
+            more.insertAdjacentHTML('beforeend', batchHtml);
+          }
+          const remaining = destMissions.length - currentCount - nextBatch.length;
+          if (remaining > 0) {
+            expandBtn.textContent = `SHOW ${Math.min(50, remaining)} MORE OF ${destMissions.length}`;
+          } else {
+            expandBtn.style.display = 'none';
           }
         }
         return;
