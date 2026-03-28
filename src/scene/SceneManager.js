@@ -3453,15 +3453,27 @@ document.getElementById('mission-report').addEventListener('click', e => {
     ctx.fillStyle = '#e8e8e8';
     ctx.fillRect(0, 0, w, h);
 
-    // Shading — subtle gradient shadows around invisible masses
+    // Shading — deep gradient wells around invisible masses
     for (const m of _masses) {
       const mx = m.x * w, my = m.y * h;
-      const grad = ctx.createRadialGradient(mx, my, 0, mx, my, m.radius * 1.8);
-      grad.addColorStop(0, `rgba(0,0,0,${0.06 * m.strength})`);
-      grad.addColorStop(0.4, `rgba(0,0,0,${0.025 * m.strength})`);
+      const r = m.radius * 2.5;
+      // Dark depression — like a gravity well sinking into the surface
+      const grad = ctx.createRadialGradient(mx, my, 0, mx, my, r);
+      grad.addColorStop(0, `rgba(0,0,0,${0.18 * m.strength})`);
+      grad.addColorStop(0.15, `rgba(0,0,0,${0.12 * m.strength})`);
+      grad.addColorStop(0.4, `rgba(0,0,0,${0.05 * m.strength})`);
+      grad.addColorStop(0.7, `rgba(0,0,0,${0.015 * m.strength})`);
       grad.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = grad;
-      ctx.fillRect(mx - m.radius * 2, my - m.radius * 2, m.radius * 4, m.radius * 4);
+      ctx.fillRect(mx - r, my - r, r * 2, r * 2);
+      // Light rim — raised edge around the depression
+      const rim = ctx.createRadialGradient(mx, my, r * 0.5, mx, my, r * 0.9);
+      rim.addColorStop(0, 'rgba(255,255,255,0)');
+      rim.addColorStop(0.6, 'rgba(255,255,255,0)');
+      rim.addColorStop(0.8, `rgba(255,255,255,${0.06 * m.strength})`);
+      rim.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = rim;
+      ctx.fillRect(mx - r, my - r, r * 2, r * 2);
     }
 
     // Extend grid past borders with extra margin
@@ -3512,61 +3524,74 @@ document.getElementById('mission-report').addEventListener('click', e => {
       }
     }
 
-    // Draw grid — black lines on light background
-    ctx.strokeStyle = 'rgba(0,0,0,0.12)';
-    ctx.lineWidth = 0.6;
-
+    // Draw grid — lines darken near masses for depth
+    // Draw each line segment with opacity based on proximity to masses
     for (let gy = 0; gy <= rows; gy++) {
-      ctx.beginPath();
-      for (let gx = 0; gx <= cols; gx++) {
-        const p = pts[gy * (cols + 1) + gx];
-        if (gx === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+      for (let gx = 0; gx < cols; gx++) {
+        const p1 = pts[gy * (cols + 1) + gx];
+        const p2 = pts[gy * (cols + 1) + gx + 1];
+        const midX = (p1.x + p2.x) / 2, midY = (p1.y + p2.y) / 2;
+        // Compute darkness boost from nearby masses
+        let boost = 0;
+        for (const m of _masses) {
+          const dx = midX - m.x * w, dy = midY - m.y * h;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          boost += Math.max(0, 1 - d / (m.radius * 2)) * m.strength * 0.5;
+        }
+        for (const well of _btnWells) {
+          if (well.hover <= 0) continue;
+          const dx = midX - well.x, dy = midY - well.y;
+          const d = Math.sqrt((dx / well.rx) ** 2 + (dy / well.ry) ** 2);
+          boost += Math.max(0, 1 - d / 2.5) * well.hover * 0.4;
+        }
+        const alpha = Math.min(0.45, 0.1 + boost * 0.35);
+        const lw = Math.min(1.4, 0.5 + boost * 0.9);
+        ctx.strokeStyle = `rgba(0,0,0,${alpha})`;
+        ctx.lineWidth = lw;
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
       }
-      ctx.stroke();
     }
     for (let gx = 0; gx <= cols; gx++) {
-      ctx.beginPath();
-      for (let gy = 0; gy <= rows; gy++) {
-        const p = pts[gy * (cols + 1) + gx];
-        if (gy === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+      for (let gy = 0; gy < rows; gy++) {
+        const p1 = pts[gy * (cols + 1) + gx];
+        const p2 = pts[(gy + 1) * (cols + 1) + gx];
+        const midX = (p1.x + p2.x) / 2, midY = (p1.y + p2.y) / 2;
+        let boost = 0;
+        for (const m of _masses) {
+          const dx = midX - m.x * w, dy = midY - m.y * h;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          boost += Math.max(0, 1 - d / (m.radius * 2)) * m.strength * 0.5;
+        }
+        for (const well of _btnWells) {
+          if (well.hover <= 0) continue;
+          const dx = midX - well.x, dy = midY - well.y;
+          const d = Math.sqrt((dx / well.rx) ** 2 + (dy / well.ry) ** 2);
+          boost += Math.max(0, 1 - d / 2.5) * well.hover * 0.4;
+        }
+        const alpha = Math.min(0.45, 0.1 + boost * 0.35);
+        const lw = Math.min(1.4, 0.5 + boost * 0.9);
+        ctx.strokeStyle = `rgba(0,0,0,${alpha})`;
+        ctx.lineWidth = lw;
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
       }
-      ctx.stroke();
     }
 
-    // Shading and darker lines near button wells on hover
+    // Shadow pools under hovered buttons
     for (const well of _btnWells) {
       if (well.hover <= 0) continue;
-      // Shadow pool under hovered button
-      const bGrad = ctx.createRadialGradient(well.x, well.y + well.ry * 0.3, 0, well.x, well.y, Math.max(well.rx, well.ry) * 2);
-      bGrad.addColorStop(0, `rgba(0,0,0,${0.06 * well.hover})`);
-      bGrad.addColorStop(0.5, `rgba(0,0,0,${0.02 * well.hover})`);
+      const bGrad = ctx.createRadialGradient(well.x, well.y + well.ry * 0.3, 0, well.x, well.y, Math.max(well.rx, well.ry) * 2.5);
+      bGrad.addColorStop(0, `rgba(0,0,0,${0.1 * well.hover})`);
+      bGrad.addColorStop(0.3, `rgba(0,0,0,${0.05 * well.hover})`);
+      bGrad.addColorStop(0.7, `rgba(0,0,0,${0.015 * well.hover})`);
       bGrad.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = bGrad;
-      ctx.fillRect(well.x - well.rx * 2.5, well.y - well.ry * 2.5, well.rx * 5, well.ry * 5);
-      ctx.strokeStyle = `rgba(0,0,0,${0.25 * well.hover})`;
-      ctx.lineWidth = 0.9;
-      for (let gy = 0; gy <= rows; gy++) {
-        const py = oy + gy * GRID_SPACING;
-        if (Math.abs(py - well.y) > well.ry * 2.5) continue;
-        ctx.beginPath();
-        for (let gx = 0; gx <= cols; gx++) {
-          const p = pts[gy * (cols + 1) + gx];
-          if (gx === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
-        }
-        ctx.stroke();
-      }
-      for (let gx = 0; gx <= cols; gx++) {
-        const px = ox + gx * GRID_SPACING;
-        if (Math.abs(px - well.x) > well.rx * 2.5) continue;
-        ctx.beginPath();
-        for (let gy = 0; gy <= rows; gy++) {
-          const p = pts[gy * (cols + 1) + gx];
-          if (gy === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
-        }
-        ctx.stroke();
-      }
-      ctx.strokeStyle = 'rgba(0,0,0,0.12)';
-      ctx.lineWidth = 0.6;
+      ctx.fillRect(well.x - well.rx * 3, well.y - well.ry * 3, well.rx * 6, well.ry * 6);
     }
   }
 
