@@ -325,7 +325,7 @@
 
   /* ── Defining Moments Section ── */
   .lh-defining-section{position:relative;overflow:hidden}
-  .lh-defining-bg-img{position:absolute;right:-5%;top:50%;transform:translateY(-50%);width:70%;max-width:500px;opacity:0.15;pointer-events:none;filter:brightness(1.2) contrast(1.1);z-index:0}
+  .lh-defining-bg-img{position:absolute;right:-10%;top:50%;transform:translateY(-50%);width:95%;max-width:800px;opacity:0.12;pointer-events:none;filter:brightness(1.3) contrast(1.15);z-index:0}
   .lh-defining-section .lh-section-title{position:relative;z-index:1}
   .lh-defining-subtitle{font-size:11px;color:rgba(0,238,255,0.3);letter-spacing:2px;margin-bottom:16px;position:relative;z-index:1}
 
