@@ -265,8 +265,11 @@ function App() {
       {/* Launch History Overlay */}
       <div id="launch-history" className="lh-overlay">
         <div className="lh-header">
-          <button className="lh-back-btn" id="lh-back-btn">{'\u2190'} BACK</button>
-          <div className="lh-title">LAUNCH HISTORY</div>
+          <div className="lh-header-top">
+            <button className="lh-back-btn" id="lh-back-btn">{'\u2190'} BACK</button>
+            <div className="lh-title">LAUNCH HISTORY</div>
+            <div style={{width:'70px'}}></div>
+          </div>
           <div className="lh-filter-row">
             <button className="lh-filter-btn active" data-org="All">ALL</button>
             <button className="lh-filter-btn" data-org="Soviet">SOVIET</button>

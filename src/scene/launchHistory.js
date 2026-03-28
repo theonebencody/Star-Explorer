@@ -156,14 +156,21 @@ function _renderStatsOverview(data) {
     const g = GLOBAL_STATS;
     const rate = Math.round((g.totalSuccess / g.totalAttempts) * 100);
 
-    // Nation breakdown mini-table
-    const nationRows = g.byNation.map(n =>
-      `<div class="lh-stat-nation-row"><span class="lh-stat-nation-name">${n.name}</span><span class="lh-stat-nation-val">${n.attempts.toLocaleString()}</span></div>`
-    ).join('');
+    // Nation breakdown — clickable rows that filter
+    const nationOrgMap = { 'Soviet Union': 'Soviet', 'United States': 'NASA', 'Russia': 'Roscosmos', 'China': 'CNSA', 'France / ESA': 'ESA', 'Japan': 'JAXA', 'India': 'ISRO', 'New Zealand': 'Rocket Lab' };
+    const nationRows = g.byNation.map(n => {
+      const orgKey = nationOrgMap[n.name];
+      const link = orgKey ? ` lh-stat-link" data-filter="${orgKey}"` : '"';
+      return `<div class="lh-stat-nation-row${link}><span class="lh-stat-nation-name">${n.name}</span><span class="lh-stat-nation-val">${n.attempts.toLocaleString()}</span></div>`;
+    }).join('');
 
-    const companyRows = g.byCompany.map(c =>
-      `<div class="lh-stat-nation-row"><span class="lh-stat-nation-name">${c.name}</span><span class="lh-stat-nation-val">${c.launches.toLocaleString()}</span></div>`
-    ).join('');
+    // Company rows — clickable to open org detail
+    const companyOrgMap = { 'SpaceX': 'SpaceX', 'CASC (China)': 'CNSA', 'Arianespace': 'ESA', 'ULA': 'ULA', 'Rocket Lab': 'Rocket Lab' };
+    const companyRows = g.byCompany.map(c => {
+      const orgKey = companyOrgMap[c.name];
+      const link = orgKey ? ` lh-stat-link" data-org-detail="${orgKey}"` : '"';
+      return `<div class="lh-stat-nation-row${link}><span class="lh-stat-nation-name">${c.name}</span><span class="lh-stat-nation-val">${c.launches.toLocaleString()}</span></div>`;
+    }).join('');
 
     el.innerHTML =
       _statCard(g.totalAttempts.toLocaleString(), 'Orbital Launch Attempts') +
@@ -181,6 +188,24 @@ function _renderStatsOverview(data) {
         `<div class="lh-stat-nation-list">${companyRows}</div>` +
       `</div>` +
       `<div class="lh-stat-source">Data: Jonathan McDowell (planet4589.org) \u00B7 ${data.length} missions detailed below</div>`;
+
+    // Wire clickable nation/company rows
+    el.querySelectorAll('.lh-stat-link[data-filter]').forEach(row => {
+      row.addEventListener('click', () => {
+        const org = row.dataset.filter;
+        document.querySelectorAll('.lh-filter-btn').forEach(b => b.classList.remove('active'));
+        const btn = document.querySelector(`.lh-filter-btn[data-org="${org}"]`);
+        if (btn) btn.classList.add('active');
+        _lhFilter = org;
+        _renderAll();
+      });
+    });
+    el.querySelectorAll('.lh-stat-link[data-org-detail]').forEach(row => {
+      row.addEventListener('click', () => {
+        _buildOrgData(_filteredData());
+        _openOrgDetail(row.dataset.orgDetail);
+      });
+    });
   }
 }
 
