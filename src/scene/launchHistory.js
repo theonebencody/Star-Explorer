@@ -550,18 +550,19 @@ function _openEraDetail(eraLabel, data) {
   const totalMass = eraMissions.reduce((s, m) => s + (m.mass || 0), 0);
   const orgs = new Set(eraMissions.map(m => m.org));
 
-  // Year-by-year counts
-  const yearCounts = {};
-  eraMissions.forEach(m => {
-    const y = m.date.slice(0, 4);
-    yearCounts[y] = (yearCounts[y] || 0) + 1;
-  });
-  const yearEntries = Object.entries(yearCounts).sort();
-  const maxCount = Math.max(...yearEntries.map(e => e[1]), 1);
-  const barHtml = yearEntries.map(([y, c]) => {
-    const pct = Math.round((c / maxCount) * 100);
-    return `<div class="lh-od-bar-row"><span class="lh-od-bar-year">${y}</span><div class="lh-od-bar-track"><div class="lh-od-bar-fill" style="width:${pct}%;background:${era.color}"></div></div><span class="lh-od-bar-val">${c}</span></div>`;
-  }).join('');
+  // Era narrative — emotionally resonant summary
+  const eraNarratives = {
+    'THE SPACE RACE': `In the shadow of the Cold War, two superpowers turned their gaze upward and changed the course of human history forever. What began with the haunting beep of Sputnik in 1957 became a decade-long sprint to the Moon — a contest driven by rivalry, but ultimately won by all of humanity. Yuri Gagarin felt weightlessness for the first time. John Glenn saw sunrise from orbit. And on a July night in 1969, Neil Armstrong stepped onto the lunar surface while 600 million people held their breath. In just twelve years, we went from never having left the atmosphere to walking on another world. Every mission carried the weight of a nation's pride — and the fragile hope that reaching for the stars might be the one thing that could unite us.`,
+
+    'STATIONS & SHUTTLES': `After the Moon landings, space became a place to live. The Soviet Union built the first space stations — cramped, fragile outposts where cosmonauts endured months of isolation to prove that humans could survive long-duration spaceflight. America answered with the Space Shuttle, a revolutionary reusable spacecraft that promised routine access to orbit. For three decades, the Shuttle carried satellites, telescopes, and dreams into space — including the Hubble Space Telescope, which would rewrite our understanding of the cosmos. But this era also brought tragedy: the loss of Challenger and Columbia reminded us that the path to space is written in sacrifice. Through it all, former rivals learned to work together, building the International Space Station — a permanently inhabited laboratory orbiting 400 km above every border on Earth.`,
+
+    'EXPLORATION ERA': `The new millennium brought robots to the surface of Mars and humans to the frontier of international cooperation. Spirit and Opportunity rolled across Martian plains, finding evidence that water once flowed on the Red Planet. The Cassini spacecraft plunged through Saturn's rings and discovered oceans beneath the ice of Enceladus. On the International Space Station, astronauts from dozens of nations lived and worked together in microgravity, conducting thousands of experiments. And quietly, in a small factory in California, a company called SpaceX was building rockets in a way no one had tried before — setting the stage for a revolution that would reshape the entire industry. This was the era when exploration became a global endeavor, and the question shifted from "can we go?" to "where should we go next?"`,
+
+    'COMMERCIAL REVOLUTION': `Everything changed when a Falcon 9 booster landed upright on a concrete pad in December 2015. That single moment shattered the assumption that rockets were disposable — and with it, the economics of spaceflight. Launch costs plummeted. Cadence skyrocketed. SpaceX alone began launching more missions per year than most nations combined, while China emerged as a space superpower with its own station and lunar ambitions. Mega-constellations like Starlink brought internet from orbit, and commercial crews flew to the ISS for the first time. The James Webb Space Telescope unfurled its golden mirror at L2 and peered back to the first galaxies. In just seven years, spaceflight went from a government monopoly to an industry — and the old barriers between Earth and orbit began to dissolve.`,
+
+    'THE NEW FRONTIER': `We stand at the threshold of a new chapter. Starship — the largest rocket ever built — has caught its booster mid-air in a feat of engineering that would have seemed like science fiction a decade ago. NASA's Artemis program is returning humans to the Moon for the first time in over fifty years, this time to stay. China is building a lunar research station. Private companies are landing spacecraft on the Moon's surface. The first commercial spacewalk has been completed. And somewhere in the plans of every major space agency is the same red dot: Mars. We are no longer just visitors to space — we are becoming inhabitants. The next defining moments haven't been written yet. They're waiting for us.`,
+  };
+  const narrative = eraNarratives[era.label] || era.desc;
 
   // Notable missions with firsts
   const notable = eraMissions.filter(m => m.firsts?.length).sort((a,b) => b.firsts.length - a.firsts.length);
@@ -580,7 +581,7 @@ function _openEraDetail(eraLabel, data) {
     `<div class="lh-od-stat"><div class="lh-od-stat-val" style="color:${era.color}">${era.range[0]}\u2013${era.range[1]}</div><div class="lh-od-stat-lbl">Years</div></div>` +
     `</div>`;
 
-  html += `<div class="lh-od-section"><div class="lh-od-section-title">LAUNCHES BY YEAR</div><div class="lh-od-bars">${barHtml}</div></div>`;
+  html += `<div class="lh-od-section"><div class="lh-era-narrative">${narrative}</div></div>`;
 
   if (notable.length > 0) {
     html += `<div class="lh-od-section"><div class="lh-od-section-title">HISTORIC FIRSTS</div>`;
