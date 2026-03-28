@@ -3687,14 +3687,14 @@ document.getElementById('mission-report').addEventListener('click', e => {
       // Per-line variance: deterministic wobble based on line index
       const variance = ((lineIdx * 7919) % 100) / 100; // 0-1 pseudo-random per line
       const thickLine = variance > 0.7 ? 1 : 0; // ~30% of lines are accent lines
-      // Opacity: 0.07 (flat thin) → 0.30 (deep well), accent lines slightly stronger
-      const baseAlpha = 0.07 + thickLine * 0.03;
-      const alpha = baseAlpha + ramp * 0.22;
+      // Opacity: 0.035 (flat thin) → 0.18 (deep well), accent lines slightly stronger
+      const baseAlpha = 0.035 + thickLine * 0.015;
+      const alpha = baseAlpha + ramp * 0.13;
       // Width: varies per line, boosted in wells
-      const baseLw = 0.25 + variance * 0.3 + thickLine * 0.25;
-      const lw = baseLw + ramp * 1.1;
-      ctx.strokeStyle = `rgba(0,0,0,${Math.min(0.34, alpha)})`;
-      ctx.lineWidth = Math.min(1.8, lw);
+      const baseLw = 0.2 + variance * 0.25 + thickLine * 0.2;
+      const lw = baseLw + ramp * 0.8;
+      ctx.strokeStyle = `rgba(0,0,0,${Math.min(0.20, alpha)})`;
+      ctx.lineWidth = Math.min(1.4, lw);
     }
 
     function drawCR(p0, p1, p2, p3, lineIdx) {
