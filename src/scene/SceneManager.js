@@ -3397,16 +3397,16 @@ document.getElementById('mission-report').addEventListener('click', e => {
   // ── Few heavy bodies — each one a visible "ball" on the sheet ──
   const TWO_PI = Math.PI * 2;
   const bodies = [
-    // Heavy — wide orbit, deep well
-    { cx: 0.42, cy: 0.42, a: 0.16, e: 0.04, omega: 0.25, phase: 0,              tilt: 0.4,  mass: 2.2, soft: 130 },
-    // Heavy — different orbit center
-    { cx: 0.62, cy: 0.52, a: 0.13, e: 0.08, omega: 0.35, phase: TWO_PI * 0.35,  tilt: 2.0,  mass: 1.8, soft: 115 },
-    // Medium
-    { cx: 0.30, cy: 0.60, a: 0.10, e: 0.06, omega: 0.55, phase: TWO_PI * 0.6,   tilt: 3.8,  mass: 1.3, soft: 95 },
-    // Medium-light — faster
-    { cx: 0.73, cy: 0.35, a: 0.09, e: 0.10, omega: 0.75, phase: TWO_PI * 0.15,  tilt: 5.2,  mass: 1.0, soft: 80 },
-    // Light — fastest
-    { cx: 0.22, cy: 0.32, a: 0.11, e: 0.05, omega: 0.45, phase: TWO_PI * 0.8,   tilt: 1.5,  mass: 0.9, soft: 70 },
+    // Massive — wide orbit, huge well
+    { cx: 0.42, cy: 0.42, a: 0.16, e: 0.04, omega: 0.25, phase: 0,              tilt: 0.4,  mass: 5.0, soft: 350 },
+    // Massive — different orbit center
+    { cx: 0.62, cy: 0.52, a: 0.13, e: 0.08, omega: 0.35, phase: TWO_PI * 0.35,  tilt: 2.0,  mass: 4.0, soft: 300 },
+    // Heavy
+    { cx: 0.30, cy: 0.60, a: 0.10, e: 0.06, omega: 0.55, phase: TWO_PI * 0.6,   tilt: 3.8,  mass: 3.0, soft: 260 },
+    // Heavy — faster
+    { cx: 0.73, cy: 0.35, a: 0.09, e: 0.10, omega: 0.75, phase: TWO_PI * 0.15,  tilt: 5.2,  mass: 2.5, soft: 220 },
+    // Medium — fastest
+    { cx: 0.22, cy: 0.32, a: 0.11, e: 0.05, omega: 0.45, phase: TWO_PI * 0.8,   tilt: 1.5,  mass: 2.0, soft: 200 },
   ];
 
   // Solve Kepler's equation → screen position
@@ -3467,20 +3467,21 @@ document.getElementById('mission-report').addEventListener('click', e => {
     // ── Deep well shadows — the "depth" of the funnel ──
     // Multiple gradient layers per body for rich, smooth shading
     for (const bp of bpos) {
+      const mn = bp.mass / 5; // normalize to 0-1 range
       // Inner dark core
-      const r1 = bp.soft * 1.5;
+      const r1 = bp.soft * 1.8;
       const g1 = ctx.createRadialGradient(bp.x, bp.y, 0, bp.x, bp.y, r1);
-      g1.addColorStop(0, `rgba(18,14,40,${Math.min(0.18, 0.08 * bp.mass)})`);
-      g1.addColorStop(0.5, `rgba(18,14,40,${Math.min(0.08, 0.03 * bp.mass)})`);
+      g1.addColorStop(0, `rgba(18,14,40,${0.12 * mn})`);
+      g1.addColorStop(0.5, `rgba(18,14,40,${0.05 * mn})`);
       g1.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = g1;
       ctx.fillRect(bp.x - r1, bp.y - r1, r1 * 2, r1 * 2);
       // Wide outer halo
-      const r2 = bp.soft * 4;
+      const r2 = bp.soft * 4.5;
       const g2 = ctx.createRadialGradient(bp.x, bp.y, 0, bp.x, bp.y, r2);
-      g2.addColorStop(0, `rgba(20,16,45,${Math.min(0.06, 0.025 * bp.mass)})`);
-      g2.addColorStop(0.3, `rgba(15,12,35,${Math.min(0.03, 0.012 * bp.mass)})`);
-      g2.addColorStop(0.65, `rgba(10,8,25,${0.004 * bp.mass})`);
+      g2.addColorStop(0, `rgba(20,16,45,${0.05 * mn})`);
+      g2.addColorStop(0.3, `rgba(15,12,35,${0.025 * mn})`);
+      g2.addColorStop(0.65, `rgba(10,8,25,${0.008 * mn})`);
       g2.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = g2;
       ctx.fillRect(bp.x - r2, bp.y - r2, r2 * 2, r2 * 2);
@@ -3519,7 +3520,7 @@ document.getElementById('mission-report').addEventListener('click', e => {
         for (const bp of bpos) {
           const rx = bx - bp.x, ry = by - bp.y;
           const r = Math.sqrt(rx * rx + ry * ry);
-          const pull = bp.mass * 1200 / (r + bp.soft);
+          const pull = bp.mass * 2400 / (r + bp.soft);
           const norm = 1 / (r + 0.5);
           dx -= rx * norm * pull;
           dy -= ry * norm * pull;
