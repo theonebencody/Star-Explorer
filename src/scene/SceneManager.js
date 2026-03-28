@@ -3385,20 +3385,17 @@ document.getElementById('mission-report').addEventListener('click', e => {
   let w, h, animId = null;
   let time = 0;
 
-  // Invisible roaming masses that warp spacetime
-  const NUM_MASSES = 7;
-  const _masses = [];
-  for (let i = 0; i < NUM_MASSES; i++) {
-    _masses.push({
-      x: Math.random(), y: Math.random(),         // 0-1 normalized position
-      vx: (Math.random() - 0.5) * 0.0004,         // velocity
-      vy: (Math.random() - 0.5) * 0.0004,
-      strength: 0.2 + Math.random() * 0.4,        // warp strength
-      radius: 120 + Math.random() * 180,           // influence radius in px
-    });
-  }
+  // Smooth flow layers — multiple sine waves at different scales create water-like motion
+  // Each layer has unique frequency, direction, and speed — no discrete masses, no bouncing
+  const _flowLayers = [
+    { fx: 0.0035, fy: 0.0028, sx: 0.35, sy: 0.28, ax: 8,  ay: 7  },
+    { fx: 0.0052, fy: 0.0041, sx: 0.52, sy: 0.45, ax: 5,  ay: 6  },
+    { fx: 0.0018, fy: 0.0022, sx: 0.18, sy: 0.22, ax: 11, ay: 10 },
+    { fx: 0.0071, fy: 0.0063, sx: 0.71, sy: 0.58, ax: 3,  ay: 3.5},
+    { fx: 0.0025, fy: 0.0033, sx: 0.42, sy: 0.35, ax: 6,  ay: 5  },
+  ];
 
-  // Track button positions for static gravity wells
+  // Button gravity wells
   const _btnWells = [];
   function _updateBtnWells() {
     _btnWells.length = 0;
@@ -3409,7 +3406,7 @@ document.getElementById('mission-report').addEventListener('click', e => {
         y: rect.top + rect.height / 2,
         rx: rect.width * 0.7,
         ry: rect.height * 0.7,
-        strength: 0.3,
+        strength: 0.25,
         hover: btn.matches(':hover') ? 1 : 0,
       });
     });
@@ -3427,63 +3424,53 @@ document.getElementById('mission-report').addEventListener('click', e => {
   window.addEventListener('resize', () => { resize(); _updateBtnWells(); });
 
   const GRID_SPACING = 36;
+  // Max displacement capped to prevent folding (never exceed half grid spacing)
+  const MAX_DISP = GRID_SPACING * 0.42;
 
   function draw() {
     if (document.getElementById('splash').classList.contains('hidden')) {
       cancelAnimationFrame(animId); animId = null; return;
     }
     animId = requestAnimationFrame(draw);
-    time += 0.006;
-
-    // Move roaming masses
-    _masses.forEach(m => {
-      m.x += m.vx;
-      m.y += m.vy;
-      // Bounce off edges
-      if (m.x < -0.1 || m.x > 1.1) m.vx *= -1;
-      if (m.y < -0.1 || m.y > 1.1) m.vy *= -1;
-      // Slight random drift
-      m.vx += (Math.random() - 0.5) * 0.00003;
-      m.vy += (Math.random() - 0.5) * 0.00003;
-    });
-
+    time += 0.004;
     _updateBtnWells();
 
     // Greyish white background
     ctx.fillStyle = '#e8e8e8';
     ctx.fillRect(0, 0, w, h);
 
-    // Shading — deep gradient wells around invisible masses
-    for (const m of _masses) {
-      const mx = m.x * w, my = m.y * h;
-      const r = m.radius * 2.5;
-      // Dark depression — like a gravity well sinking into the surface
-      const grad = ctx.createRadialGradient(mx, my, 0, mx, my, r);
-      grad.addColorStop(0, `rgba(0,0,0,${0.18 * m.strength})`);
-      grad.addColorStop(0.15, `rgba(0,0,0,${0.12 * m.strength})`);
-      grad.addColorStop(0.4, `rgba(0,0,0,${0.05 * m.strength})`);
-      grad.addColorStop(0.7, `rgba(0,0,0,${0.015 * m.strength})`);
-      grad.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(mx - r, my - r, r * 2, r * 2);
-      // Light rim — raised edge around the depression
-      const rim = ctx.createRadialGradient(mx, my, r * 0.5, mx, my, r * 0.9);
-      rim.addColorStop(0, 'rgba(255,255,255,0)');
-      rim.addColorStop(0.6, 'rgba(255,255,255,0)');
-      rim.addColorStop(0.8, `rgba(255,255,255,${0.06 * m.strength})`);
-      rim.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = rim;
-      ctx.fillRect(mx - r, my - r, r * 2, r * 2);
+    // Shading — smooth flowing shadows from the wave displacement field
+    // Sample a few points to create gradient pools where displacement is strongest
+    for (let sy = 0; sy < 3; sy++) {
+      for (let sx = 0; sx < 4; sx++) {
+        const sampleX = w * (sx + 0.5) / 4;
+        const sampleY = h * (sy + 0.5) / 3;
+        let totalDisp = 0;
+        for (const L of _flowLayers) {
+          totalDisp += Math.abs(Math.sin(sampleX * L.fx + sampleY * L.fy * 0.5 + time * L.sx) * L.ax);
+          totalDisp += Math.abs(Math.cos(sampleY * L.fy + sampleX * L.fx * 0.5 + time * L.sy) * L.ay);
+        }
+        const intensity = totalDisp / (MAX_DISP * 3);
+        if (intensity > 0.15) {
+          const r = 180 + intensity * 120;
+          const grad = ctx.createRadialGradient(sampleX, sampleY, 0, sampleX, sampleY, r);
+          grad.addColorStop(0, `rgba(0,0,0,${intensity * 0.08})`);
+          grad.addColorStop(0.5, `rgba(0,0,0,${intensity * 0.03})`);
+          grad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = grad;
+          ctx.fillRect(sampleX - r, sampleY - r, r * 2, r * 2);
+        }
+      }
     }
 
-    // Extend grid past borders with extra margin
+    // Grid extends past borders
     const margin = GRID_SPACING * 3;
     const cols = Math.ceil((w + margin * 2) / GRID_SPACING) + 2;
     const rows = Math.ceil((h + margin * 2) / GRID_SPACING) + 2;
     const ox = (w % GRID_SPACING) / 2 - margin;
     const oy = (h % GRID_SPACING) / 2 - margin;
 
-    // Compute displaced grid points
+    // Compute displaced grid points — smooth layered sine flow, clamped to prevent folding
     const pts = new Array((cols + 1) * (rows + 1));
     for (let gy = 0; gy <= rows; gy++) {
       for (let gx = 0; gx <= cols; gx++) {
@@ -3491,94 +3478,65 @@ document.getElementById('mission-report').addEventListener('click', e => {
         const baseY = oy + gy * GRID_SPACING;
         let dx = 0, dy = 0;
 
-        // Gentle background wave
-        dx += Math.sin(baseY * 0.006 + time * 1.0) * 1.5;
-        dy += Math.cos(baseX * 0.006 + time * 0.8) * 1.5;
-
-        // Invisible roaming masses warp the grid
-        for (const m of _masses) {
-          const mx = m.x * w, my = m.y * h;
-          const relX = baseX - mx, relY = baseY - my;
-          const dist = Math.sqrt(relX * relX + relY * relY);
-          if (dist < m.radius * 2) {
-            const falloff = Math.exp(-(dist * dist) / (m.radius * m.radius));
-            dx -= relX * falloff * m.strength;
-            dy -= relY * falloff * m.strength;
-          }
+        // Layered sine waves — each layer flows in a different direction and speed
+        for (const L of _flowLayers) {
+          dx += Math.sin(baseY * L.fx + baseX * L.fy * 0.3 + time * L.sx) * L.ax;
+          dy += Math.cos(baseX * L.fy + baseY * L.fx * 0.3 + time * L.sy) * L.ay;
         }
 
-        // Button gravity wells
+        // Button gravity wells — gentle inward pull
         for (const well of _btnWells) {
           const relX = baseX - well.x, relY = baseY - well.y;
           const normDist = Math.sqrt((relX / well.rx) ** 2 + (relY / well.ry) ** 2);
           if (normDist < 3) {
-            const str = well.strength * (1 + well.hover * 1.0);
+            const str = well.strength * (1 + well.hover * 0.8);
             const falloff = Math.exp(-normDist * normDist * 0.5);
-            dx -= relX * falloff * str;
-            dy -= relY * falloff * str;
-            if (well.hover > 0) dy += falloff * str * 15 * well.hover;
+            dx -= relX * falloff * str * 0.4;
+            dy -= relY * falloff * str * 0.4;
+            if (well.hover > 0) dy += falloff * str * 8 * well.hover;
           }
         }
+
+        // Clamp displacement to prevent grid folding
+        const len = Math.sqrt(dx * dx + dy * dy);
+        if (len > MAX_DISP) { const s = MAX_DISP / len; dx *= s; dy *= s; }
 
         pts[gy * (cols + 1) + gx] = { x: baseX + dx, y: baseY + dy };
       }
     }
 
-    // Draw grid — lines darken near masses for depth
-    // Draw each line segment with opacity based on proximity to masses
+    // Draw grid — line darkness based on local displacement (compressed = darker)
+    // Helper: compute segment compression factor
+    function _segDarkness(p1, p2, baseLen) {
+      const actualLen = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+      const compression = 1 - (actualLen / baseLen); // positive when compressed
+      return Math.max(0, compression);
+    }
+
+    // Horizontal segments
     for (let gy = 0; gy <= rows; gy++) {
       for (let gx = 0; gx < cols; gx++) {
         const p1 = pts[gy * (cols + 1) + gx];
         const p2 = pts[gy * (cols + 1) + gx + 1];
-        const midX = (p1.x + p2.x) / 2, midY = (p1.y + p2.y) / 2;
-        // Compute darkness boost from nearby masses
-        let boost = 0;
-        for (const m of _masses) {
-          const dx = midX - m.x * w, dy = midY - m.y * h;
-          const d = Math.sqrt(dx * dx + dy * dy);
-          boost += Math.max(0, 1 - d / (m.radius * 2)) * m.strength * 0.5;
-        }
-        for (const well of _btnWells) {
-          if (well.hover <= 0) continue;
-          const dx = midX - well.x, dy = midY - well.y;
-          const d = Math.sqrt((dx / well.rx) ** 2 + (dy / well.ry) ** 2);
-          boost += Math.max(0, 1 - d / 2.5) * well.hover * 0.4;
-        }
-        const alpha = Math.min(0.45, 0.1 + boost * 0.35);
-        const lw = Math.min(1.4, 0.5 + boost * 0.9);
-        ctx.strokeStyle = `rgba(0,0,0,${alpha})`;
-        ctx.lineWidth = lw;
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.stroke();
+        const comp = _segDarkness(p1, p2, GRID_SPACING);
+        const alpha = 0.08 + comp * 0.35;
+        const lw = 0.4 + comp * 1.0;
+        ctx.strokeStyle = `rgba(0,0,0,${Math.min(0.4, alpha)})`;
+        ctx.lineWidth = Math.min(1.5, lw);
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
       }
     }
+    // Vertical segments
     for (let gx = 0; gx <= cols; gx++) {
       for (let gy = 0; gy < rows; gy++) {
         const p1 = pts[gy * (cols + 1) + gx];
         const p2 = pts[(gy + 1) * (cols + 1) + gx];
-        const midX = (p1.x + p2.x) / 2, midY = (p1.y + p2.y) / 2;
-        let boost = 0;
-        for (const m of _masses) {
-          const dx = midX - m.x * w, dy = midY - m.y * h;
-          const d = Math.sqrt(dx * dx + dy * dy);
-          boost += Math.max(0, 1 - d / (m.radius * 2)) * m.strength * 0.5;
-        }
-        for (const well of _btnWells) {
-          if (well.hover <= 0) continue;
-          const dx = midX - well.x, dy = midY - well.y;
-          const d = Math.sqrt((dx / well.rx) ** 2 + (dy / well.ry) ** 2);
-          boost += Math.max(0, 1 - d / 2.5) * well.hover * 0.4;
-        }
-        const alpha = Math.min(0.45, 0.1 + boost * 0.35);
-        const lw = Math.min(1.4, 0.5 + boost * 0.9);
-        ctx.strokeStyle = `rgba(0,0,0,${alpha})`;
-        ctx.lineWidth = lw;
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.stroke();
+        const comp = _segDarkness(p1, p2, GRID_SPACING);
+        const alpha = 0.08 + comp * 0.35;
+        const lw = 0.4 + comp * 1.0;
+        ctx.strokeStyle = `rgba(0,0,0,${Math.min(0.4, alpha)})`;
+        ctx.lineWidth = Math.min(1.5, lw);
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
       }
     }
 
