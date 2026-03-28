@@ -236,20 +236,20 @@
 
   /* ── Splash Buttons — subtle, monochrome ── */
   .splash-buttons{display:flex;gap:24px;margin-top:56px;justify-content:center;flex-wrap:wrap}
-  .splash-btn{background:rgba(255,255,255,0.5);border:1px solid rgba(0,0,0,0.1);border-radius:4px;padding:24px 30px;cursor:pointer;transition:all 0.35s ease;text-align:center;width:200px;color:rgba(0,0,0,0.55);font-family:'Share Tech Mono',monospace;pointer-events:all;position:relative;overflow:hidden;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-  .splash-btn::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 120%,rgba(0,0,0,0.03) 0%,transparent 70%);opacity:0;transition:opacity 0.35s}
-  .splash-btn:hover{border-color:rgba(0,0,0,0.3);color:#000;transform:translateY(-4px);box-shadow:0 8px 30px rgba(0,0,0,0.08)}
+  .splash-btn{background:transparent;border:none;border-radius:0;padding:24px 30px;cursor:pointer;transition:all 0.4s ease;text-align:center;width:200px;color:rgba(0,0,0,0.35);font-family:'Share Tech Mono',monospace;pointer-events:all;position:relative;overflow:hidden}
+  .splash-btn::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0.04) 0%,transparent 70%);opacity:0;transition:opacity 0.4s}
+  .splash-btn:hover{color:rgba(0,0,0,0.7);transform:translateY(-2px)}
   .splash-btn:hover::before{opacity:1}
-  .splash-btn-primary{border-color:rgba(0,0,0,0.18)}
-  .splash-btn-icon{font-size:24px;margin-bottom:12px;opacity:0.4;transition:opacity 0.3s}
-  .splash-btn:hover .splash-btn-icon{opacity:0.8}
+  .splash-btn-primary{}
+  .splash-btn-icon{font-size:22px;margin-bottom:12px;opacity:0.25;transition:opacity 0.4s}
+  .splash-btn:hover .splash-btn-icon{opacity:0.6}
   .splash-btn-label{font-family:'Orbitron',sans-serif;font-size:10px;font-weight:900;letter-spacing:3px;margin-bottom:8px}
-  .splash-btn-sub{font-size:9px;color:rgba(0,0,0,0.3);letter-spacing:1px;line-height:1.6;transition:color 0.3s}
-  .splash-btn:hover .splash-btn-sub{color:rgba(0,0,0,0.55)}
+  .splash-btn-sub{font-size:9px;color:rgba(0,0,0,0.2);letter-spacing:1px;line-height:1.6;transition:color 0.4s}
+  .splash-btn:hover .splash-btn-sub{color:rgba(0,0,0,0.45)}
 
   .splash-hover-box{position:absolute;left:50%;transform:translateX(-50%) translateY(6px);bottom:clamp(20px,5vh,60px);max-width:720px;width:90%;text-align:center;opacity:0;transition:opacity 0.3s ease,transform 0.3s ease;pointer-events:none}
   .splash-hover-box.visible{opacity:1;transform:translateX(-50%) translateY(0)}
-  .splash-hover-box-inner{background:rgba(255,255,255,0.8);border:1px solid rgba(0,0,0,0.1);border-radius:4px;padding:18px 28px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  .splash-hover-box-inner{background:rgba(255,255,255,0.4);border:none;border-radius:0;padding:18px 28px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
   .splash-hover-box-text{font-size:12px;color:rgba(0,0,0,0.55);line-height:2;letter-spacing:0.3px}
 
   /* ── Launch History Overlay ── */
