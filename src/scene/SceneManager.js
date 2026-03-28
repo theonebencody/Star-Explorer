@@ -3376,35 +3376,47 @@ document.getElementById('mission-report').addEventListener('click', e => {
 });
 
 // ═══════════════════════════════════════════════
-//  SPLASH BIG BANG BACKGROUND
+//  SPLASH — SPACETIME FABRIC GRID BACKGROUND
 // ═══════════════════════════════════════════════
 (function _initSplashBg() {
   const canvas = document.getElementById('splash-bg');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   let w, h, animId = null;
+  let time = 0;
+
+  // Track button positions for gravity wells
+  const _gravityWells = [];
+  function _updateWells() {
+    _gravityWells.length = 0;
+    document.querySelectorAll('.splash-btn').forEach(btn => {
+      const rect = btn.getBoundingClientRect();
+      _gravityWells.push({
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+        rx: rect.width * 0.6,
+        ry: rect.height * 0.6,
+        strength: 0.35,
+        hover: btn.matches(':hover') ? 1 : 0,
+      });
+    });
+  }
+
+  // Track hover state
+  document.querySelectorAll('.splash-btn').forEach(btn => {
+    btn.addEventListener('mouseenter', () => _updateWells());
+    btn.addEventListener('mouseleave', () => _updateWells());
+  });
 
   function resize() {
     w = canvas.width = window.innerWidth;
     h = canvas.height = window.innerHeight;
   }
   resize();
-  window.addEventListener('resize', resize);
+  window.addEventListener('resize', () => { resize(); _updateWells(); });
 
-  // Small stars expanding slowly from center
-  const N = 200;
-  const stars = [];
-  for (let i = 0; i < N; i++) {
-    stars.push({
-      angle: Math.random() * Math.PI * 2,
-      dist: Math.random() * 0.5,
-      speed: 0.04 + Math.random() * 0.12,
-      size: 0.4 + Math.random() * 1.2,
-      brightness: 120 + Math.floor(Math.random() * 136), // 120-255
-      twinklePhase: Math.random() * Math.PI * 2,
-      twinkleSpeed: 0.005 + Math.random() * 0.015
-    });
-  }
+  // Grid parameters
+  const GRID_SPACING = 40;
 
   function draw() {
     if (document.getElementById('splash').classList.contains('hidden')) {
@@ -3413,43 +3425,109 @@ document.getElementById('mission-report').addEventListener('click', e => {
       return;
     }
     animId = requestAnimationFrame(draw);
-    const cx = w / 2, cy = h / 2;
-    const maxR = Math.max(w, h) * 0.55;
+    time += 0.008;
+    _updateWells();
 
-    // Slow fade — leaves faint trails
-    ctx.fillStyle = 'rgba(0,0,0,0.04)';
-    ctx.fillRect(0, 0, w, h);
+    ctx.clearRect(0, 0, w, h);
 
-    // Subtle center glow
-    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR * 0.08);
-    glow.addColorStop(0, 'rgba(255,255,255,0.025)');
-    glow.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = glow;
-    ctx.beginPath();
-    ctx.arc(cx, cy, maxR * 0.08, 0, Math.PI * 2);
-    ctx.fill();
+    // Draw the spacetime grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = 0.5;
 
-    // Stars
-    stars.forEach(s => {
-      s.dist += s.speed * 0.0012;
-      s.twinklePhase += s.twinkleSpeed;
-      if (s.dist > 1.1) { s.dist = 0; s.angle = Math.random() * Math.PI * 2; }
+    const cols = Math.ceil(w / GRID_SPACING) + 2;
+    const rows = Math.ceil(h / GRID_SPACING) + 2;
+    const ox = (w % GRID_SPACING) / 2; // center the grid
+    const oy = (h % GRID_SPACING) / 2;
 
-      const r = s.dist * maxR;
-      const x = cx + Math.cos(s.angle) * r;
-      const y = cy + Math.sin(s.angle) * r;
+    // Compute displaced grid points
+    const pts = new Array((cols + 1) * (rows + 1));
+    for (let gy = 0; gy <= rows; gy++) {
+      for (let gx = 0; gx <= cols; gx++) {
+        const baseX = ox + gx * GRID_SPACING;
+        const baseY = oy + gy * GRID_SPACING;
+        let dx = 0, dy = 0;
 
-      // Fade in near center, fade out at edges
-      const distFade = s.dist < 0.05 ? s.dist / 0.05 : s.dist > 0.85 ? (1.1 - s.dist) / 0.25 : 1;
-      const twinkle = 0.6 + 0.4 * Math.sin(s.twinklePhase);
-      const alpha = distFade * twinkle * 0.7;
+        // Background wave — subtle undulation
+        dx += Math.sin(baseY * 0.008 + time * 1.2) * 2.5;
+        dy += Math.cos(baseX * 0.008 + time * 0.9) * 2.5;
+        dx += Math.sin(baseX * 0.005 + baseY * 0.005 + time * 0.7) * 1.5;
 
-      const b = s.brightness;
-      ctx.fillStyle = `rgba(${b},${b},${b},${alpha})`;
+        // Gravity wells from buttons
+        for (const well of _gravityWells) {
+          const relX = baseX - well.x;
+          const relY = baseY - well.y;
+          const normDist = Math.sqrt((relX / well.rx) ** 2 + (relY / well.ry) ** 2);
+          if (normDist < 3) {
+            const strength = well.strength * (1 + well.hover * 0.8);
+            const falloff = Math.exp(-normDist * normDist * 0.5);
+            // Pull toward center of well (spacetime curvature)
+            dx -= relX * falloff * strength;
+            dy -= relY * falloff * strength;
+            // Extra depth effect on hover
+            if (well.hover > 0) {
+              dy += falloff * strength * 12 * well.hover;
+            }
+          }
+        }
+
+        pts[gy * (cols + 1) + gx] = { x: baseX + dx, y: baseY + dy };
+      }
+    }
+
+    // Draw horizontal lines
+    for (let gy = 0; gy <= rows; gy++) {
       ctx.beginPath();
-      ctx.arc(x, y, s.size, 0, Math.PI * 2);
-      ctx.fill();
-    });
+      for (let gx = 0; gx <= cols; gx++) {
+        const p = pts[gy * (cols + 1) + gx];
+        // Vary line opacity based on proximity to wells
+        if (gx === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+    }
+
+    // Draw vertical lines
+    for (let gx = 0; gx <= cols; gx++) {
+      ctx.beginPath();
+      for (let gy = 0; gy <= rows; gy++) {
+        const p = pts[gy * (cols + 1) + gx];
+        if (gy === 0) ctx.moveTo(p.x, p.y);
+        else ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+    }
+
+    // Draw brighter lines near gravity wells
+    for (const well of _gravityWells) {
+      if (well.hover <= 0) continue;
+      ctx.strokeStyle = `rgba(255,255,255,${0.12 * well.hover})`;
+      ctx.lineWidth = 0.8;
+      // Re-draw nearby grid lines with higher opacity
+      for (let gy = 0; gy <= rows; gy++) {
+        const p0 = pts[gy * (cols + 1)];
+        const inRange = Math.abs(p0.y - well.y) < well.ry * 2.5;
+        if (!inRange) continue;
+        ctx.beginPath();
+        for (let gx = 0; gx <= cols; gx++) {
+          const p = pts[gy * (cols + 1) + gx];
+          if (gx === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+      }
+      for (let gx = 0; gx <= cols; gx++) {
+        const p0 = pts[gx];
+        const inRange = Math.abs(p0.x - well.x) < well.rx * 2.5;
+        if (!inRange) continue;
+        ctx.beginPath();
+        for (let gy = 0; gy <= rows; gy++) {
+          const p = pts[gy * (cols + 1) + gx];
+          if (gy === 0) ctx.moveTo(p.x, p.y); else ctx.lineTo(p.x, p.y);
+        }
+        ctx.stroke();
+      }
+      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+      ctx.lineWidth = 0.5;
+    }
   }
 
   draw();
