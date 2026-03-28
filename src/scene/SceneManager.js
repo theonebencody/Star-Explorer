@@ -3397,16 +3397,16 @@ document.getElementById('mission-report').addEventListener('click', e => {
   // ── Few heavy bodies — each one a visible "ball" on the sheet ──
   const TWO_PI = Math.PI * 2;
   const bodies = [
-    // Massive — wide orbit, huge well
-    { cx: 0.42, cy: 0.42, a: 0.16, e: 0.04, omega: 0.25, phase: 0,              tilt: 0.4,  mass: 5.0, soft: 350 },
-    // Massive — different orbit center
-    { cx: 0.62, cy: 0.52, a: 0.13, e: 0.08, omega: 0.35, phase: TWO_PI * 0.35,  tilt: 2.0,  mass: 4.0, soft: 300 },
-    // Heavy
-    { cx: 0.30, cy: 0.60, a: 0.10, e: 0.06, omega: 0.55, phase: TWO_PI * 0.6,   tilt: 3.8,  mass: 3.0, soft: 260 },
+    // Enormous — sweeps a huge region
+    { cx: 0.42, cy: 0.42, a: 0.18, e: 0.04, omega: 0.25, phase: 0,              tilt: 0.4,  mass: 8.0, soft: 650 },
+    // Enormous — different orbit center
+    { cx: 0.62, cy: 0.52, a: 0.15, e: 0.08, omega: 0.35, phase: TWO_PI * 0.35,  tilt: 2.0,  mass: 6.5, soft: 550 },
+    // Very heavy
+    { cx: 0.30, cy: 0.60, a: 0.12, e: 0.06, omega: 0.55, phase: TWO_PI * 0.6,   tilt: 3.8,  mass: 5.0, soft: 480 },
     // Heavy — faster
-    { cx: 0.73, cy: 0.35, a: 0.09, e: 0.10, omega: 0.75, phase: TWO_PI * 0.15,  tilt: 5.2,  mass: 2.5, soft: 220 },
+    { cx: 0.73, cy: 0.35, a: 0.10, e: 0.10, omega: 0.75, phase: TWO_PI * 0.15,  tilt: 5.2,  mass: 4.0, soft: 420 },
     // Medium — fastest
-    { cx: 0.22, cy: 0.32, a: 0.11, e: 0.05, omega: 0.45, phase: TWO_PI * 0.8,   tilt: 1.5,  mass: 2.0, soft: 200 },
+    { cx: 0.22, cy: 0.32, a: 0.13, e: 0.05, omega: 0.45, phase: TWO_PI * 0.8,   tilt: 1.5,  mass: 3.5, soft: 380 },
   ];
 
   // Solve Kepler's equation → screen position
@@ -3447,7 +3447,7 @@ document.getElementById('mission-report').addEventListener('click', e => {
   window.addEventListener('resize', () => { resize(); _updateBtnWells(); });
 
   const GRID = 36;
-  const MAX_DISP = GRID * 0.47;
+  const MAX_DISP = GRID * 0.48;
 
   function draw() {
     if (document.getElementById('splash').classList.contains('hidden')) {
@@ -3467,7 +3467,7 @@ document.getElementById('mission-report').addEventListener('click', e => {
     // ── Deep well shadows — the "depth" of the funnel ──
     // Multiple gradient layers per body for rich, smooth shading
     for (const bp of bpos) {
-      const mn = bp.mass / 5; // normalize to 0-1 range
+      const mn = bp.mass / 8; // normalize to 0-1 range
       // Inner dark core
       const r1 = bp.soft * 1.8;
       const g1 = ctx.createRadialGradient(bp.x, bp.y, 0, bp.x, bp.y, r1);
@@ -3520,7 +3520,7 @@ document.getElementById('mission-report').addEventListener('click', e => {
         for (const bp of bpos) {
           const rx = bx - bp.x, ry = by - bp.y;
           const r = Math.sqrt(rx * rx + ry * ry);
-          const pull = bp.mass * 2400 / (r + bp.soft);
+          const pull = bp.mass * 4000 / (r + bp.soft);
           const norm = 1 / (r + 0.5);
           dx -= rx * norm * pull;
           dy -= ry * norm * pull;
@@ -3530,7 +3530,7 @@ document.getElementById('mission-report').addEventListener('click', e => {
         if (mActive) {
           const rx = bx - mx, ry = by - my;
           const r = Math.sqrt(rx * rx + ry * ry);
-          const pull = 1100 / (r + 90);
+          const pull = 2500 / (r + 200);
           dx -= (rx / (r + 0.5)) * pull;
           dy -= (ry / (r + 0.5)) * pull;
         }
