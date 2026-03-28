@@ -3377,9 +3377,10 @@ document.getElementById('mission-report').addEventListener('click', e => {
 
 // ═══════════════════════════════════════════════
 //  SPLASH — SPACETIME FABRIC
-//  Physics-based: Keplerian orbits create metric
-//  perturbation h ~ GM/r. Grid drawn with smooth
-//  Catmull-Rom splines. No sharp angles anywhere.
+//  "Balls on a rubber sheet." Few heavy bodies on
+//  Keplerian orbits create smooth funnel-shaped wells.
+//  Grid drawn with Catmull-Rom splines — no sharp angles.
+//  Displacement follows GR weak-field metric: h ~ GM/r.
 // ═══════════════════════════════════════════════
 (function _initSplashBg() {
   const canvas = document.getElementById('splash-bg');
@@ -3393,58 +3394,34 @@ document.getElementById('mission-report').addEventListener('click', e => {
   canvas.parentElement.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; mActive = true; });
   canvas.parentElement.addEventListener('mouseleave', () => { mActive = false; });
 
-  // ── Orbital bodies on Keplerian ellipses ──
-  // Multiple mini-systems scattered across the screen.
-  // Inner orbits are faster (Kepler's 3rd: T² ∝ a³).
+  // ── Few heavy bodies — each one a visible "ball" on the sheet ──
   const TWO_PI = Math.PI * 2;
-  const bodies = [];
-
-  const systems = [
-    { cx: 0.32, cy: 0.38, s: 1.0, n: 4 },
-    { cx: 0.72, cy: 0.55, s: 0.7, n: 3 },
-    { cx: 0.15, cy: 0.72, s: 0.5, n: 2 },
-    { cx: 0.82, cy: 0.22, s: 0.45, n: 2 },
+  const bodies = [
+    // Heavy — slow wide orbit, deep well
+    { cx: 0.42, cy: 0.42, a: 0.16, e: 0.04, omega: 0.05, phase: 0,              tilt: 0.4,  mass: 2.2, soft: 130 },
+    // Heavy — different orbit center
+    { cx: 0.62, cy: 0.52, a: 0.13, e: 0.08, omega: 0.07, phase: TWO_PI * 0.35,  tilt: 2.0,  mass: 1.8, soft: 115 },
+    // Medium
+    { cx: 0.30, cy: 0.60, a: 0.10, e: 0.06, omega: 0.11, phase: TWO_PI * 0.6,   tilt: 3.8,  mass: 1.3, soft: 95 },
+    // Medium-light — faster
+    { cx: 0.73, cy: 0.35, a: 0.09, e: 0.10, omega: 0.15, phase: TWO_PI * 0.15,  tilt: 5.2,  mass: 1.0, soft: 80 },
+    // Light — fastest
+    { cx: 0.22, cy: 0.32, a: 0.11, e: 0.05, omega: 0.09, phase: TWO_PI * 0.8,   tilt: 1.5,  mass: 0.9, soft: 70 },
   ];
-
-  for (const sys of systems) {
-    for (let i = 0; i < sys.n; i++) {
-      const a = (0.05 + i * 0.045 + Math.random() * 0.02) * sys.s;
-      const e = 0.01 + Math.random() * 0.15;
-      // Kepler's 3rd: omega ∝ a^(-3/2). Normalize to innermost orbit.
-      const aRef = 0.05 * sys.s;
-      const omega = 0.15 * sys.s / Math.pow(a / aRef, 1.5);
-      bodies.push({
-        cx: sys.cx, cy: sys.cy,
-        a, e, omega,
-        phase: Math.random() * TWO_PI,
-        tilt: Math.random() * TWO_PI,         // orbit orientation
-        mass: (0.4 + Math.random() * 0.6) * sys.s * sys.s,
-        soft: 0.035 * sys.s,                  // softening (normalized)
-      });
-    }
-  }
 
   // Solve Kepler's equation → screen position
   function bodyPos(b) {
     const M = b.omega * t + b.phase;
-    // Newton's method for E: M = E - e*sin(E)
     let E = M;
-    for (let j = 0; j < 5; j++) {
-      E -= (E - b.e * Math.sin(E) - M) / (1 - b.e * Math.cos(E));
-    }
-    // True anomaly
+    for (let j = 0; j < 5; j++) E -= (E - b.e * Math.sin(E) - M) / (1 - b.e * Math.cos(E));
     const nu = 2 * Math.atan2(
       Math.sqrt(1 + b.e) * Math.sin(E / 2),
       Math.sqrt(1 - b.e) * Math.cos(E / 2)
     );
-    // Radial distance
     const r = b.a * (1 - b.e * b.e) / (1 + b.e * Math.cos(nu));
-    // Rotate into screen space by orbit tilt
-    const cosT = Math.cos(b.tilt), sinT = Math.sin(b.tilt);
-    const cosN = Math.cos(nu), sinN = Math.sin(nu);
-    const lx = r * (cosT * cosN - sinT * sinN);
-    const ly = r * (sinT * cosN + cosT * sinN);
-    return { x: (b.cx + lx) * w, y: (b.cy + ly) * h };
+    const c = Math.cos(b.tilt), s = Math.sin(b.tilt);
+    const cn = Math.cos(nu), sn = Math.sin(nu);
+    return { x: (b.cx + r * (c * cn - s * sn)) * w, y: (b.cy + r * (s * cn + c * sn)) * h };
   }
 
   // Button wells
@@ -3469,49 +3446,53 @@ document.getElementById('mission-report').addEventListener('click', e => {
   resize();
   window.addEventListener('resize', () => { resize(); _updateBtnWells(); });
 
-  const GRID = 28;
+  const GRID = 36;
   const MAX_DISP = GRID * 0.47;
-  // Gravitational visual constant (tuned for screen-space)
-  const G_VIS = 1600;
 
   function draw() {
     if (document.getElementById('splash').classList.contains('hidden')) {
       cancelAnimationFrame(animId); animId = null; return;
     }
     animId = requestAnimationFrame(draw);
-    t += 0.012;
+    t += 0.01;
     _updateBtnWells();
 
-    const dim = Math.max(w, h);
-
     // Body positions this frame
-    const bpos = bodies.map(b => {
-      const p = bodyPos(b);
-      return { x: p.x, y: p.y, mass: b.mass, soft: b.soft * dim };
-    });
+    const bpos = bodies.map(b => ({ ...bodyPos(b), mass: b.mass, soft: b.soft }));
 
     // ── Background ──
-    ctx.fillStyle = '#e8e8ea';
+    ctx.fillStyle = '#eaeaec';
     ctx.fillRect(0, 0, w, h);
 
-    // Soft curvature shadows under each body (shows the gravity wells)
+    // ── Deep well shadows — the "depth" of the funnel ──
+    // Multiple gradient layers per body for rich, smooth shading
     for (const bp of bpos) {
-      const r = bp.soft * 3.5;
-      const g = ctx.createRadialGradient(bp.x, bp.y, 0, bp.x, bp.y, r);
-      g.addColorStop(0, `rgba(25,20,55,${Math.min(0.15, 0.04 * bp.mass)})`);
-      g.addColorStop(0.3, `rgba(20,18,45,${Math.min(0.08, 0.018 * bp.mass)})`);
-      g.addColorStop(0.7, `rgba(0,0,0,${0.004 * bp.mass})`);
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = g;
-      ctx.fillRect(bp.x - r, bp.y - r, r * 2, r * 2);
+      // Inner dark core
+      const r1 = bp.soft * 1.5;
+      const g1 = ctx.createRadialGradient(bp.x, bp.y, 0, bp.x, bp.y, r1);
+      g1.addColorStop(0, `rgba(18,14,40,${Math.min(0.18, 0.08 * bp.mass)})`);
+      g1.addColorStop(0.5, `rgba(18,14,40,${Math.min(0.08, 0.03 * bp.mass)})`);
+      g1.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g1;
+      ctx.fillRect(bp.x - r1, bp.y - r1, r1 * 2, r1 * 2);
+      // Wide outer halo
+      const r2 = bp.soft * 4;
+      const g2 = ctx.createRadialGradient(bp.x, bp.y, 0, bp.x, bp.y, r2);
+      g2.addColorStop(0, `rgba(20,16,45,${Math.min(0.06, 0.025 * bp.mass)})`);
+      g2.addColorStop(0.3, `rgba(15,12,35,${Math.min(0.03, 0.012 * bp.mass)})`);
+      g2.addColorStop(0.65, `rgba(10,8,25,${0.004 * bp.mass})`);
+      g2.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g2;
+      ctx.fillRect(bp.x - r2, bp.y - r2, r2 * 2, r2 * 2);
     }
 
     // Mouse shadow
     if (mActive) {
-      const r = 300;
+      const r = 320;
       const g = ctx.createRadialGradient(mx, my, 0, mx, my, r);
-      g.addColorStop(0, 'rgba(25,20,50,0.055)');
-      g.addColorStop(0.4, 'rgba(0,0,0,0.02)');
+      g.addColorStop(0, 'rgba(18,14,40,0.07)');
+      g.addColorStop(0.3, 'rgba(15,12,35,0.03)');
+      g.addColorStop(0.7, 'rgba(0,0,0,0.008)');
       g.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = g;
       ctx.fillRect(mx - r, my - r, r * 2, r * 2);
@@ -3532,37 +3513,25 @@ document.getElementById('mission-report').addEventListener('click', e => {
         const by = oy + gy * GRID;
         let dx = 0, dy = 0;
 
-        // ── GR metric perturbation: displacement ~ M / (r + softening) ──
-        // Each body warps spacetime; grid points are pulled inward.
-        // The 1/r falloff matches the weak-field Schwarzschild metric.
+        // ── Schwarzschild-like metric: displacement ~ GM / (r + soft) ──
+        // Grid lines converge toward each mass, creating funnel-shaped wells.
+        // Softening prevents singularity and sets the well width.
         for (const bp of bpos) {
           const rx = bx - bp.x, ry = by - bp.y;
           const r = Math.sqrt(rx * rx + ry * ry);
-          // h ~ GM/r → displacement magnitude = G_VIS * mass / (r + soft)
-          const disp = G_VIS * bp.mass / (r + bp.soft);
-          // Direction: toward the mass (grid converges near massive objects)
-          const invR = 1 / (r + 0.5);
-          dx -= rx * invR * disp;
-          dy -= ry * invR * disp;
+          const pull = bp.mass * 1200 / (r + bp.soft);
+          const norm = 1 / (r + 0.5);
+          dx -= rx * norm * pull;
+          dy -= ry * norm * pull;
         }
 
-        // ── Gravitational waves ──
-        // Plus-polarization GW: stretches x while compressing y, then reverses.
-        // Very gentle, long wavelength — represents GR radiation in the fabric.
-        const gw1 = Math.sin(bx * 0.0025 + by * 0.001 + t * 0.4) * 1.8;
-        const gw2 = Math.sin(bx * 0.001 - by * 0.002 + t * 0.3) * 1.2;
-        dx += gw1;
-        dy -= gw1 * 0.6;  // quadrupolar: opposite sign
-        dx += gw2 * 0.5;
-        dy += gw2;
-
-        // Mouse — acts as a massive object bending spacetime
+        // Mouse — your cursor is a mass on the sheet
         if (mActive) {
           const rx = bx - mx, ry = by - my;
           const r = Math.sqrt(rx * rx + ry * ry);
-          const disp = 900 / (r + 100);
-          dx -= (rx / (r + 0.5)) * disp;
-          dy -= (ry / (r + 0.5)) * disp;
+          const pull = 1100 / (r + 90);
+          dx -= (rx / (r + 0.5)) * pull;
+          dy -= (ry / (r + 0.5)) * pull;
         }
 
         // Button wells
@@ -3578,74 +3547,75 @@ document.getElementById('mission-report').addEventListener('click', e => {
           }
         }
 
-        // Clamp to prevent grid folding
+        // Smooth soft-clamp — approaches MAX_DISP asymptotically, no hard cutoff
         const len = Math.sqrt(dx * dx + dy * dy);
-        if (len > MAX_DISP) { const s = MAX_DISP / len; dx *= s; dy *= s; }
+        if (len > 0.01) {
+          const clamped = MAX_DISP * (1 - Math.exp(-len / MAX_DISP));
+          const s = clamped / len;
+          dx *= s;
+          dy *= s;
+        }
 
         pts[gy * stride + gx] = { x: bx + dx, y: by + dy, dx, dy };
       }
     }
 
-    // ── Draw grid as smooth Catmull-Rom splines ──
-    // Converts to cubic Bezier: CP1 = P + (P_next - P_prev)/6
-    // This guarantees C1 continuity — no sharp angles anywhere.
+    // ── Draw grid as smooth Catmull-Rom → cubic Bezier splines ──
+    // CP1 = P1 + (P2 - P0) / 6,  CP2 = P2 - (P3 - P1) / 6
+    // Guarantees C1 tangent continuity at every junction.
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    // Per-segment style based on displacement depth
-    function segStyle(p1, p2) {
+    // Style: displacement depth controls opacity and weight.
+    // Deep in a well → darker, thicker. Flat space → faint, thin.
+    function setSegStyle(p1, p2) {
       const d1 = Math.sqrt(p1.dx * p1.dx + p1.dy * p1.dy);
       const d2 = Math.sqrt(p2.dx * p2.dx + p2.dy * p2.dy);
       const dn = Math.min(1, (d1 + d2) / (2 * MAX_DISP));
-      const alpha = 0.055 + dn * 0.28;
-      const lw = 0.35 + dn * 1.2;
-      // Smooth color: transparent grey → subtle indigo in deep curvature
-      const cr = Math.round(25 * dn);
-      const cg = Math.round(20 * dn);
-      const cb = Math.round(55 * dn);
-      ctx.strokeStyle = `rgba(${cr},${cg},${cb},${Math.min(0.42, alpha)})`;
-      ctx.lineWidth = Math.min(1.8, lw);
+      // Smooth exponential ramp — subtle in flat space, strong in wells
+      const t = 1 - Math.exp(-dn * 3);
+      const alpha = 0.06 + t * 0.32;
+      const lw = 0.35 + t * 1.4;
+      const cr = Math.round(22 * t);
+      const cg = Math.round(16 * t);
+      const cb = Math.round(50 * t);
+      ctx.strokeStyle = `rgba(${cr},${cg},${cb},${Math.min(0.45, alpha)})`;
+      ctx.lineWidth = Math.min(2.0, lw);
+    }
+
+    // Draw a Catmull-Rom segment from p1→p2 using neighbors p0,p3
+    function drawCR(p0, p1, p2, p3) {
+      setSegStyle(p1, p2);
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.bezierCurveTo(
+        p1.x + (p2.x - p0.x) / 6, p1.y + (p2.y - p0.y) / 6,
+        p2.x - (p3.x - p1.x) / 6, p2.y - (p3.y - p1.y) / 6,
+        p2.x, p2.y
+      );
+      ctx.stroke();
     }
 
     // Horizontal splines
     for (let gy = 0; gy <= rows; gy++) {
       for (let gx = 0; gx < cols; gx++) {
-        const i0 = gy * stride + Math.max(0, gx - 1);
-        const i1 = gy * stride + gx;
-        const i2 = gy * stride + gx + 1;
-        const i3 = gy * stride + Math.min(cols, gx + 2);
-        const p0 = pts[i0], p1 = pts[i1], p2 = pts[i2], p3 = pts[i3];
-
-        segStyle(p1, p2);
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.bezierCurveTo(
-          p1.x + (p2.x - p0.x) / 6, p1.y + (p2.y - p0.y) / 6,
-          p2.x - (p3.x - p1.x) / 6, p2.y - (p3.y - p1.y) / 6,
-          p2.x, p2.y
+        drawCR(
+          pts[gy * stride + Math.max(0, gx - 1)],
+          pts[gy * stride + gx],
+          pts[gy * stride + gx + 1],
+          pts[gy * stride + Math.min(cols, gx + 2)]
         );
-        ctx.stroke();
       }
     }
-
     // Vertical splines
     for (let gx = 0; gx <= cols; gx++) {
       for (let gy = 0; gy < rows; gy++) {
-        const i0 = Math.max(0, gy - 1) * stride + gx;
-        const i1 = gy * stride + gx;
-        const i2 = (gy + 1) * stride + gx;
-        const i3 = Math.min(rows, gy + 2) * stride + gx;
-        const p0 = pts[i0], p1 = pts[i1], p2 = pts[i2], p3 = pts[i3];
-
-        segStyle(p1, p2);
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.bezierCurveTo(
-          p1.x + (p2.x - p0.x) / 6, p1.y + (p2.y - p0.y) / 6,
-          p2.x - (p3.x - p1.x) / 6, p2.y - (p3.y - p1.y) / 6,
-          p2.x, p2.y
+        drawCR(
+          pts[Math.max(0, gy - 1) * stride + gx],
+          pts[gy * stride + gx],
+          pts[(gy + 1) * stride + gx],
+          pts[Math.min(rows, gy + 2) * stride + gx]
         );
-        ctx.stroke();
       }
     }
 
