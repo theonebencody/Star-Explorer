@@ -589,11 +589,12 @@ function _openEraDetail(eraLabel, data) {
     notable.slice(0, 20).forEach(m => {
       const year = m.date.slice(0, 4);
       const oc = _getOC(m.org);
-      html += `<div class="lh-era-first-card" style="border-top-color:${oc.css}">` +
+      html += `<div class="lh-era-first-card${m.video ? ' lh-era-first-expandable' : ''}" style="border-top-color:${oc.css}">` +
         `<div class="lh-era-first-year" style="color:${era.color}">${year}</div>` +
-        `<div class="lh-era-first-name">${m.name}</div>` +
+        `<div class="lh-era-first-name">${m.name}${m.video ? ' <span class="lh-video-icon">\u25B6</span>' : ''}</div>` +
         `<div class="lh-era-first-org" style="color:${oc.css}">${m.org}</div>` +
         m.firsts.map(f => `<div class="lh-era-first-tag">\u2605 ${f}</div>`).join('') +
+        (m.video ? `<div class="lh-era-first-video" style="display:none">${_videoEmbed(m.video)}</div>` : '') +
         `</div>`;
     });
     html += `</div></div>`;
@@ -605,6 +606,14 @@ function _openEraDetail(eraLabel, data) {
 
   document.getElementById('lh-od-back').addEventListener('click', () => {
     overlay.classList.remove('open');
+  });
+
+  // Wire expandable first cards with videos
+  overlay.querySelectorAll('.lh-era-first-expandable').forEach(card => {
+    card.addEventListener('click', () => {
+      const vid = card.querySelector('.lh-era-first-video');
+      if (vid) vid.style.display = vid.style.display === 'none' ? 'block' : 'none';
+    });
   });
 }
 
