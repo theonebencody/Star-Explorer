@@ -3403,9 +3403,9 @@ document.getElementById('mission-report').addEventListener('click', e => {
   const masses = [];
   for (let i = 0; i < 5; i++) {
     masses.push({
-      // Path center (stays within safe viewport bounds)
-      cx: 0.3 + Math.random() * 0.4,
-      cy: 0.3 + Math.random() * 0.4,
+      // Path center — spread across full viewport
+      cx: 0.1 + Math.random() * 0.8,
+      cy: 0.1 + Math.random() * 0.8,
       // X oscillation — 3 frequencies for complex wandering
       ax1: 0.10 + Math.random() * 0.12, fx1: 0.07 + Math.random() * 0.06, px1: Math.random() * TWO_PI,
       ax2: 0.05 + Math.random() * 0.06, fx2: 0.16 + Math.random() * 0.10, px2: Math.random() * TWO_PI,
@@ -3436,19 +3436,27 @@ document.getElementById('mission-report').addEventListener('click', e => {
     };
   }
 
-  // ── Independent wave emitters — separate sources from the masses ──
-  // These wander on their own paths and radiate slow circular waves.
+  // ── Independent wave emitters — spread across the ENTIRE viewport ──
+  // Seeded at distributed positions including edges and corners so waves
+  // propagate from everywhere, not just the center.
   const _emitterDefs = [];
-  for (let i = 0; i < 7; i++) {
+  // Fixed grid of starting positions to guarantee full coverage
+  const _emitterSeeds = [
+    [0.05, 0.05], [0.5, 0.0], [0.95, 0.05],    // top edge
+    [0.0, 0.5],  [0.95, 0.5],                     // sides
+    [0.05, 0.95], [0.5, 1.0], [0.95, 0.95],      // bottom edge
+    [0.25, 0.3], [0.75, 0.3], [0.25, 0.7], [0.75, 0.7], // inner quad
+  ];
+  for (const [sx, sy] of _emitterSeeds) {
     _emitterDefs.push({
-      cx: 0.1 + Math.random() * 0.8, cy: 0.1 + Math.random() * 0.8,
-      ax: 0.08 + Math.random() * 0.15, fx: 0.04 + Math.random() * 0.06, px: Math.random() * TWO_PI,
-      ay: 0.06 + Math.random() * 0.12, fy: 0.03 + Math.random() * 0.05, py: Math.random() * TWO_PI,
-      waveLen: 80 + Math.random() * 120,
-      speed: 0.3 + Math.random() * 0.5,
-      amp: 3 + Math.random() * 4,
-      reach: 350 + Math.random() * 400,
-      drift: 0.5 + Math.random() * 0.8,
+      cx: sx, cy: sy,
+      ax: 0.05 + Math.random() * 0.12, fx: 0.03 + Math.random() * 0.05, px: Math.random() * TWO_PI,
+      ay: 0.04 + Math.random() * 0.10, fy: 0.025 + Math.random() * 0.04, py: Math.random() * TWO_PI,
+      waveLen: 70 + Math.random() * 130,
+      speed: 0.25 + Math.random() * 0.5,
+      amp: 2.5 + Math.random() * 4,
+      reach: 400 + Math.random() * 500,
+      drift: 0.4 + Math.random() * 0.7,
     });
   }
   let _emitters = [];
