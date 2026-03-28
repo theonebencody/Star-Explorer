@@ -3494,7 +3494,7 @@ document.getElementById('mission-report').addEventListener('click', e => {
       cancelAnimationFrame(animId); animId = null; return;
     }
     animId = requestAnimationFrame(draw);
-    t += 0.018;
+    t += 0.013;
     _updateBtnWells();
 
     // Mass positions this frame
