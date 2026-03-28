@@ -584,14 +584,19 @@ function _openEraDetail(eraLabel, data) {
   html += `<div class="lh-od-section"><div class="lh-era-narrative">${narrative}</div></div>`;
 
   if (notable.length > 0) {
-    html += `<div class="lh-od-section"><div class="lh-od-section-title">HISTORIC FIRSTS</div>`;
-    notable.slice(0, 15).forEach(m => {
+    html += `<div class="lh-od-section"><div class="lh-od-section-title">HISTORIC FIRSTS</div>` +
+      `<div class="lh-era-firsts-grid">`;
+    notable.slice(0, 20).forEach(m => {
       const year = m.date.slice(0, 4);
-      html += `<div class="lh-od-first"><span class="lh-od-first-year">${year}</span><div><div class="lh-od-first-name">${m.name}</div>` +
-        m.firsts.map(f => `<div class="lh-od-first-tag">\u2605 ${f}</div>`).join('') +
-        `</div></div>`;
+      const oc = _getOC(m.org);
+      html += `<div class="lh-era-first-card" style="border-top-color:${oc.css}">` +
+        `<div class="lh-era-first-year" style="color:${era.color}">${year}</div>` +
+        `<div class="lh-era-first-name">${m.name}</div>` +
+        `<div class="lh-era-first-org" style="color:${oc.css}">${m.org}</div>` +
+        m.firsts.map(f => `<div class="lh-era-first-tag">\u2605 ${f}</div>`).join('') +
+        `</div>`;
     });
-    html += `</div>`;
+    html += `</div></div>`;
   }
 
   html += `</div>`;

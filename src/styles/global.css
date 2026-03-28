@@ -429,6 +429,15 @@
   .lh-od-first-name{font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:2px}
   .lh-od-first-tag{font-size:10px;color:#fb4;letter-spacing:0.5px}
 
+  /* Era firsts grid cards */
+  .lh-era-firsts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+  .lh-era-first-card{background:rgba(0,12,25,0.7);border:1px solid rgba(0,238,255,0.08);border-top:2px solid #0ef;border-radius:4px;padding:14px 16px;transition:transform 0.2s,border-color 0.2s}
+  .lh-era-first-card:hover{transform:translateY(-2px);border-color:rgba(0,238,255,0.3)}
+  .lh-era-first-year{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;margin-bottom:4px}
+  .lh-era-first-name{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#fff;letter-spacing:0.5px;margin-bottom:4px}
+  .lh-era-first-org{font-size:9px;letter-spacing:1.5px;margin-bottom:8px;text-transform:uppercase}
+  .lh-era-first-tag{font-size:10px;color:#fb4;letter-spacing:0.3px;line-height:1.6}
+
   /* Missions log */
   .lh-od-missions-list{max-height:5000px;opacity:1;overflow:hidden;transition:max-height 0.4s ease,opacity 0.3s ease}
   .lh-od-toggle-chevron{font-size:10px;color:rgba(0,238,255,0.3);transition:transform 0.3s;margin-left:6px}
@@ -460,7 +469,7 @@
   .lh-era-btn-highlight{font-size:9px;color:rgba(255,185,0,0.6);letter-spacing:0.3px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lh-era-btn-arrow{font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--era-color,#0ef);opacity:0.5;transition:opacity 0.2s}
   .lh-era-btn:hover .lh-era-btn-arrow{opacity:1}
-  .lh-era-narrative{font-size:13px;color:rgba(255,255,255,0.72);line-height:2;letter-spacing:0.2px;max-width:680px}
+  .lh-era-narrative{font-size:13px;color:rgba(255,255,255,0.72);line-height:2.1;letter-spacing:0.2px;text-align:justify}
 
   /* ── Destination Groups ── */
   .lh-dest-group{margin-bottom:12px;border-radius:4px;overflow:hidden;background:rgba(0,10,22,0.5);border:1px solid rgba(0,238,255,0.06)}
