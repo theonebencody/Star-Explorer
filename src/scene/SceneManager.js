@@ -3397,16 +3397,16 @@ document.getElementById('mission-report').addEventListener('click', e => {
   // ── Few heavy bodies — each one a visible "ball" on the sheet ──
   const TWO_PI = Math.PI * 2;
   const bodies = [
-    // Heavy — slow wide orbit, deep well
-    { cx: 0.42, cy: 0.42, a: 0.16, e: 0.04, omega: 0.05, phase: 0,              tilt: 0.4,  mass: 2.2, soft: 130 },
+    // Heavy — wide orbit, deep well
+    { cx: 0.42, cy: 0.42, a: 0.16, e: 0.04, omega: 0.25, phase: 0,              tilt: 0.4,  mass: 2.2, soft: 130 },
     // Heavy — different orbit center
-    { cx: 0.62, cy: 0.52, a: 0.13, e: 0.08, omega: 0.07, phase: TWO_PI * 0.35,  tilt: 2.0,  mass: 1.8, soft: 115 },
+    { cx: 0.62, cy: 0.52, a: 0.13, e: 0.08, omega: 0.35, phase: TWO_PI * 0.35,  tilt: 2.0,  mass: 1.8, soft: 115 },
     // Medium
-    { cx: 0.30, cy: 0.60, a: 0.10, e: 0.06, omega: 0.11, phase: TWO_PI * 0.6,   tilt: 3.8,  mass: 1.3, soft: 95 },
+    { cx: 0.30, cy: 0.60, a: 0.10, e: 0.06, omega: 0.55, phase: TWO_PI * 0.6,   tilt: 3.8,  mass: 1.3, soft: 95 },
     // Medium-light — faster
-    { cx: 0.73, cy: 0.35, a: 0.09, e: 0.10, omega: 0.15, phase: TWO_PI * 0.15,  tilt: 5.2,  mass: 1.0, soft: 80 },
+    { cx: 0.73, cy: 0.35, a: 0.09, e: 0.10, omega: 0.75, phase: TWO_PI * 0.15,  tilt: 5.2,  mass: 1.0, soft: 80 },
     // Light — fastest
-    { cx: 0.22, cy: 0.32, a: 0.11, e: 0.05, omega: 0.09, phase: TWO_PI * 0.8,   tilt: 1.5,  mass: 0.9, soft: 70 },
+    { cx: 0.22, cy: 0.32, a: 0.11, e: 0.05, omega: 0.45, phase: TWO_PI * 0.8,   tilt: 1.5,  mass: 0.9, soft: 70 },
   ];
 
   // Solve Kepler's equation → screen position
@@ -3454,7 +3454,7 @@ document.getElementById('mission-report').addEventListener('click', e => {
       cancelAnimationFrame(animId); animId = null; return;
     }
     animId = requestAnimationFrame(draw);
-    t += 0.01;
+    t += 0.04;
     _updateBtnWells();
 
     // Body positions this frame
