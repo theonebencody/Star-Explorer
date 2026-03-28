@@ -3510,15 +3510,18 @@ document.getElementById('mission-report').addEventListener('click', e => {
       ctx.fillRect(mx - r, my - r, r * 2, r * 2);
     }
 
-    // ── Faint contour rings — topographic depth illusion ──
+    // ── Pulsing contour rings — ripple outward over time ──
     for (const mp of mpos) {
-      const nRings = 5;
-      for (let ring = 1; ring <= nRings; ring++) {
-        const r = mp.radius * ring * 0.22;
+      const nRings = 6;
+      for (let ring = 0; ring < nRings; ring++) {
+        // Rings expand outward with time, creating a pulsing ripple effect
+        const phase = (t * 1.5 * mp.intensity + ring / nRings) % 1;
+        const r = mp.radius * 0.15 + phase * mp.radius * 1.2;
+        const fade = (1 - phase) * mp.intensity;
         ctx.beginPath();
         ctx.arc(mp.x, mp.y, r, 0, TWO_PI);
-        ctx.strokeStyle = `rgba(0,0,0,${(0.05 / ring) * mp.intensity})`;
-        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = `rgba(0,0,0,${0.04 * fade})`;
+        ctx.lineWidth = 0.5 + (1 - phase) * 0.5;
         ctx.stroke();
       }
     }
@@ -3552,18 +3555,41 @@ document.getElementById('mission-report').addEventListener('click', e => {
 
         let dx = 0, dy = 0;
 
-        // ── Gravitational displacement ──
-        // Inverse-distance falloff: pull ~ intensity / (r + softRadius)
-        // Additive across all masses for complex overlapping warps.
+        // ── Gravitational displacement + pulsing waves ──
         for (const mp of mpos) {
           const rx = bx - mp.x, ry = by - mp.y;
           const r = Math.sqrt(rx * rx + ry * ry);
           const softR = mp.radius * 0.35;
+
+          // Static gravitational well (inverse-distance)
           const pull = mp.intensity * G_VIS / (r + softR);
           const invR = 1 / (r + 0.5);
           dx -= rx * invR * pull;
           dy -= ry * invR * pull;
+
+          // Traveling waves pulsing outward from each mass
+          // Like ripples on a pond — sinusoidal waves that radiate out
+          // and decay with distance. Each mass pulses at its own frequency.
+          if (r < mp.radius * 3.5) {
+            const waveLen = mp.radius * 0.6;
+            const waveSpeed = 2.5 * mp.intensity;
+            const wavePhase = r / waveLen - t * waveSpeed;
+            const waveFade = Math.exp(-r / (mp.radius * 1.8));
+            const waveAmp = Math.sin(wavePhase * TWO_PI) * waveFade * mp.intensity * 7;
+            // Push radially outward along the wave crest
+            if (r > 1) {
+              dx += (rx / r) * waveAmp;
+              dy += (ry / r) * waveAmp;
+            }
+          }
         }
+
+        // Global plane waves sweeping across the fabric
+        // Two slow waves at different angles — the whole sheet breathes
+        dx += Math.sin(bx * 0.004 + by * 0.002 + t * 1.2) * 3.5;
+        dy += Math.cos(bx * 0.002 - by * 0.004 + t * 1.0) * 3.5;
+        dx += Math.sin(-bx * 0.003 + by * 0.005 + t * 0.7) * 2.0;
+        dy += Math.cos(bx * 0.005 + by * 0.003 + t * 0.85) * 2.0;
 
         // Mouse as a gravitational mass
         if (mActive) {
