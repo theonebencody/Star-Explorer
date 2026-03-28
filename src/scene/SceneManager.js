@@ -3456,15 +3456,15 @@ document.getElementById('mission-report').addEventListener('click', e => {
   resize();
   window.addEventListener('resize', () => { resize(); _updateBtnWells(); });
 
-  const GRID_SPACING = 32;
-  const MAX_DISP = GRID_SPACING * 0.46;
+  const GRID_SPACING = 30;
+  const MAX_DISP = GRID_SPACING * 0.48;
 
   function draw() {
     if (document.getElementById('splash').classList.contains('hidden')) {
       cancelAnimationFrame(animId); animId = null; return;
     }
     animId = requestAnimationFrame(draw);
-    time += 0.008;
+    time += 0.016;
     _updateBtnWells();
 
     // Background — very subtle warm grey gradient
@@ -3480,15 +3480,15 @@ document.getElementById('mission-report').addEventListener('click', e => {
       m._y = (m.cy + Math.cos(time * m.sy + m.py) * m.ry) * h;
     });
 
-    // Spawn ripples periodically from random masses
-    if (time - _lastRipple > 0.15) {
+    // Spawn ripples frequently from random masses
+    if (time - _lastRipple > 0.08) {
       _lastRipple = time;
       const src = _masses[Math.floor(Math.random() * _masses.length)];
-      _ripples.push({ x: src._x, y: src._y, t: 0, maxR: src.radius * 3, strength: src.strength * 0.4, hue: src.hue });
+      _ripples.push({ x: src._x, y: src._y, t: 0, maxR: src.radius * 3.5, strength: src.strength * 0.7, hue: src.hue });
     }
     // Age and cull ripples
     for (let i = _ripples.length - 1; i >= 0; i--) {
-      _ripples[i].t += 0.012;
+      _ripples[i].t += 0.015;
       if (_ripples[i].t > 1) _ripples.splice(i, 1);
     }
 
@@ -3541,42 +3541,47 @@ document.getElementById('mission-report').addEventListener('click', e => {
         const baseY = oy + gy * GRID_SPACING;
         let dx = 0, dy = 0;
 
-        // Multi-frequency global waves — creates a living, breathing fabric
-        dx += Math.sin(baseY * 0.006 + time * 0.9) * 2.5;
-        dy += Math.cos(baseX * 0.006 + time * 0.7) * 2.5;
-        dx += Math.sin(baseY * 0.012 + baseX * 0.003 + time * 1.4) * 1.2;
-        dy += Math.cos(baseX * 0.012 + baseY * 0.003 + time * 1.1) * 1.2;
-        // Slow deep wave
-        dx += Math.sin(baseY * 0.002 + time * 0.3) * 3.5;
-        dy += Math.cos(baseX * 0.002 + time * 0.25) * 3.5;
+        // Multi-frequency global waves — the fabric is ALIVE
+        // Fast surface ripples
+        dx += Math.sin(baseY * 0.008 + time * 1.6) * 4;
+        dy += Math.cos(baseX * 0.008 + time * 1.3) * 4;
+        // Medium cross-waves (diagonal interference)
+        dx += Math.sin(baseY * 0.015 + baseX * 0.005 + time * 2.2) * 2.5;
+        dy += Math.cos(baseX * 0.015 + baseY * 0.005 + time * 1.8) * 2.5;
+        // Slow deep heaving breath
+        dx += Math.sin(baseY * 0.003 + time * 0.5) * 6;
+        dy += Math.cos(baseX * 0.003 + time * 0.4) * 6;
+        // Ultra-slow tidal drift
+        dx += Math.sin(baseY * 0.001 + baseX * 0.0008 + time * 0.15) * 4;
+        dy += Math.cos(baseX * 0.001 + baseY * 0.0008 + time * 0.12) * 4;
 
-        // Roaming masses warp the grid — stronger pull
+        // Roaming masses warp the grid — heavy pull with swirl
         for (const m of _masses) {
           const relX = baseX - m._x, relY = baseY - m._y;
           const dist2 = relX * relX + relY * relY;
-          const cutoff = m.radius * 3;
+          const cutoff = m.radius * 3.5;
           if (dist2 < cutoff * cutoff) {
-            const r2 = m.radius * m.radius * 1.2;
+            const r2 = m.radius * m.radius * 1.4;
             const falloff = Math.exp(-dist2 / r2);
-            dx -= relX * falloff * m.strength;
-            dy -= relY * falloff * m.strength;
-            // Tangential swirl — gives a rotational current feel
-            const swirlStr = falloff * m.strength * 0.3;
-            dx += relY * swirlStr * 0.15;
-            dy -= relX * swirlStr * 0.15;
+            dx -= relX * falloff * m.strength * 1.6;
+            dy -= relY * falloff * m.strength * 1.6;
+            // Tangential swirl — rotational current
+            const swirlStr = falloff * m.strength * 0.5;
+            dx += relY * swirlStr * 0.25;
+            dy -= relX * swirlStr * 0.25;
           }
         }
 
-        // Ripple waves — expanding rings
+        // Ripple waves — expanding rings with strong displacement
         for (const rip of _ripples) {
           const relX = baseX - rip.x, relY = baseY - rip.y;
           const dist = Math.sqrt(relX * relX + relY * relY);
           const ripRadius = rip.t * rip.maxR;
-          const ringWidth = rip.maxR * 0.15;
+          const ringWidth = rip.maxR * 0.2;
           const distFromRing = Math.abs(dist - ripRadius);
-          if (distFromRing < ringWidth * 2) {
+          if (distFromRing < ringWidth * 2.5) {
             const fade = (1 - rip.t) * Math.exp(-(distFromRing * distFromRing) / (ringWidth * ringWidth));
-            const push = fade * rip.strength * 12;
+            const push = fade * rip.strength * 20;
             if (dist > 1) {
               dx += (relX / dist) * push;
               dy += (relY / dist) * push;
@@ -3584,15 +3589,15 @@ document.getElementById('mission-report').addEventListener('click', e => {
           }
         }
 
-        // Mouse gravity well — strong interactive pull
+        // Mouse gravity well — heavy interactive pull
         if (mouseActive) {
           const relX = baseX - mouseX, relY = baseY - mouseY;
           const dist2 = relX * relX + relY * relY;
-          const mRad = 220;
-          if (dist2 < mRad * mRad * 4) {
+          const mRad = 250;
+          if (dist2 < mRad * mRad * 5) {
             const falloff = Math.exp(-dist2 / (mRad * mRad));
-            dx -= relX * falloff * 0.45;
-            dy -= relY * falloff * 0.45;
+            dx -= relX * falloff * 0.7;
+            dy -= relY * falloff * 0.7;
           }
         }
 
