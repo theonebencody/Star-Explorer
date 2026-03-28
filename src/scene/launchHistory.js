@@ -156,22 +156,6 @@ function _renderStatsOverview(data) {
     const g = GLOBAL_STATS;
     const rate = Math.round((g.totalSuccess / g.totalAttempts) * 100);
 
-    // Nation breakdown — clickable rows that filter
-    const nationOrgMap = { 'Soviet Union': 'Soviet', 'United States': 'NASA', 'Russia': 'Roscosmos', 'China': 'CNSA', 'France / ESA': 'ESA', 'Japan': 'JAXA', 'India': 'ISRO', 'New Zealand': 'Rocket Lab' };
-    const nationRows = g.byNation.map(n => {
-      const orgKey = nationOrgMap[n.name];
-      const link = orgKey ? ` lh-stat-link" data-filter="${orgKey}"` : '"';
-      return `<div class="lh-stat-nation-row${link}><span class="lh-stat-nation-name">${n.name}</span><span class="lh-stat-nation-val">${n.attempts.toLocaleString()}</span></div>`;
-    }).join('');
-
-    // Company rows — clickable to open org detail
-    const companyOrgMap = { 'SpaceX': 'SpaceX', 'CASC (China)': 'CNSA', 'Arianespace': 'ESA', 'ULA': 'ULA', 'Rocket Lab': 'Rocket Lab' };
-    const companyRows = g.byCompany.map(c => {
-      const orgKey = companyOrgMap[c.name];
-      const link = orgKey ? ` lh-stat-link" data-org-detail="${orgKey}"` : '"';
-      return `<div class="lh-stat-nation-row${link}><span class="lh-stat-nation-name">${c.name}</span><span class="lh-stat-nation-val">${c.launches.toLocaleString()}</span></div>`;
-    }).join('');
-
     el.innerHTML =
       _statCard(g.totalAttempts.toLocaleString(), 'Orbital Launch Attempts') +
       _statCard(g.totalSuccess.toLocaleString(), 'Successful Orbits') +
@@ -179,33 +163,7 @@ function _renderStatsOverview(data) {
       _statCard(g.totalFailures.toLocaleString(), 'Failures') +
       _statCard(g.nations + '+', 'Nations') +
       _statCard(g.yearSpan, 'Since') +
-      `<div class="lh-stat-card lh-stat-card-wide">` +
-        `<div class="lh-stat-card-label">LAUNCHES BY NATION</div>` +
-        `<div class="lh-stat-nation-list">${nationRows}</div>` +
-      `</div>` +
-      `<div class="lh-stat-card lh-stat-card-wide">` +
-        `<div class="lh-stat-card-label">TOP LAUNCH PROVIDERS</div>` +
-        `<div class="lh-stat-nation-list">${companyRows}</div>` +
-      `</div>` +
       `<div class="lh-stat-source">Data: Jonathan McDowell (planet4589.org) \u00B7 ${data.length} missions detailed below</div>`;
-
-    // Wire clickable nation/company rows
-    el.querySelectorAll('.lh-stat-link[data-filter]').forEach(row => {
-      row.addEventListener('click', () => {
-        const org = row.dataset.filter;
-        document.querySelectorAll('.lh-filter-btn').forEach(b => b.classList.remove('active'));
-        const btn = document.querySelector(`.lh-filter-btn[data-org="${org}"]`);
-        if (btn) btn.classList.add('active');
-        _lhFilter = org;
-        _renderAll();
-      });
-    });
-    el.querySelectorAll('.lh-stat-link[data-org-detail]').forEach(row => {
-      row.addEventListener('click', () => {
-        _buildOrgData(_filteredData());
-        _openOrgDetail(row.dataset.orgDetail);
-      });
-    });
   }
 }
 
@@ -524,24 +482,23 @@ function _openOrgDetail(orgName) {
   });
 }
 
-// ─── Timeline by Era ─────────────────────────────────────────────
+// ─── Timeline by Era — styled as prominent clickable cards ──────
+const _ERA_DEFS = [
+  { label: 'THE SPACE RACE', range: [1957, 1969], color: '#fb4', icon: '\u2606', desc: 'From Sputnik to Apollo \u2014 the era that launched humanity into space' },
+  { label: 'STATIONS & SHUTTLES', range: [1970, 1999], color: '#0ef', icon: '\u2302', desc: 'Space stations, the Shuttle program, and international cooperation' },
+  { label: 'EXPLORATION ERA', range: [2000, 2014], color: '#4fa', icon: '\u269B', desc: 'Mars rovers, ISS expansion, and the dawn of commercial spaceflight' },
+  { label: 'COMMERCIAL REVOLUTION', range: [2015, 2022], color: '#f80', icon: '\u26A1', desc: 'Reusable rockets, mega-constellations, and record launch cadence' },
+  { label: 'THE NEW FRONTIER', range: [2023, 2030], color: '#e4f', icon: '\u2B50', desc: 'Starship, Artemis, lunar return, and the push to Mars' },
+];
+
 function _renderTimeline(data) {
   const el = document.getElementById('lh-timeline');
   if (!el) return;
 
   const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date));
 
-  // Group into eras
-  const eras = [
-    { label: 'THE SPACE RACE', range: [1957, 1969], color: '#fb4' },
-    { label: 'STATIONS & SHUTTLES', range: [1970, 1999], color: '#0ef' },
-    { label: 'EXPLORATION ERA', range: [2000, 2014], color: '#4fa' },
-    { label: 'COMMERCIAL REVOLUTION', range: [2015, 2022], color: '#f80' },
-    { label: 'THE NEW FRONTIER', range: [2023, 2030], color: '#e4f' },
-  ];
-
-  let html = '';
-  eras.forEach(era => {
+  let html = '<div class="lh-era-grid">';
+  _ERA_DEFS.forEach(era => {
     const eraMissions = sorted.filter(m => {
       const y = parseInt(m.date.slice(0, 4));
       return y >= era.range[0] && y <= era.range[1];
@@ -550,50 +507,99 @@ function _renderTimeline(data) {
 
     const successes = eraMissions.filter(m => m.status === 'success').length;
     const totalFirsts = eraMissions.reduce((s, m) => s + (m.firsts?.length || 0), 0);
+    const topFirst = eraMissions.filter(m => m.firsts?.length).sort((a,b) => b.firsts.length - a.firsts.length)[0];
 
-    // Pick top 5 missions with firsts for this era
-    const highlights = eraMissions
-      .filter(m => m.firsts && m.firsts.length > 0)
-      .sort((a, b) => b.firsts.length - a.firsts.length)
-      .slice(0, 5);
-
-    html += `<div class="lh-era-card collapsed" data-era="${era.label}">` +
-      `<div class="lh-era-header" style="border-left-color:${era.color}">` +
-        `<div class="lh-era-title" style="color:${era.color}">${era.label}</div>` +
-        `<div class="lh-era-range">${era.range[0]}\u2013${era.range[1]}</div>` +
-        `<div class="lh-era-stats">` +
-          `<span>${eraMissions.length} missions</span>` +
-          `<span>${successes} successes</span>` +
-          `<span>${totalFirsts} firsts</span>` +
-        `</div>` +
-        `<div class="lh-era-chevron">\u25BC</div>` +
+    html += `<div class="lh-era-btn" data-era="${era.label}" style="--era-color:${era.color}">` +
+      `<div class="lh-era-btn-icon">${era.icon}</div>` +
+      `<div class="lh-era-btn-title">${era.label}</div>` +
+      `<div class="lh-era-btn-range">${era.range[0]} \u2013 ${era.range[1]}</div>` +
+      `<div class="lh-era-btn-desc">${era.desc}</div>` +
+      `<div class="lh-era-btn-stats">` +
+        `<span>${eraMissions.length.toLocaleString()} launches</span>` +
+        `<span>${totalFirsts} firsts</span>` +
       `</div>` +
-      `<div class="lh-era-body">`;
-
-    highlights.forEach(m => {
-      const year = m.date.slice(0, 4);
-      const firstTag = m.firsts[0];
-      html += `<div class="lh-timeline-item">` +
-        `<div class="lh-timeline-year">${year}</div>` +
-        `<div class="lh-timeline-content">` +
-          `<div class="lh-timeline-name">${m.name}</div>` +
-          `<div class="lh-timeline-desc">${_truncate(m.desc, 100)}</div>` +
-          `<div class="lh-timeline-firsts">\u2605 ${firstTag}</div>` +
-        `</div></div>`;
-    });
-
-    const remaining = eraMissions.length - highlights.length;
-    if (remaining > 0) {
-      html += `<div class="lh-era-more" style="color:rgba(0,238,255,0.3);font-size:10px;padding:4px 0 4px 26px;font-style:italic">+ ${remaining} more missions in this era</div>`;
-    }
-
-    html += `</div></div>`;
+      (topFirst ? `<div class="lh-era-btn-highlight">\u2605 ${topFirst.firsts[0]}</div>` : '') +
+      `<div class="lh-era-btn-arrow">EXPLORE \u2192</div>` +
+    `</div>`;
   });
+  html += '</div>';
   el.innerHTML = html;
 
-  // Hide the old "show more" button — eras handle their own expand
+  // Hide the old "show more" button
   const moreBtn = document.getElementById('lh-timeline-more');
   if (moreBtn) moreBtn.style.display = 'none';
+}
+
+// ─── Era Detail Overlay ─────────────────────────────────────────
+function _openEraDetail(eraLabel, data) {
+  const era = _ERA_DEFS.find(e => e.label === eraLabel);
+  if (!era) return;
+
+  const overlay = document.getElementById('lh-org-detail');
+  if (!overlay) return;
+
+  const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date));
+  const eraMissions = sorted.filter(m => {
+    const y = parseInt(m.date.slice(0, 4));
+    return y >= era.range[0] && y <= era.range[1];
+  });
+
+  const successes = eraMissions.filter(m => m.status === 'success').length;
+  const failures = eraMissions.filter(m => m.status === 'failed').length;
+  const totalFirsts = eraMissions.reduce((s, m) => s + (m.firsts?.length || 0), 0);
+  const totalMass = eraMissions.reduce((s, m) => s + (m.mass || 0), 0);
+  const orgs = new Set(eraMissions.map(m => m.org));
+
+  // Year-by-year counts
+  const yearCounts = {};
+  eraMissions.forEach(m => {
+    const y = m.date.slice(0, 4);
+    yearCounts[y] = (yearCounts[y] || 0) + 1;
+  });
+  const yearEntries = Object.entries(yearCounts).sort();
+  const maxCount = Math.max(...yearEntries.map(e => e[1]), 1);
+  const barHtml = yearEntries.map(([y, c]) => {
+    const pct = Math.round((c / maxCount) * 100);
+    return `<div class="lh-od-bar-row"><span class="lh-od-bar-year">${y}</span><div class="lh-od-bar-track"><div class="lh-od-bar-fill" style="width:${pct}%;background:${era.color}"></div></div><span class="lh-od-bar-val">${c}</span></div>`;
+  }).join('');
+
+  // Notable missions with firsts
+  const notable = eraMissions.filter(m => m.firsts?.length).sort((a,b) => b.firsts.length - a.firsts.length);
+
+  let html = `<div class="lh-od-header" style="border-bottom-color:${era.color}">` +
+    `<button class="lh-od-back" id="lh-od-back">\u2190 BACK</button>` +
+    `<div class="lh-od-title" style="color:${era.color}">${era.icon} ${era.label}</div>` +
+    `</div><div class="lh-od-body">`;
+
+  html += `<div class="lh-od-stats">` +
+    `<div class="lh-od-stat"><div class="lh-od-stat-val" style="color:${era.color}">${eraMissions.length.toLocaleString()}</div><div class="lh-od-stat-lbl">Launches</div></div>` +
+    `<div class="lh-od-stat"><div class="lh-od-stat-val" style="color:${era.color}">${Math.round(successes/eraMissions.length*100)}%</div><div class="lh-od-stat-lbl">Success Rate</div></div>` +
+    `<div class="lh-od-stat"><div class="lh-od-stat-val" style="color:${era.color}">${(totalMass/1000).toFixed(0)}t</div><div class="lh-od-stat-lbl">Mass to Orbit</div></div>` +
+    `<div class="lh-od-stat"><div class="lh-od-stat-val" style="color:${era.color}">${orgs.size}</div><div class="lh-od-stat-lbl">Organizations</div></div>` +
+    `<div class="lh-od-stat"><div class="lh-od-stat-val" style="color:${era.color}">${totalFirsts}</div><div class="lh-od-stat-lbl">Firsts</div></div>` +
+    `<div class="lh-od-stat"><div class="lh-od-stat-val" style="color:${era.color}">${era.range[0]}\u2013${era.range[1]}</div><div class="lh-od-stat-lbl">Years</div></div>` +
+    `</div>`;
+
+  html += `<div class="lh-od-section"><div class="lh-od-section-title">LAUNCHES BY YEAR</div><div class="lh-od-bars">${barHtml}</div></div>`;
+
+  if (notable.length > 0) {
+    html += `<div class="lh-od-section"><div class="lh-od-section-title">HISTORIC FIRSTS</div>`;
+    notable.slice(0, 15).forEach(m => {
+      const year = m.date.slice(0, 4);
+      html += `<div class="lh-od-first"><span class="lh-od-first-year">${year}</span><div><div class="lh-od-first-name">${m.name}</div>` +
+        m.firsts.map(f => `<div class="lh-od-first-tag">\u2605 ${f}</div>`).join('') +
+        `</div></div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `</div>`;
+  overlay.innerHTML = html;
+  overlay.classList.add('open');
+
+  document.getElementById('lh-od-back').addEventListener('click', () => {
+    overlay.classList.remove('open');
+  });
 }
 
 // ─── All Missions Grid — grouped by destination ─────────────────
@@ -1456,14 +1462,14 @@ export function initLaunchHistory(getStarted) {
     });
   }
 
-  // Era expand/collapse (event delegation on timeline)
+  // Era button clicks — open era detail overlay
   const timeline = document.getElementById('lh-timeline');
   if (timeline) {
     timeline.addEventListener('click', (e) => {
-      const header = e.target.closest('.lh-era-header');
-      if (header) {
-        const card = header.closest('.lh-era-card');
-        if (card) card.classList.toggle('collapsed');
+      const btn = e.target.closest('.lh-era-btn');
+      if (btn) {
+        const eraLabel = btn.dataset.era;
+        _openEraDetail(eraLabel, _filteredData());
       }
     });
   }

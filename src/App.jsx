@@ -286,6 +286,12 @@ function App() {
           {/* Hero stats */}
           <div className="lh-stats-overview" id="lh-stats-overview"></div>
 
+          {/* Timeline by Era — prominent clickable cards */}
+          <div className="lh-section">
+            <div className="lh-section-title">EXPLORE BY ERA</div>
+            <div className="lh-timeline" id="lh-timeline"></div>
+          </div>
+
           {/* Featured highlights — defining moments with astronaut backdrop */}
           <div className="lh-section lh-defining-section">
             <img src="/Infinita/images/astronaut.png" alt="" className="lh-defining-bg-img" />
@@ -327,16 +333,6 @@ function App() {
 
           {/* Organization Detail Overlay (appears over launch history) */}
           <div className="lh-org-detail" id="lh-org-detail"></div>
-
-          {/* Timeline + rocket gallery */}
-          <div className="lh-section">
-            <div className="lh-section-title">TIMELINE</div>
-            <div className="lh-timeline-wrap">
-              <div className="lh-snowfall" id="lh-snowfall"></div>
-              <div className="lh-timeline" id="lh-timeline"></div>
-              <button className="lh-show-more-btn" id="lh-timeline-more" style={{display:'none'}}>SHOW FULL TIMELINE</button>
-            </div>
-          </div>
 
           {/* Mission catalog — hidden by default, revealed by button */}
           <div className="lh-section">

@@ -446,18 +446,20 @@
     .lh-od-mission-rocket{display:none}
   }
 
-  /* ── Era Timeline ── */
-  .lh-era-card{margin-bottom:10px;border-radius:4px;overflow:hidden;background:rgba(0,10,22,0.5);border:1px solid rgba(0,238,255,0.06)}
-  .lh-era-header{padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;border-left:3px solid #0ef;transition:background 0.15s;position:relative}
-  .lh-era-header:hover{background:rgba(0,238,255,0.03)}
-  .lh-era-title{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:900;letter-spacing:3px}
-  .lh-era-range{font-size:10px;color:rgba(0,238,255,0.4);letter-spacing:1px}
-  .lh-era-stats{display:flex;gap:12px;font-size:9px;color:rgba(0,238,255,0.5);margin-left:auto}
-  .lh-era-stats span{white-space:nowrap}
-  .lh-era-chevron{font-size:10px;color:rgba(0,238,255,0.3);transition:transform 0.3s}
-  .lh-era-body{padding:4px 12px 12px;transition:max-height 0.3s ease,opacity 0.2s ease;max-height:600px;opacity:1;overflow:hidden}
-  .lh-era-card.collapsed .lh-era-body{max-height:0;opacity:0;padding:0 12px}
-  .lh-era-card.collapsed .lh-era-chevron{transform:rotate(-90deg)}
+  /* ── Era Button Grid ── */
+  .lh-era-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .lh-era-btn{background:linear-gradient(135deg,rgba(0,15,30,0.8),rgba(0,8,18,0.95));border:1px solid rgba(0,238,255,0.1);border-left:3px solid var(--era-color,#0ef);border-radius:6px;padding:18px 20px;cursor:pointer;transition:all 0.25s;position:relative;overflow:hidden}
+  .lh-era-btn:hover{border-color:var(--era-color,#0ef);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3),0 0 20px color-mix(in srgb, var(--era-color) 15%, transparent)}
+  .lh-era-btn::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--era-color,#0ef);opacity:0.5}
+  .lh-era-btn-icon{font-size:22px;margin-bottom:8px;opacity:0.8}
+  .lh-era-btn-title{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900;letter-spacing:2px;color:var(--era-color,#0ef);margin-bottom:4px}
+  .lh-era-btn-range{font-size:10px;color:rgba(0,238,255,0.4);letter-spacing:1px;margin-bottom:8px}
+  .lh-era-btn-desc{font-size:10px;color:rgba(255,255,255,0.5);line-height:1.6;margin-bottom:10px}
+  .lh-era-btn-stats{display:flex;gap:12px;font-size:9px;color:rgba(0,238,255,0.5);margin-bottom:6px}
+  .lh-era-btn-stats span{white-space:nowrap}
+  .lh-era-btn-highlight{font-size:9px;color:rgba(255,185,0,0.6);letter-spacing:0.3px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lh-era-btn-arrow{font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--era-color,#0ef);opacity:0.5;transition:opacity 0.2s}
+  .lh-era-btn:hover .lh-era-btn-arrow{opacity:1}
 
   /* ── Destination Groups ── */
   .lh-dest-group{margin-bottom:12px;border-radius:4px;overflow:hidden;background:rgba(0,10,22,0.5);border:1px solid rgba(0,238,255,0.06)}
