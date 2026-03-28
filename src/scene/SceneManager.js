@@ -3514,32 +3514,55 @@ document.getElementById('mission-report').addEventListener('click', e => {
     ctx.fillStyle = '#f2f2f2';
     ctx.fillRect(0, 0, w, h);
 
-    // ── Dark pool shadows under each mass ──
+    // ── Rich layered shadows under each mass ──
     for (const mp of mpos) {
-      const r1 = mp.radius * 1.2;
+      const I = mp.intensity;
+      // Deep inner core
+      const r0 = mp.radius * 0.6;
+      const g0 = ctx.createRadialGradient(mp.x, mp.y, 0, mp.x, mp.y, r0);
+      g0.addColorStop(0, `rgba(0,0,0,${0.18 * I})`);
+      g0.addColorStop(0.5, `rgba(0,0,0,${0.08 * I})`);
+      g0.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g0;
+      ctx.fillRect(mp.x - r0, mp.y - r0, r0 * 2, r0 * 2);
+      // Mid-range shadow
+      const r1 = mp.radius * 1.6;
       const g1 = ctx.createRadialGradient(mp.x, mp.y, 0, mp.x, mp.y, r1);
-      g1.addColorStop(0, `rgba(0,0,0,${0.06 * mp.intensity})`);
-      g1.addColorStop(0.4, `rgba(0,0,0,${0.025 * mp.intensity})`);
+      g1.addColorStop(0, `rgba(0,0,0,${0.10 * I})`);
+      g1.addColorStop(0.3, `rgba(0,0,0,${0.05 * I})`);
+      g1.addColorStop(0.7, `rgba(0,0,0,${0.015 * I})`);
       g1.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = g1;
       ctx.fillRect(mp.x - r1, mp.y - r1, r1 * 2, r1 * 2);
       // Wide outer haze
-      const r2 = mp.radius * 3;
+      const r2 = mp.radius * 3.5;
       const g2 = ctx.createRadialGradient(mp.x, mp.y, 0, mp.x, mp.y, r2);
-      g2.addColorStop(0, `rgba(0,0,0,${0.03 * mp.intensity})`);
-      g2.addColorStop(0.35, `rgba(0,0,0,${0.012 * mp.intensity})`);
-      g2.addColorStop(0.7, `rgba(0,0,0,${0.003 * mp.intensity})`);
+      g2.addColorStop(0, `rgba(0,0,0,${0.05 * I})`);
+      g2.addColorStop(0.25, `rgba(0,0,0,${0.025 * I})`);
+      g2.addColorStop(0.55, `rgba(0,0,0,${0.01 * I})`);
       g2.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = g2;
       ctx.fillRect(mp.x - r2, mp.y - r2, r2 * 2, r2 * 2);
     }
 
+    // ── Shading under wave emitters too ──
+    for (const em of _emitters) {
+      const r = em.reach * 0.5;
+      const g = ctx.createRadialGradient(em.x, em.y, 0, em.x, em.y, r);
+      g.addColorStop(0, `rgba(0,0,0,${0.04 * (em.amp / 5)})`);
+      g.addColorStop(0.5, `rgba(0,0,0,${0.015 * (em.amp / 5)})`);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(em.x - r, em.y - r, r * 2, r * 2);
+    }
+
     // Mouse shadow
     if (mActive) {
-      const r = 280;
+      const r = 350;
       const g = ctx.createRadialGradient(mx, my, 0, mx, my, r);
-      g.addColorStop(0, 'rgba(0,0,0,0.06)');
-      g.addColorStop(0.35, 'rgba(0,0,0,0.025)');
+      g.addColorStop(0, 'rgba(0,0,0,0.12)');
+      g.addColorStop(0.25, 'rgba(0,0,0,0.06)');
+      g.addColorStop(0.55, 'rgba(0,0,0,0.02)');
       g.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = g;
       ctx.fillRect(mx - r, my - r, r * 2, r * 2);
