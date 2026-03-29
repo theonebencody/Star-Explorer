@@ -27,25 +27,21 @@ function App() {
               data-hover-desc="Pilot your own spacecraft through an accurate 3D solar system. Visit all 8 planets with real NASA textures, 18 moons, asteroids, and comets. Search and travel to over 15 million real stars, galaxies, and nebulae from the SIMBAD database. Control the flow of time from paused to 27 years per second. Track real satellites in orbit using live data.">
               <div className="splash-btn-icon">{'\u2B21'}</div>
               <div className="splash-btn-label">EXPLORE UNIVERSE</div>
-              <div className="splash-btn-sub">Free-fly through space and time</div>
             </button>
             <button className="splash-btn" id="splash-launches-btn"
               data-hover-desc="Dive into a comprehensive database of over 1,300 real space launches spanning from 1957 to 2026 across 21 organizations worldwide. Explore interactive 3D globes of Earth, Mars, and the solar system showing mission trajectories. Browse detailed timelines, organization profiles, and defining moments in spaceflight history.">
               <div className="splash-btn-icon">{'\uD83D\uDE80'}</div>
               <div className="splash-btn-label">LAUNCH HISTORY <span className="beta-tag">BETA</span></div>
-              <div className="splash-btn-sub">Relive humanity{"'"}s greatest missions</div>
             </button>
             <button className="splash-btn" id="splash-sim-btn"
               data-hover-desc="Watch SpaceX&apos;s Starship flight profile unfold in real time with accurate physics simulation. Follow every milestone from liftoff through Max Q, hot-staging, booster catch, and orbit insertion. Features real SpaceX photography, live telemetry readouts, and adjustable playback speed.">
               <div className="splash-btn-icon">{'\u2622'}</div>
               <div className="splash-btn-label">LAUNCH SIMULATOR <span className="beta-tag">NOT READY</span></div>
-              <div className="splash-btn-sub">Design and simulate your own mission</div>
             </button>
             <button className="splash-btn" id="splash-planner-btn"
               data-hover-desc="Plan interplanetary missions with real orbital mechanics. Choose from 6 rockets across SpaceX, NASA, Blue Origin, and ESA. Select destinations from the Moon to Neptune, pick your mission type, and get a physics-based feasibility analysis. Approve your mission and watch it execute in a 3D solar system with live telemetry.">
               <div className="splash-btn-icon">{'\uD83D\uDDFA'}</div>
               <div className="splash-btn-label">MISSION PLANNER <span className="beta-tag">NOT READY</span></div>
-              <div className="splash-btn-sub">Plan your journey across the cosmos</div>
             </button>
           </div>
         </div>
