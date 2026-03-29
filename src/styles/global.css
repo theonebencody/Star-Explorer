@@ -303,12 +303,12 @@
   .lh-timeline-item{display:flex;gap:14px;padding:12px 0;border-left:2px solid rgba(0,0,0,0.08);margin-left:8px;padding-left:18px;position:relative;transition:transform 0.25s ease;transform-origin:left center}
   .lh-timeline-item:hover{transform:scale(1.02)}
   .lh-timeline-item::before{content:'';position:absolute;left:-5px;top:16px;width:8px;height:8px;border-radius:50%;background:#111;border:2px solid #f2f2f2}
-  .lh-timeline-item.failed::before{background:#c44}
+  .lh-timeline-item.failed::before{background:rgba(0,0,0,0.25)}
   .lh-timeline-year{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:#111;min-width:48px;flex-shrink:0}
   .lh-timeline-content{flex:1}
   .lh-timeline-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;color:#111;margin-bottom:4px}
   .lh-timeline-desc{font-size:12px;color:rgba(0,0,0,0.5);line-height:1.7}
-  .lh-timeline-firsts{margin-top:6px;font-size:11px;color:#a67c00;letter-spacing:0.5px}
+  .lh-timeline-firsts{margin-top:6px;font-size:11px;color:rgba(0,0,0,0.45);letter-spacing:0.5px}
 
   .lh-missions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
   .lh-mission-card{background:transparent;border:none;border-bottom:1px solid rgba(0,0,0,0.05);border-radius:0;padding:14px 16px;cursor:default;transition:background 0.15s}
@@ -321,9 +321,9 @@
   .lh-mission-card-stats{display:flex;gap:14px;font-size:11px;color:rgba(0,0,0,0.4)}
   .lh-mission-card-stats span{color:#111;font-weight:700}
   .lh-mission-card-status{display:inline-block;font-size:9px;letter-spacing:1.5px;padding:2px 8px;border-radius:2px;margin-left:6px}
-  .lh-mission-card-status.success{background:rgba(0,150,60,0.06);border:1px solid rgba(0,150,60,0.15);color:#2a8a4a}
-  .lh-mission-card-status.failed{background:rgba(200,40,40,0.06);border:1px solid rgba(200,40,40,0.15);color:#c44}
-  .lh-mission-card-status.partial{background:rgba(180,130,0,0.06);border:1px solid rgba(180,130,0,0.15);color:#a67c00}
+  .lh-mission-card-status.success{background:rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.08);color:rgba(0,0,0,0.5)}
+  .lh-mission-card-status.failed{background:rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.08);color:rgba(0,0,0,0.35)}
+  .lh-mission-card-status.partial{background:rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.08);color:rgba(0,0,0,0.4)}
 
   /* ── Defining Moments Section ── */
   .lh-defining-section{position:relative;overflow:hidden;margin-left:-28px;margin-right:-28px;padding-left:28px;padding-right:28px;padding-top:20px;padding-bottom:20px}
@@ -337,7 +337,7 @@
   .lh-dm-year{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;color:#111;min-width:48px;flex-shrink:0}
   .lh-dm-main{flex:1;min-width:0}
   .lh-dm-name{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;color:#111;letter-spacing:0.5px;margin-bottom:2px}
-  .lh-dm-first{font-size:10px;color:#a67c00;letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lh-dm-first{font-size:10px;color:rgba(0,0,0,0.45);letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lh-dm-chevron{font-size:10px;color:rgba(0,0,0,0.2);transition:transform 0.3s;flex-shrink:0}
   .lh-dm-row.expanded .lh-dm-chevron{transform:rotate(180deg)}
   .lh-dm-detail{display:none;width:100%;padding:10px 0 6px 62px}
@@ -346,7 +346,7 @@
   .lh-dm-stats{display:flex;flex-wrap:wrap;gap:12px;font-size:10px;color:rgba(0,0,0,0.4);margin-bottom:6px}
   .lh-dm-stats b{color:#111;font-weight:700}
   .lh-dm-firsts{margin-top:4px}
-  .lh-dm-first-tag{font-size:10px;color:#a67c00;letter-spacing:0.3px;padding:1px 0}
+  .lh-dm-first-tag{font-size:10px;color:rgba(0,0,0,0.45);letter-spacing:0.3px;padding:1px 0}
 
   /* ── Video Embeds ── */
   .lh-video-wrap{position:relative;width:100%;padding-bottom:56.25%;margin:10px 0;border-radius:4px;overflow:hidden;background:#000}
@@ -429,7 +429,7 @@
   .lh-od-first{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.04)}
   .lh-od-first-year{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#111;min-width:40px}
   .lh-od-first-name{font-size:11px;color:rgba(0,0,0,0.55);margin-bottom:2px}
-  .lh-od-first-tag{font-size:10px;color:#a67c00;letter-spacing:0.5px}
+  .lh-od-first-tag{font-size:10px;color:rgba(0,0,0,0.45);letter-spacing:0.5px}
 
   /* Era firsts grid cards */
   .lh-era-firsts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
@@ -438,7 +438,7 @@
   .lh-era-first-year{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;color:#111;margin-bottom:4px}
   .lh-era-first-name{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:#111;letter-spacing:0.5px;margin-bottom:4px}
   .lh-era-first-org{font-size:9px;letter-spacing:1.5px;color:rgba(0,0,0,0.4);margin-bottom:8px;text-transform:uppercase}
-  .lh-era-first-tag{font-size:10px;color:#a67c00;letter-spacing:0.3px;line-height:1.6}
+  .lh-era-first-tag{font-size:10px;color:rgba(0,0,0,0.45);letter-spacing:0.3px;line-height:1.6}
   .lh-era-first-expandable{cursor:pointer}
   .lh-era-first-video{margin-top:10px}
 
@@ -470,7 +470,7 @@
   .lh-era-btn-desc{font-size:10px;color:rgba(0,0,0,0.45);line-height:1.6;margin-bottom:10px}
   .lh-era-btn-stats{display:flex;gap:12px;font-size:9px;color:rgba(0,0,0,0.35);margin-bottom:6px}
   .lh-era-btn-stats span{white-space:nowrap}
-  .lh-era-btn-highlight{font-size:9px;color:#a67c00;letter-spacing:0.3px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lh-era-btn-highlight{font-size:9px;color:rgba(0,0,0,0.45);letter-spacing:0.3px;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lh-era-btn-arrow{font-family:'Orbitron',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;color:rgba(0,0,0,0.35);opacity:0.5;transition:opacity 0.2s}
   .lh-era-btn:hover .lh-era-btn-arrow{opacity:1}
   .lh-era-narrative{font-size:13px;color:rgba(0,0,0,0.55);line-height:2.1;letter-spacing:0.2px;text-align:justify}
