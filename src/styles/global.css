@@ -524,7 +524,6 @@
   #launch-history .lh-company-stat{color:rgba(0,0,0,0.6);font-size:13px}
   #launch-history .lh-company-stat span{color:#000}
   #launch-history .lh-globe-label{color:rgba(0,0,0,0.55);text-shadow:none}
-  #launch-history .lh-globe-container{border-radius:12px;box-shadow:0 4px 30px rgba(0,0,0,0.08);-webkit-mask-image:radial-gradient(ellipse 85% 85% at 50% 50%,black 60%,transparent 100%);mask-image:radial-gradient(ellipse 85% 85% at 50% 50%,black 60%,transparent 100%)}
   #launch-history .lh-timeline-item{border-left-color:rgba(0,0,0,0.12)}
   #launch-history .lh-timeline-item::before{background:#222;border-color:#f2f2f2}
   #launch-history .lh-timeline-item.failed::before{background:rgba(0,0,0,0.3)}
