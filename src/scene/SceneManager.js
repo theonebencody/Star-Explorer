@@ -3395,6 +3395,7 @@ document.getElementById('mission-report').addEventListener('click', e => {
   let mx = -9999, my = -9999, mActive = false;
   canvas.parentElement.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; mActive = true; });
   canvas.parentElement.addEventListener('mouseleave', () => { mActive = false; });
+  canvas.parentElement.addEventListener('click', e => { _spawnRipple(e.clientX, e.clientY); });
 
   // ── Wave emitters spread across entire viewport ──
   // Edges, corners, and interior — waves come from everywhere.
@@ -3430,6 +3431,23 @@ document.getElementById('mission-report').addEventListener('click', e => {
       speed: 0.15 + Math.random() * 0.3,
       amp: 2.5 + Math.random() * 3.5,
       phase: Math.random() * TWO_PI,
+    });
+  }
+
+  // ── Pond ripples — stones dropped at random positions ──
+  const _ripples = [];
+  const RIPPLE_INTERVAL = 0.35;
+  let _lastRipple = 0;
+
+  function _spawnRipple(px, py) {
+    _ripples.push({
+      x: px !== undefined ? px : Math.random() * w,
+      y: py !== undefined ? py : Math.random() * h,
+      birth: t,
+      speed: 100 + Math.random() * 120,
+      amp: 7 + Math.random() * 7,
+      waveLen: 45 + Math.random() * 40,
+      life: 3.5 + Math.random() * 2.5,
     });
   }
 
@@ -3477,6 +3495,15 @@ document.getElementById('mission-report').addEventListener('click', e => {
         waveLen: em.waveLen, speed: em.speed, amp: em.amp, reach: em.reach,
       };
     });
+
+    // ── Spawn and cull pond ripples ──
+    if (t - _lastRipple > RIPPLE_INTERVAL) {
+      _lastRipple = t;
+      _spawnRipple();
+    }
+    for (let i = _ripples.length - 1; i >= 0; i--) {
+      if (t - _ripples[i].birth > _ripples[i].life) _ripples.splice(i, 1);
+    }
 
     // ── Background ──
     ctx.fillStyle = '#f2f2f2';
@@ -3526,6 +3553,30 @@ document.getElementById('mission-report').addEventListener('click', e => {
             if (er > 1) {
               dx += (erx / er) * amp;
               dy += (ery / er) * amp;
+            }
+          }
+        }
+
+        // ── Pond ripples — expanding concentric rings ──
+        for (const rip of _ripples) {
+          const rrx = bx - rip.x, rry = by - rip.y;
+          const dist = Math.sqrt(rrx * rrx + rry * rry);
+          const age = t - rip.birth;
+          const lifeT = age / rip.life;           // 0→1 over lifetime
+          const frontR = age * rip.speed;          // leading edge radius
+          // Only affect points the wavefront has reached
+          if (dist < frontR + rip.waveLen && dist > 0.5) {
+            const behind = frontR - dist;          // how far behind the front
+            if (behind > -rip.waveLen * 0.5) {
+              // Concentric sine rings that trail behind the expanding front
+              const waveVal = Math.sin((dist / rip.waveLen) * TWO_PI - age * 3.0);
+              // Fade: stronger near the front, dies with age and distance
+              const frontFade = Math.exp(-Math.max(0, -behind) / (rip.waveLen * 0.3));
+              const ageFade = 1 - lifeT * lifeT;  // quadratic decay
+              const distFade = Math.exp(-dist / (rip.speed * rip.life * 0.6));
+              const amp = waveVal * rip.amp * frontFade * ageFade * distFade;
+              dx += (rrx / dist) * amp;
+              dy += (rry / dist) * amp;
             }
           }
         }
