@@ -355,6 +355,8 @@
   .lh-video-wrap{position:relative;width:100%;padding-bottom:56.25%;margin:10px 0;border-radius:4px;overflow:hidden;background:#000}
   .lh-video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
   .lh-video-icon{color:#0ef;font-size:9px;opacity:0.5;margin-left:4px}
+  .lh-yt-badge{position:absolute;top:8px;right:8px;width:22px;height:16px;opacity:0.75;z-index:2;pointer-events:none;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.4))}
+  .lh-mission-card-expandable,.lh-era-first-expandable,.lh-od-mission-row,.lh-dm-row{position:relative}
 
   /* Expandable mission rows in org detail */
   .lh-od-expandable{cursor:pointer;flex-wrap:wrap}
@@ -567,6 +569,7 @@
   #launch-history .lh-dm-stats b{color:#000}
   #launch-history .lh-dm-first-tag{color:rgba(80,50,5,0.8);font-size:11px}
   #launch-history .lh-video-icon{color:rgba(0,0,0,0.5);opacity:1}
+  #launch-history .lh-yt-badge{opacity:0.65;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.15))}
   #launch-history .lh-od-mission-desc{color:rgba(0,0,0,0.6);font-size:11px}
   #launch-history .lh-snowflake{background:rgba(0,0,0,0.2)}
   #launch-history .lh-show-more-btn{background:linear-gradient(180deg,rgba(255,255,255,0.5) 0%,rgba(255,255,255,0.35) 100%);border:1px solid rgba(255,255,255,0.5);border-top:1px solid rgba(255,255,255,0.7);color:rgba(0,0,0,0.55);border-radius:6px;box-shadow:0 3px 12px rgba(0,0,0,0.05),inset 0 1px 0 rgba(255,255,255,0.3)}

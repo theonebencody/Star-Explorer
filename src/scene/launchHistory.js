@@ -50,13 +50,16 @@ function _videoEmbed(videoId) {
   return `<div class="lh-video-wrap"><iframe src="https://www.youtube-nocookie.com/embed/${videoId}" loading="lazy" allowfullscreen frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>`;
 }
 
+const _ytBadge = `<svg class="lh-yt-badge" viewBox="0 0 28 20"><rect width="28" height="20" rx="4" fill="#FF0000"/><polygon points="11,4 11,16 21,10" fill="#fff"/></svg>`;
+
 function _missionCardHtml(m) {
   const oc = _getOC(m.org);
   const year = m.date.slice(0, 4);
   const hasVideo = !!m.video;
   return `<div class="lh-mission-card${hasVideo ? ' lh-mission-card-expandable' : ''}">` +
+    (hasVideo ? _ytBadge : '') +
     `<div class="lh-mission-card-header">` +
-      `<div class="lh-mission-card-name">${m.name}${hasVideo ? ' <span class="lh-video-icon">\u25B6</span>' : ''}</div>` +
+      `<div class="lh-mission-card-name">${m.name}</div>` +
       `<div class="lh-mission-card-date">${year}</div>` +
     `</div>` +
     `<span class="lh-mission-card-org" style="background:rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.08);color:rgba(0,0,0,0.45)">${m.org}</span>` +
@@ -203,6 +206,7 @@ function _renderHighlights(data) {
     const firstTag = (m.firsts && m.firsts.length > 0) ? m.firsts[0] : '';
     const allFirsts = (m.firsts || []).map(f => `<div class="lh-dm-first-tag">\u2605 ${f}</div>`).join('');
     html += `<div class="lh-dm-row" data-mission="${m.name}">` +
+      (m.video ? _ytBadge : '') +
       `<div class="lh-dm-year">${year}</div>` +
       `<div class="lh-dm-main">` +
         `<div class="lh-dm-name">${m.name}</div>` +
@@ -298,9 +302,10 @@ function _missionRowHtml(m) {
   const statusColor = m.status === 'success' ? 'rgba(0,0,0,0.5)' : m.status === 'failed' ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.4)';
   const hasDetail = m.video || (m.firsts && m.firsts.length > 0);
   return `<div class="lh-od-mission-row${hasDetail ? ' lh-od-expandable' : ''}">` +
+    (m.video ? _ytBadge : '') +
     `<span class="lh-od-mission-status" style="color:${statusColor}">${statusDot}</span>` +
     `<span class="lh-od-mission-date">${ds}</span>` +
-    `<span class="lh-od-mission-name">${m.name}${m.video ? ' <span class="lh-video-icon">\u25B6</span>' : ''}</span>` +
+    `<span class="lh-od-mission-name">${m.name}</span>` +
     `<span class="lh-od-mission-rocket">${m.rocket}</span>` +
     `<span class="lh-od-mission-dest">${m.destination || '\u2014'}</span>` +
     (hasDetail ? `<div class="lh-od-mission-detail">${_videoEmbed(m.video)}<div class="lh-od-mission-desc">${_truncate(m.desc, 200)}</div></div>` : '') +
@@ -590,8 +595,9 @@ function _openEraDetail(eraLabel, data) {
       const year = m.date.slice(0, 4);
       const oc = _getOC(m.org);
       html += `<div class="lh-era-first-card${m.video ? ' lh-era-first-expandable' : ''}" style="border-top-color:rgba(0,0,0,0.1)">` +
+        (m.video ? _ytBadge : '') +
         `<div class="lh-era-first-year" style="color:#111">${year}</div>` +
-        `<div class="lh-era-first-name">${m.name}${m.video ? ' <span class="lh-video-icon">\u25B6</span>' : ''}</div>` +
+        `<div class="lh-era-first-name">${m.name}</div>` +
         `<div class="lh-era-first-org" style="color:#111">${m.org}</div>` +
         m.firsts.map(f => `<div class="lh-era-first-tag">\u2605 ${f}</div>`).join('') +
         (m.video ? `<div class="lh-era-first-video" style="display:none">${_videoEmbed(m.video)}</div>` : '') +
