@@ -1774,7 +1774,7 @@ function travelToSIMBADResult(result, skipTravel = false) {
   }
 
   labelsList.push({ el: createLabel(name), mesh, scaleLevel: typeInfo.scale });
-  if (!skipTravel) travelToMesh(mesh, typeInfo.scale, name, isGalaxy ? r * 15 : r * 4);
+  if (!skipTravel) travelToMesh(mesh, typeInfo.scale, name, isGalaxy ? r * 1.5 : r * 4);
   closeSearch();
 }
 
@@ -2383,12 +2383,12 @@ function abortTravel(arrived) {
   _resumeTimeAfterTravel();
   if (arrived && travelDest && !exploreMode) {
     // Cinematic orbit around the destination for non-explore arrivals
-    const isGalaxyArrival = travelDest.simbadResult && simbadOtypeInfo(travelDest.simbadResult.otype).label === 'Galaxy';
-    const r = isGalaxyArrival ? (travelDest.radius || 8e8) * 20 : Math.max(0.3, (travelDest.radius || 0.3) * 6);
+    const isGalaxyArrival = travelDest.galaxyType || (travelDest.simbadResult && simbadOtypeInfo(travelDest.simbadResult.otype).label === 'Galaxy');
+    const r = isGalaxyArrival ? (travelDest.radius || 8e8) * 1.5 : Math.max(0.3, (travelDest.radius || 0.3) * 6);
     _arrivalOrbit.active = true;
     _arrivalOrbit.target = travelDest.position.clone();
     _arrivalOrbit.r      = r;
-    _arrivalOrbit.h      = r * 0.32;
+    _arrivalOrbit.h      = isGalaxyArrival ? r * 0.28 : r * 0.32;
     _arrivalOrbit.angle  = yaw + Math.PI * 0.5;
     _arrivalOrbit.timer  = 0;
     _arrivalOrbit.duration = 10;
@@ -2436,9 +2436,12 @@ function updateTravel(dt) {
 
   // Compute stop point: offset from object center at a comfortable viewing distance
   const objR = travelDest.radius || 0.3;
+  const _isGalaxyTravel = !exploreMode && (travelDest.galaxyType || (travelDest.simbadResult && simbadOtypeInfo(travelDest.simbadResult.otype).label === 'Galaxy'));
   const stopR = exploreMode
     ? Math.max(0.5, objR * (exploreDest?.vMult || 8))  // match dwell orbit radius
-    : Math.max(objR * 4, objR * 6);                      // nav computer: 6× object radius, min 4×
+    : _isGalaxyTravel
+      ? Math.max(0.5, objR * 1.5)                        // galaxy: close orbit like explore mode
+      : Math.max(objR * 4, objR * 6);                    // other: 6× object radius
   const _stopDir = new THREE.Vector3().subVectors(travelDest.position, travelOrigin).normalize();
   const stopPt = travelDest.position.clone().addScaledVector(_stopDir, -stopR);
 
