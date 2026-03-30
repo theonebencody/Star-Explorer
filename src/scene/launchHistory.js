@@ -212,7 +212,7 @@ function _renderHighlights(data) {
         `<div class="lh-dm-name">${m.name}</div>` +
         (firstTag ? `<div class="lh-dm-first">${firstTag}</div>` : '') +
       `</div>` +
-      `<div class="lh-dm-chevron">\u25BC</div>` +
+      (m.video ? '' : `<div class="lh-dm-chevron">\u25BC</div>`) +
       `<div class="lh-dm-detail">` +
         _videoEmbed(m.video) +
         `<div class="lh-dm-desc">${m.desc || ''}</div>` +
