@@ -605,25 +605,25 @@ for (let i = 0; i < bgStarCount; i++) {
   bgStarPos[i*3+2] = r * Math.cos(phi);
   // Realistic spectral color distribution
   const roll = Math.random();
-  const b = 0.5 + Math.random() * 0.5;
+  const b = 0.65 + Math.random() * 0.35;
   if (roll < 0.02) { // O/B blue-white (rare, bright)
     bgStarCol[i*3] = b*0.7; bgStarCol[i*3+1] = b*0.8; bgStarCol[i*3+2] = b;
-    bgStarSizes[i] = 1.2 + Math.random() * 0.8;
+    bgStarSizes[i] = 1.8 + Math.random() * 1.2;
   } else if (roll < 0.08) { // A white
     bgStarCol[i*3] = b*0.95; bgStarCol[i*3+1] = b*0.95; bgStarCol[i*3+2] = b;
-    bgStarSizes[i] = 0.9 + Math.random() * 0.5;
+    bgStarSizes[i] = 1.3 + Math.random() * 0.7;
   } else if (roll < 0.18) { // F yellow-white
     bgStarCol[i*3] = b; bgStarCol[i*3+1] = b*0.96; bgStarCol[i*3+2] = b*0.85;
-    bgStarSizes[i] = 0.7 + Math.random() * 0.4;
+    bgStarSizes[i] = 1.0 + Math.random() * 0.5;
   } else if (roll < 0.30) { // G yellow (Sun-like)
     bgStarCol[i*3] = b; bgStarCol[i*3+1] = b*0.92; bgStarCol[i*3+2] = b*0.7;
-    bgStarSizes[i] = 0.7 + Math.random() * 0.3;
+    bgStarSizes[i] = 0.9 + Math.random() * 0.4;
   } else if (roll < 0.50) { // K orange
     bgStarCol[i*3] = b; bgStarCol[i*3+1] = b*0.75; bgStarCol[i*3+2] = b*0.5;
-    bgStarSizes[i] = 0.5 + Math.random() * 0.3;
+    bgStarSizes[i] = 0.7 + Math.random() * 0.4;
   } else { // M red (most common)
     bgStarCol[i*3] = b; bgStarCol[i*3+1] = b*0.55; bgStarCol[i*3+2] = b*0.35;
-    bgStarSizes[i] = 0.4 + Math.random() * 0.3;
+    bgStarSizes[i] = 0.5 + Math.random() * 0.4;
   }
 }
 // Soft star point texture for background stars
@@ -632,8 +632,9 @@ const _bgStarTex = (() => {
   const ctx = c.getContext('2d');
   const g = ctx.createRadialGradient(8,8,0,8,8,8);
   g.addColorStop(0, 'rgba(255,255,255,1)');
-  g.addColorStop(0.15, 'rgba(255,255,255,0.8)');
-  g.addColorStop(0.4, 'rgba(255,255,255,0.15)');
+  g.addColorStop(0.1, 'rgba(255,255,255,0.9)');
+  g.addColorStop(0.3, 'rgba(255,255,255,0.25)');
+  g.addColorStop(0.6, 'rgba(255,255,255,0.05)');
   g.addColorStop(1, 'rgba(255,255,255,0)');
   ctx.fillStyle = g; ctx.fillRect(0,0,16,16);
   return new THREE.CanvasTexture(c);
@@ -652,7 +653,7 @@ const bgStarMat = new THREE.ShaderMaterial({
     void main() {
       vColor = color;
       vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
-      gl_PointSize = size * 1.8;
+      gl_PointSize = size * 2.4;
       gl_Position = projectionMatrix * mvPos;
     }
   `,
@@ -677,13 +678,14 @@ const _nebulaCloudTex = (() => {
   const c = document.createElement('canvas'); c.width = sz; c.height = sz;
   const ctx = c.getContext('2d');
   // Build a soft irregular cloud from overlapping radial gradients
-  for (let k = 0; k < 6; k++) {
-    const cx = sz * (0.3 + Math.random() * 0.4);
-    const cy = sz * (0.3 + Math.random() * 0.4);
-    const r = sz * (0.25 + Math.random() * 0.2);
+  for (let k = 0; k < 10; k++) {
+    const cx = sz * (0.2 + Math.random() * 0.6);
+    const cy = sz * (0.2 + Math.random() * 0.6);
+    const r = sz * (0.2 + Math.random() * 0.3);
     const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-    g.addColorStop(0, 'rgba(255,255,255,0.18)');
-    g.addColorStop(0.4, 'rgba(255,255,255,0.06)');
+    g.addColorStop(0, 'rgba(255,255,255,0.3)');
+    g.addColorStop(0.3, 'rgba(255,255,255,0.12)');
+    g.addColorStop(0.6, 'rgba(255,255,255,0.03)');
     g.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.fillStyle = g; ctx.fillRect(0, 0, sz, sz);
   }
@@ -691,17 +693,17 @@ const _nebulaCloudTex = (() => {
 })();
 
 const nebulaColors = [
-  [0.35, 0.15, 0.55],  // deep purple
-  [0.20, 0.25, 0.60],  // blue nebula
-  [0.55, 0.18, 0.40],  // magenta / emission nebula
-  [0.15, 0.35, 0.50],  // teal reflection nebula
-  [0.50, 0.25, 0.20],  // warm reddish (HII region)
-  [0.25, 0.30, 0.55],  // soft blue-violet
-  [0.40, 0.20, 0.50],  // violet
-  [0.18, 0.40, 0.45],  // cyan-green
+  [0.45, 0.15, 0.70],  // deep purple
+  [0.20, 0.30, 0.75],  // blue nebula
+  [0.70, 0.18, 0.50],  // magenta / emission nebula
+  [0.15, 0.45, 0.60],  // teal reflection nebula
+  [0.65, 0.30, 0.20],  // warm reddish (HII region)
+  [0.30, 0.35, 0.70],  // soft blue-violet
+  [0.55, 0.20, 0.65],  // violet
+  [0.18, 0.50, 0.55],  // cyan-green
 ];
 
-const nebulaCount = isMobile ? 14 : 28;
+const nebulaCount = isMobile ? 20 : 40;
 for (let i = 0; i < nebulaCount; i++) {
   const theta = Math.random() * Math.PI * 2;
   const phi = Math.acos(2 * Math.random() - 1);
@@ -714,13 +716,13 @@ for (let i = 0; i < nebulaCount; i++) {
     map: _nebulaCloudTex,
     color: new THREE.Color(col[0], col[1], col[2]),
     transparent: true,
-    opacity: 0.08 + Math.random() * 0.07,
+    opacity: 0.12 + Math.random() * 0.12,
     blending: THREE.AdditiveBlending,
     depthWrite: false
   });
   const sprite = new THREE.Sprite(spriteMat);
   sprite.position.set(x, y, z);
-  const scale = 60 + Math.random() * 100;
+  const scale = 90 + Math.random() * 140;
   sprite.scale.set(scale, scale, 1);
   sprite.frustumCulled = false;
   sprite.renderOrder = -2;
