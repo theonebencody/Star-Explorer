@@ -59,7 +59,7 @@ const sunGroup = new THREE.Group();
 scene.add(sunGroup);
 
 const sunGeo = new THREE.SphereGeometry(SUN_RADIUS_VIS, 64, 64);
-const sunMat = new THREE.MeshBasicMaterial({ color: 0xff8848 });
+const sunMat = new THREE.MeshBasicMaterial({ color: 0xff9950 });
 const sunMesh = new THREE.Mesh(sunGeo, sunMat);
 sunGroup.add(sunMesh);
 
@@ -75,7 +75,7 @@ for (let i = 0; i < 3; i++) {
   const ctx = canvas.getContext('2d');
   const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
   const alpha = [0.35, 0.18, 0.08][i];
-  const col = ['255,190,120', '255,130,50', '255,80,15'][i];
+  const col = ['255,210,140', '255,150,60', '255,100,25'][i];
   grad.addColorStop(0, `rgba(${col},${alpha})`);
   grad.addColorStop(0.4, `rgba(${col},${alpha * 0.4})`);
   grad.addColorStop(1, 'rgba(0,0,0,0)');
@@ -412,7 +412,7 @@ scene.add(new THREE.Points(kuiperGeo, new THREE.PointsMaterial({
     // Color: deep red-orange base with reddish variation
     const redShift=_sfbm(nx*3+50,ny*3,nz*3,2);
     const rMix=redShift>0.5?(redShift-0.5)*2:0; // 0–1 in red patches
-    const gBase=115*bl+15;
+    const gBase=135*bl+18;
     const bBase=35*bl+8;
     return [(255*bl)|0,(gBase*(1-rMix*0.4))|0,(bBase*(1-rMix*0.5))|0];
   });
