@@ -1,17 +1,11 @@
-import { useEffect, useRef, useState, useCallback, useMemo, lazy, Suspense } from 'react'
+import { useEffect, useRef, useState, useCallback, lazy, Suspense } from 'react'
 import StarFieldBg from './components/StarFieldBg.jsx'
-import useFilterState from './hooks/useFilterState.js'
-import useRecentSearches from './hooks/useRecentSearches.js'
-import useDebounce from './hooks/useDebounce.js'
 import useTheme from './hooks/useTheme.js'
 import ToastContainer from './components/Toasts.jsx'
-
-// Lazy-loaded page components — split into separate chunks
-const LaunchesPage = lazy(() => import('./components/LaunchesPage.jsx'))
-const StatsPage = lazy(() => import('./components/StatsPage.jsx'))
-const HomePage = lazy(() => import('./components/HomePage.jsx'))
 import ScrollProgress from './components/ScrollProgress.jsx'
-import { SEED_DATA, queryLaunches } from './data/launchDatabase.js'
+
+// Lazy-loaded page components
+const HomePage = lazy(() => import('./components/HomePage.jsx'))
 
 function App() {
   const canvasContainer = useRef(null)
@@ -19,17 +13,12 @@ function App() {
   const [activeNav, setActiveNav] = useState('explore')
   const cmdInputRef = useRef(null)
   const [cmdQuery, setCmdQuery] = useState('')
-  const debouncedCmdQuery = useDebounce(cmdQuery, 300)
-  const filters = useFilterState()
-  const { recent, addSearch } = useRecentSearches()
   const [panelStack, setPanelStack] = useState([])
   const currentPanel = panelStack[panelStack.length - 1] || null
   const pushPanel = useCallback((p) => setPanelStack(prev => [...prev, p]), [])
   const popPanel = useCallback(() => setPanelStack(prev => prev.slice(0, -1)), [])
   const closePanel = useCallback(() => setPanelStack([]), [])
   const [breadcrumbs, setBreadcrumbs] = useState([])
-  const [lastCmdQuery, setLastCmdQuery] = useState('')
-  const [returnToDb, setReturnToDb] = useState(null) // saved nav state for "Back to Database"
   const { theme, toggle: toggleTheme } = useTheme()
   const timelineOpenRef = useRef(false)
 
@@ -61,16 +50,13 @@ function App() {
 
     // Called from SceneManager when a launch site marker is clicked in 3D
     window.__infinita_showSiteLaunches = (siteName) => {
-      const siteLaunches = SEED_DATA.filter(l => l.launch_site.toLowerCase().includes(siteName.toLowerCase()))
-      pushPanel({ type: 'siteLaunches', data: { siteName, launches: siteLaunches }, title: siteName })
+      pushPanel({ type: 'siteLaunches', data: { siteName, launches: [] }, title: siteName })
     }
-    // Called from LaunchesPage "View in 3D" button
-    // Open side panel from LaunchesPage row click
+
+    // Open side panel with launch details
     window.__infinita_openPanel = (panel) => pushPanel(panel)
 
     window.__infinita_viewIn3D = (launch) => {
-      // Save current database state for return
-      setReturnToDb({ nav: activeNav, scroll: document.querySelector('.lp-body')?.scrollTop || 0 })
       setActiveNav('explore')
       pushPanel({ type: 'launch', data: launch, title: launch.mission_name })
       setTimeout(() => {
@@ -78,21 +64,10 @@ function App() {
       }, 300)
     }
 
-    // Return to database from 3D with preserved state
+    // Return to timeline from 3D
     window.__infinita_returnToDb = () => {
-      if (returnToDb) {
-        setActiveNav(returnToDb.nav || 'launches')
-        closePanel()
-        // Restore scroll position after render
-        setTimeout(() => {
-          const body = document.querySelector('.lp-body')
-          if (body) body.scrollTop = returnToDb.scroll
-        }, 100)
-        setReturnToDb(null)
-      } else {
-        setActiveNav('launches')
-        closePanel()
-      }
+      setActiveNav('timeline')
+      closePanel()
     }
     return () => {
       delete window.__infinita_setNav
@@ -102,62 +77,23 @@ function App() {
       delete window.__infinita_viewIn3D
       delete window.__infinita_returnToDb
     }
-  }, [filters, pushPanel, closePanel, activeNav, returnToDb])
+  }, [pushPanel, closePanel])
 
-  // Command palette search results with keyboard navigation
-  const [cmdIdx, setCmdIdx] = useState(-1)
-  const cmdResults = useMemo(() => {
-    if (!debouncedCmdQuery.trim()) return null
-    const { data } = queryLaunches(SEED_DATA, { search: debouncedCmdQuery, limit: 12 })
-    if (data.length === 0) return { topResult: null, launches: [], rockets: [], providers: [], total: 0, allItems: [] }
-    const topResult = data[0]
-    const launches = data.slice(1, 6)
-    const rockets = [...new Set(data.map(r => r.rocket_name))].slice(0, 3)
-    const providers = [...new Set(data.map(r => r.provider))].slice(0, 3)
-    // Flat list for keyboard navigation
-    const allItems = [
-      { type: 'launch', value: topResult.mission_name, data: topResult, label: topResult.mission_name },
-      ...launches.map(l => ({ type: 'launch', value: l.mission_name, data: l, label: l.mission_name })),
-      ...rockets.map(r => ({ type: 'rocket', value: r, label: r })),
-      ...providers.map(p => ({ type: 'provider', value: p, label: p })),
-    ]
-    return { topResult, launches, rockets, providers, total: data.length, allItems }
-  }, [debouncedCmdQuery])
-
-  // Reset keyboard index when results change
-  useEffect(() => setCmdIdx(-1), [cmdResults])
-
-  const handleCmdSelect = useCallback((type, value) => {
-    if (cmdQuery.trim()) addSearch(cmdQuery.trim())
-    if (type === 'launch') {
-      filters.setSearch(value)
-      setActiveNav('launches')
-    } else if (type === 'rocket') {
-      filters.clearAll()
-      filters.setSearch(value)
-      setActiveNav('launches')
-    } else if (type === 'provider') {
-      filters.clearAll()
-      filters.toggleProvider(value)
-      setActiveNav('launches')
-    } else if (type === 'recent') {
-      setCmdQuery(value)
-      return // don't close
+  // Command palette: simple search → navigate to Timeline
+  const handleCmdSearch = useCallback(() => {
+    if (cmdQuery.trim()) {
+      setActiveNav('timeline')
+      setCmdQuery('')
+      setCmdOpen(false)
     }
-    setLastCmdQuery(cmdQuery)
-    setCmdQuery('')
-    setCmdOpen(false)
-  }, [cmdQuery, addSearch, filters])
+  }, [cmdQuery])
 
   // ⌘K / Ctrl+K command palette toggle
   const toggleCmd = useCallback((open) => {
     setCmdOpen(open)
-    if (open) {
-      if (lastCmdQuery) setCmdQuery(lastCmdQuery)
-      setTimeout(() => cmdInputRef.current?.focus(), 50)
-    }
+    if (open) setTimeout(() => cmdInputRef.current?.focus(), 50)
     if (!open) setCmdQuery('')
-  }, [lastCmdQuery])
+  }, [])
 
   useEffect(() => {
     const onKey = (e) => {
@@ -750,15 +686,9 @@ function App() {
                     {'\u2190'} Back to Database
                   </button>
                 )}
-                <button className="ctx-panel-link" onClick={() => {
-                  filters.clearAll(); filters.setSearch(d.rocket_name); setActiveNav('launches'); closePanel()
-                }}>See all {d.rocket_name} launches</button>
-                <button className="ctx-panel-link" onClick={() => {
-                  filters.clearAll(); filters.toggleProvider(d.provider); setActiveNav('launches'); closePanel()
-                }}>See all {d.provider} launches</button>
-                <button className="ctx-panel-link" onClick={() => {
-                  filters.clearAll(); filters.setLaunchSite(d.launch_site); setActiveNav('launches'); closePanel()
-                }}>See all launches from {d.launch_site.split(',')[0]}</button>
+                <button className="ctx-panel-link" onClick={() => { setActiveNav('timeline'); closePanel() }}>
+                  Browse all launches {'\u2192'}
+                </button>
                 {activeNav !== 'explore' && d.launch_site_lat && (
                   <button className="ctx-panel-link primary" onClick={() => window.__infinita_viewIn3D?.(d)}>
                     {'\uD83C\uDF0D'} View in 3D
@@ -782,9 +712,9 @@ function App() {
                 </div>
               ))}
               <div className="ctx-panel-links">
-                <button className="ctx-panel-link" onClick={() => {
-                  filters.clearAll(); filters.setLaunchSite(currentPanel.data.siteName); setActiveNav('launches'); closePanel()
-                }}>See all in database {'\u2192'}</button>
+                <button className="ctx-panel-link" onClick={() => { setActiveNav('timeline'); closePanel() }}>
+                  Browse all launches {'\u2192'}
+                </button>
               </div>
             </div>
           )}
@@ -807,13 +737,6 @@ function App() {
       )}
 
       {/* ── Lazy-loaded Pages ── */}
-      <Suspense fallback={null}>
-        <LaunchesPage open={activeNav === 'launches'} filters={filters} />
-        <StatsPage open={activeNav === 'stats'}
-          onFilterYear={(y) => { filters.clearAll(); filters.setYearRange(Number(y), Number(y)); setActiveNav('launches') }}
-          onFilterSite={(s) => { filters.clearAll(); filters.setLaunchSite(s); setActiveNav('launches') }}
-          onFilterRocket={(r) => { filters.clearAll(); filters.setSearch(r); setActiveNav('launches') }} />
-      </Suspense>
 
       {/* ── Desktop Sidebar ── */}
       <nav className="nav-sidebar" aria-label="Main navigation">
@@ -821,9 +744,7 @@ function App() {
         <div className="nav-sidebar-items">
           {[
             ['explore',   'Explore',   <><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></>],
-            ['launches',  'Launches',  <><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></>],
-            ['timeline',  'Timeline',  <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>],
-            ['stats',     'Stats',     <><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></>],
+            ['timeline',  'Launches',  <><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></>],
           ].map(([id, label, icon]) => (
             <button key={id} className={'nav-sidebar-item' + (activeNav === id ? ' active' : '')}
               onClick={() => setActiveNav(id)} aria-label={label}>
@@ -854,9 +775,7 @@ function App() {
         <div className="nav-bottom-items">
           {[
             ['explore',   'Explore',   <><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></>],
-            ['launches',  'Launches',  <><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></>],
-            ['timeline',  'Timeline',  <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>],
-            ['stats',     'Stats',     <><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></>],
+            ['timeline',  'Launches',  <><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/></>],
           ].map(([id, label, icon]) => (
             <button key={id} className={'nav-bottom-item' + (activeNav === id ? ' active' : '')}
               onClick={() => setActiveNav(id)} aria-label={label}>
@@ -881,108 +800,13 @@ function App() {
             <input ref={cmdInputRef} className="cmd-palette-input" type="text"
               placeholder="Search missions, rockets, providers..." spellCheck="false" autoComplete="off"
               value={cmdQuery} onChange={e => setCmdQuery(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'ArrowDown') { e.preventDefault(); setCmdIdx(i => Math.min(i + 1, (cmdResults?.allItems?.length || 0) - 1)) }
-                else if (e.key === 'ArrowUp') { e.preventDefault(); setCmdIdx(i => Math.max(i - 1, -1)) }
-                else if (e.key === 'Enter') {
-                  e.preventDefault()
-                  if (cmdIdx >= 0 && cmdResults?.allItems?.[cmdIdx]) {
-                    const item = cmdResults.allItems[cmdIdx]
-                    handleCmdSelect(item.type, item.value)
-                  } else if (cmdQuery.trim()) {
-                    handleCmdSelect('launch', cmdQuery.trim())
-                  }
-                }
-              }} />
+              onKeyDown={e => { if (e.key === 'Enter') handleCmdSearch() }} />
             <span className="cmd-palette-kbd">ESC</span>
           </div>
           <div className="cmd-palette-body" aria-live="polite">
-            {/* Recent searches (when empty) */}
-            {!cmdQuery.trim() && recent.length > 0 && (
-              <div className="cmd-palette-group">
-                <div className="cmd-palette-group-title">Recent</div>
-                {recent.map(s => (
-                  <div key={s} className="cmd-palette-recent-item" onClick={() => handleCmdSelect('recent', s)}
-                    role="option" tabIndex={-1}>
-                    <span className="cmd-palette-recent-icon">{'\u23F2'}</span>{s}
-                  </div>
-                ))}
-              </div>
-            )}
-            {!cmdQuery.trim() && recent.length === 0 && (
-              <div className="cmd-palette-hint">Try "SpaceX 2024", "mars", or "failed launches"</div>
-            )}
-            {/* No results */}
-            {cmdResults && cmdResults.total === 0 && (
-              <div className="cmd-palette-hint">No results for "{cmdQuery}"</div>
-            )}
-            {/* Top Result card */}
-            {cmdResults?.topResult && (
-              <div className="cmd-palette-group">
-                <div className="cmd-palette-group-title">Top Result</div>
-                <div className={`cmd-palette-top-result${cmdIdx === 0 ? ' active' : ''}`}
-                  onClick={() => handleCmdSelect('launch', cmdResults.topResult.mission_name)}
-                  role="option" aria-selected={cmdIdx === 0}>
-                  <div className="cmd-palette-top-name">{cmdResults.topResult.mission_name}</div>
-                  <div className="cmd-palette-top-meta">
-                    {cmdResults.topResult.launch_date} {'\u00B7'} {cmdResults.topResult.provider} {'\u00B7'} {cmdResults.topResult.rocket_name}
-                  </div>
-                  <div className="cmd-palette-top-desc">{cmdResults.topResult.mission_description?.slice(0, 120)}...</div>
-                  <span className={`cmd-palette-top-outcome ${cmdResults.topResult.outcome}`}>
-                    {cmdResults.topResult.outcome === 'success' ? '\u2713' : cmdResults.topResult.outcome === 'failure' ? '\u2717' : '\u26A0'} {cmdResults.topResult.outcome}
-                  </span>
-                </div>
-              </div>
-            )}
-            {/* More launches */}
-            {cmdResults && cmdResults.launches.length > 0 && (
-              <div className="cmd-palette-group">
-                <div className="cmd-palette-group-title">Launches ({cmdResults.total} found)</div>
-                {cmdResults.launches.map((r, i) => (
-                  <div key={r.id} className={`cmd-palette-result${cmdIdx === i + 1 ? ' active' : ''}`}
-                    onClick={() => handleCmdSelect('launch', r.mission_name)}
-                    role="option" aria-selected={cmdIdx === i + 1}>
-                    <span className="cmd-palette-result-icon">{'\uD83D\uDE80'}</span>
-                    <span className="cmd-palette-result-text">{r.mission_name}</span>
-                    <span className="cmd-palette-result-meta">{r.launch_date.slice(0,4)} {'\u00B7'} {r.provider}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-            {/* Rockets */}
-            {cmdResults && cmdResults.rockets.length > 0 && (
-              <div className="cmd-palette-group">
-                <div className="cmd-palette-group-title">Rockets</div>
-                {cmdResults.rockets.map((r, i) => {
-                  const idx = 1 + (cmdResults.launches?.length || 0) + i
-                  return (
-                    <div key={r} className={`cmd-palette-result${cmdIdx === idx ? ' active' : ''}`}
-                      onClick={() => handleCmdSelect('rocket', r)}
-                      role="option" aria-selected={cmdIdx === idx}>
-                      <span className="cmd-palette-result-icon">{'\u2B06'}</span>
-                      <span className="cmd-palette-result-text">{r}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-            {/* Providers */}
-            {cmdResults && cmdResults.providers.length > 0 && (
-              <div className="cmd-palette-group">
-                <div className="cmd-palette-group-title">Providers</div>
-                {cmdResults.providers.map((p, i) => {
-                  const idx = 1 + (cmdResults.launches?.length || 0) + (cmdResults.rockets?.length || 0) + i
-                  return (
-                    <div key={p} className={`cmd-palette-result${cmdIdx === idx ? ' active' : ''}`}
-                      onClick={() => handleCmdSelect('provider', p)}
-                      role="option" aria-selected={cmdIdx === idx}>
-                      <span className="cmd-palette-result-icon">{'\uD83C\uDFE2'}</span>
-                      <span className="cmd-palette-result-text">{p}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+            <div className="cmd-palette-hint">
+              {cmdQuery.trim() ? `Press Enter to search "${cmdQuery}" in the launch database` : 'Type a mission name, rocket, or provider'}
+            </div>
           </div>
           <div className="cmd-palette-footer">
             <span className="cmd-palette-footer-hint"><kbd>{'\u2191'}{'\u2193'}</kbd> navigate</span>
