@@ -10,20 +10,30 @@ const PROVIDER_COLORS = {
 }
 function provColor(p) { return PROVIDER_COLORS[p] || '#9e9e9e' }
 
-// ── Simplified world map paths (major landmasses) ──
+// ── Simplified world map paths (Natural Earth inspired, equirectangular) ──
 const MAP_PATHS = [
   // North America
-  'M50,28 L55,25 L70,22 L80,20 L90,22 L95,28 L90,35 L85,38 L78,42 L72,38 L65,40 L58,38 L52,35 Z',
+  'M38,22 L42,18 L52,16 L58,14 L68,14 L76,16 L82,18 L88,22 L90,26 L88,30 L84,34 L80,36 L74,38 L68,40 L62,42 L56,40 L50,38 L46,36 L42,32 L38,28 Z',
+  // Central America
+  'M56,40 L60,42 L62,44 L58,46 L54,44 Z',
   // South America
-  'M70,48 L75,45 L80,48 L82,55 L80,62 L76,68 L72,72 L68,65 L66,58 L68,52 Z',
+  'M62,46 L68,44 L74,46 L78,50 L80,56 L78,62 L74,68 L70,72 L66,70 L62,64 L60,58 L58,52 L60,48 Z',
   // Europe
-  'M115,22 L120,20 L130,20 L135,22 L132,28 L125,30 L118,28 L115,25 Z',
+  'M108,18 L112,16 L118,14 L126,14 L132,16 L136,18 L134,22 L130,26 L124,28 L118,26 L112,24 L108,22 Z',
   // Africa
-  'M115,35 L125,32 L135,35 L140,42 L138,52 L132,58 L125,60 L118,55 L115,48 L112,42 Z',
+  'M110,32 L118,30 L126,30 L134,32 L138,36 L140,42 L138,50 L134,56 L128,60 L122,62 L116,58 L112,52 L110,46 L108,40 L110,36 Z',
   // Asia
-  'M135,18 L150,15 L170,16 L180,20 L185,25 L180,30 L170,32 L160,35 L150,30 L140,28 L135,22 Z',
+  'M132,12 L140,10 L152,10 L164,12 L174,14 L182,16 L188,20 L186,26 L180,30 L174,32 L166,34 L158,36 L150,34 L142,32 L136,28 L132,24 L130,18 Z',
+  // India
+  'M150,34 L154,36 L156,40 L154,46 L150,44 L148,40 L148,36 Z',
+  // Southeast Asia
+  'M164,34 L170,36 L172,40 L168,42 L164,38 Z',
+  // Japan
+  'M180,18 L182,16 L184,18 L182,22 L180,20 Z',
   // Australia
-  'M170,55 L180,52 L185,55 L183,60 L178,63 L172,60 Z',
+  'M168,54 L176,50 L184,52 L188,56 L186,62 L180,66 L174,64 L170,60 L168,56 Z',
+  // Greenland
+  'M72,8 L80,6 L86,8 L84,12 L78,14 L72,12 Z',
 ]
 
 // ── Lat/lon to map x,y (equirectangular) ──
@@ -112,6 +122,25 @@ export default function StatsPage({ open, onFilterYear, onFilterSite }) {
   const maxSiteCount = Math.max(...siteData.map(s => s.count), 1)
 
   // ── 4. Rocket comparison ──
+  // Reference specs for top rockets (height in meters, payload to LEO in kg)
+  const ROCKET_SPECS = {
+    'Falcon 9':       { height: 70, payload: 22800 },
+    'Electron':       { height: 18, payload: 300 },
+    'Starship':       { height: 121, payload: 150000 },
+    'Chang Zheng 5':  { height: 57, payload: 25000 },
+    'Soyuz':          { height: 46, payload: 7020 },
+    'Falcon Heavy':   { height: 70, payload: 63800 },
+    'Atlas V':        { height: 58, payload: 18850 },
+    'Ariane 5':       { height: 52, payload: 21000 },
+    'Ariane 6':       { height: 56, payload: 21650 },
+    'SLS':            { height: 98, payload: 95000 },
+    'New Glenn':      { height: 98, payload: 45000 },
+    'Vega':           { height: 30, payload: 1500 },
+    'H3':             { height: 57, payload: 6500 },
+    'PSLV':           { height: 44, payload: 3800 },
+    'LVM3':           { height: 43, payload: 8000 },
+  }
+
   const rocketData = useMemo(() => {
     const rockets = {}
     SEED_DATA.forEach(r => {
@@ -121,7 +150,9 @@ export default function StatsPage({ open, onFilterYear, onFilterSite }) {
       const y = parseInt(r.launch_date.slice(0, 4))
       if (y > rockets[r.rocket_name].lastYear) rockets[r.rocket_name].lastYear = y
     })
-    return Object.values(rockets).sort((a, b) => b.launches - a.launches).slice(0, 5)
+    return Object.values(rockets).sort((a, b) => b.launches - a.launches).slice(0, 5).map(r => ({
+      ...r, ...(ROCKET_SPECS[r.name] || { height: null, payload: null })
+    }))
   }, [])
   const maxRocketLaunches = Math.max(...rocketData.map(r => r.launches), 1)
 
@@ -140,7 +171,7 @@ export default function StatsPage({ open, onFilterYear, onFilterSite }) {
   const lineW = 700, lineH = 200, linePad = 40
 
   // ── Map dims ──
-  const mapW = 700, mapH = 350
+  const mapW = 200, mapH = 100
 
   return (
     <div className={`stats-page${open ? ' open' : ''}`}>
@@ -278,7 +309,7 @@ export default function StatsPage({ open, onFilterYear, onFilterSite }) {
               {/* Site markers */}
               {siteData.map(s => {
                 const { x, y } = geoToXY(s.lat, s.lon, mapW, mapH)
-                const r = 4 + (s.count / maxSiteCount) * 12
+                const r = 1.5 + (s.count / maxSiteCount) * 4
                 return (
                   <g key={s.name} className="stats-map-marker" tabIndex={0} role="button"
                     aria-label={`${s.name}: ${s.count} launches`}
@@ -287,7 +318,7 @@ export default function StatsPage({ open, onFilterYear, onFilterSite }) {
                     onTouchStart={e => showTip(e.touches[0], s.name, `${s.count} launches`)} onTouchEnd={hideTip}>
                     <circle cx={x} cy={y} r={r} fill="var(--color-accent-primary)" opacity={0.15} />
                     <circle cx={x} cy={y} r={r * 0.5} fill="var(--color-accent-primary)" opacity={0.6} />
-                    <circle cx={x} cy={y} r={2.5} fill="var(--color-accent-primary)" />
+                    <circle cx={x} cy={y} r={0.8} fill="var(--color-accent-primary)" />
                   </g>
                 )
               })}
@@ -303,7 +334,8 @@ export default function StatsPage({ open, onFilterYear, onFilterSite }) {
           <div className="stats-rockets">
             {rocketData.map(r => {
               const rate = Math.round((r.successes / r.launches) * 100)
-              const barH = (r.launches / maxRocketLaunches) * 100
+              const maxH = Math.max(...rocketData.map(x => x.height || 0), 1)
+              const barH = r.height ? (r.height / maxH) * 100 : (r.launches / maxRocketLaunches) * 100
               const active = r.lastYear >= 2024
               return (
                 <div key={r.name} className="stats-rocket-card">
@@ -313,6 +345,8 @@ export default function StatsPage({ open, onFilterYear, onFilterSite }) {
                   <div className="stats-rocket-name">{r.name}</div>
                   <div className="stats-rocket-stat"><span>Launches</span><span className="stats-rocket-stat-val">{r.launches}</span></div>
                   <div className="stats-rocket-stat"><span>Success</span><span className="stats-rocket-stat-val">{rate}%</span></div>
+                  {r.height && <div className="stats-rocket-stat"><span>Height</span><span className="stats-rocket-stat-val">{r.height}m</span></div>}
+                  {r.payload && <div className="stats-rocket-stat"><span>Payload</span><span className="stats-rocket-stat-val">{r.payload >= 1000 ? `${(r.payload/1000).toFixed(0)}t` : `${r.payload}kg`}</span></div>}
                   <span className={`stats-rocket-status ${active ? 'active' : 'retired'}`}>{active ? 'Active' : 'Retired'}</span>
                 </div>
               )
