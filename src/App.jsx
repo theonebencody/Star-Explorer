@@ -29,6 +29,7 @@ function App() {
   const closePanel = useCallback(() => setPanelStack([]), [])
   const [breadcrumbs, setBreadcrumbs] = useState([])
   const [lastCmdQuery, setLastCmdQuery] = useState('')
+  const [returnToDb, setReturnToDb] = useState(null) // saved nav state for "Back to Database"
   const { theme, toggle: toggleTheme } = useTheme()
   const timelineOpenRef = useRef(false)
 
@@ -68,11 +69,30 @@ function App() {
     window.__infinita_openPanel = (panel) => pushPanel(panel)
 
     window.__infinita_viewIn3D = (launch) => {
+      // Save current database state for return
+      setReturnToDb({ nav: activeNav, scroll: document.querySelector('.lp-body')?.scrollTop || 0 })
       setActiveNav('explore')
       pushPanel({ type: 'launch', data: launch, title: launch.mission_name })
       setTimeout(() => {
         window.__infinita_flyToSite?.(launch.launch_site_lat, launch.launch_site_lon, launch.launch_site)
       }, 300)
+    }
+
+    // Return to database from 3D with preserved state
+    window.__infinita_returnToDb = () => {
+      if (returnToDb) {
+        setActiveNav(returnToDb.nav || 'launches')
+        closePanel()
+        // Restore scroll position after render
+        setTimeout(() => {
+          const body = document.querySelector('.lp-body')
+          if (body) body.scrollTop = returnToDb.scroll
+        }, 100)
+        setReturnToDb(null)
+      } else {
+        setActiveNav('launches')
+        closePanel()
+      }
     }
     return () => {
       delete window.__infinita_setNav
@@ -80,8 +100,9 @@ function App() {
       delete window.__infinita_showSiteLaunches
       delete window.__infinita_openPanel
       delete window.__infinita_viewIn3D
+      delete window.__infinita_returnToDb
     }
-  }, [filters, pushPanel])
+  }, [filters, pushPanel, closePanel, activeNav, returnToDb])
 
   // Command palette search results with keyboard navigation
   const [cmdIdx, setCmdIdx] = useState(-1)
@@ -699,20 +720,50 @@ function App() {
             <span className="ctx-panel-title">{currentPanel.title || 'Details'}</span>
             <button className="ctx-panel-close" onClick={closePanel} aria-label="Close panel">{'\u2715'}</button>
           </div>
-          {currentPanel.type === 'launch' && currentPanel.data && (
+          {currentPanel.type === 'launch' && currentPanel.data && (() => {
+            const d = currentPanel.data
+            return (
             <div className="ctx-panel-body">
-              <div className="ctx-panel-field"><span className="ctx-panel-label">Date</span><span className="ctx-panel-value">{currentPanel.data.launch_date}</span></div>
-              <div className="ctx-panel-field"><span className="ctx-panel-label">Rocket</span><span className="ctx-panel-value">{currentPanel.data.rocket_name} {currentPanel.data.rocket_variant}</span></div>
-              <div className="ctx-panel-field"><span className="ctx-panel-label">Provider</span><span className="ctx-panel-value">{currentPanel.data.provider}</span></div>
-              <div className="ctx-panel-field"><span className="ctx-panel-label">Site</span><span className="ctx-panel-value">{currentPanel.data.launch_site}</span></div>
-              <div className="ctx-panel-field"><span className="ctx-panel-label">Orbit</span><span className="ctx-panel-value">{currentPanel.data.orbit_type}</span></div>
-              <div className="ctx-panel-field"><span className="ctx-panel-label">Outcome</span><span className="ctx-panel-value">{currentPanel.data.outcome}</span></div>
-              <div className="ctx-panel-desc">{currentPanel.data.mission_description}</div>
-              {currentPanel.data.firsts?.length > 0 && (
-                <div className="ctx-panel-firsts">{currentPanel.data.firsts.map((f,i) => <div key={i}>{'\u2605'} {f}</div>)}</div>
+              <div className="ctx-panel-field"><span className="ctx-panel-label">Date</span><span className="ctx-panel-value">{d.launch_date}</span></div>
+              <div className="ctx-panel-field"><span className="ctx-panel-label">Rocket</span><span className="ctx-panel-value">{d.rocket_name} {d.rocket_variant}</span></div>
+              <div className="ctx-panel-field"><span className="ctx-panel-label">Provider</span><span className="ctx-panel-value">{d.provider}</span></div>
+              <div className="ctx-panel-field"><span className="ctx-panel-label">Site</span><span className="ctx-panel-value">{d.launch_site}</span></div>
+              <div className="ctx-panel-field"><span className="ctx-panel-label">Orbit</span><span className="ctx-panel-value">{d.orbit_type}</span></div>
+              <div className="ctx-panel-field"><span className="ctx-panel-label">Outcome</span>
+                <span className={`ctx-panel-outcome ${d.outcome}`}>
+                  {d.outcome === 'success' ? '\u2713' : d.outcome === 'failure' ? '\u2717' : '\u26A0'} {d.outcome}
+                </span>
+              </div>
+              <div className="ctx-panel-desc">{d.mission_description}</div>
+              {d.firsts?.length > 0 && (
+                <div className="ctx-panel-firsts">{d.firsts.map((f,i) => <div key={i}>{'\u2605'} {f}</div>)}</div>
               )}
+
+              {/* ── Contextual links ── */}
+              <div className="ctx-panel-links">
+                {activeNav === 'explore' && (
+                  <button className="ctx-panel-link" onClick={() => window.__infinita_returnToDb?.()}>
+                    {'\u2190'} Back to Database
+                  </button>
+                )}
+                <button className="ctx-panel-link" onClick={() => {
+                  filters.clearAll(); filters.setSearch(d.rocket_name); setActiveNav('launches'); closePanel()
+                }}>See all {d.rocket_name} launches</button>
+                <button className="ctx-panel-link" onClick={() => {
+                  filters.clearAll(); filters.toggleProvider(d.provider); setActiveNav('launches'); closePanel()
+                }}>See all {d.provider} launches</button>
+                <button className="ctx-panel-link" onClick={() => {
+                  filters.clearAll(); filters.setLaunchSite(d.launch_site); setActiveNav('launches'); closePanel()
+                }}>See all launches from {d.launch_site.split(',')[0]}</button>
+                {activeNav !== 'explore' && d.launch_site_lat && (
+                  <button className="ctx-panel-link primary" onClick={() => window.__infinita_viewIn3D?.(d)}>
+                    {'\uD83C\uDF0D'} View in 3D
+                  </button>
+                )}
+              </div>
             </div>
-          )}
+            )
+          })()}
           {currentPanel.type === 'siteLaunches' && currentPanel.data && (
             <div className="ctx-panel-body">
               <div className="ctx-panel-site-count">{currentPanel.data.launches.length} launches from this site</div>
@@ -726,6 +777,11 @@ function App() {
                   <span className={`ctx-panel-launch-outcome ${l.outcome}`}>{l.outcome === 'success' ? '\u2713' : l.outcome === 'failure' ? '\u2717' : '\u26A0'}</span>
                 </div>
               ))}
+              <div className="ctx-panel-links">
+                <button className="ctx-panel-link" onClick={() => {
+                  filters.clearAll(); filters.setLaunchSite(currentPanel.data.siteName); setActiveNav('launches'); closePanel()
+                }}>See all in database {'\u2192'}</button>
+              </div>
             </div>
           )}
         </div>
