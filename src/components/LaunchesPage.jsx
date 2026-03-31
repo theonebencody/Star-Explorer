@@ -129,13 +129,15 @@ function FilterControls({ filters, yearMin, yearMax }) {
 // ── Main component ────────────────────────────────────────────────────────
 
 export default function LaunchesPage({ open, filters }) {
-  const [pageIdx, setPageIdx] = useState(0)
+  const pageIdx = filters.page || 0
+  const setPageIdx = filters.setPage
   const [expandedId, setExpandedId] = useState(null)
   const [density, setDensity] = useState('comfortable')
   const [visibleOptCols, setVisibleOptCols] = useState(new Set())
   const [colPickerOpen, setColPickerOpen] = useState(false)
   const [filterSidebarOpen, setFilterSidebarOpen] = useState(false)
   const [filterSheetOpen, setFilterSheetOpen] = useState(false)
+  const [loadedExtra, setLoadedExtra] = useState(0) // "Load More" extra rows
 
   const debouncedSearch = useDebounce(filters.search, 300)
 
@@ -157,11 +159,13 @@ export default function LaunchesPage({ open, filters }) {
   }, [debouncedSearch, filters.providers, filters.outcomes, filters.orbit_type,
       filters.launch_site, filters.year_min, filters.year_max, filters.sort_by, filters.sort_dir])
 
-  // Reset page when filters change
-  useMemo(() => setPageIdx(0), [allSorted])
+  // Reset extra loaded rows when page or filters change
+  useEffect(() => setLoadedExtra(0), [pageIdx, allSorted])
 
   const totalPages = Math.max(1, Math.ceil(allSorted.length / PAGE_SIZE))
-  const page = useMemo(() => allSorted.slice(pageIdx * PAGE_SIZE, (pageIdx + 1) * PAGE_SIZE), [allSorted, pageIdx])
+  const pageEnd = (pageIdx + 1) * PAGE_SIZE + loadedExtra
+  const page = useMemo(() => allSorted.slice(pageIdx * PAGE_SIZE, pageEnd), [allSorted, pageIdx, pageEnd])
+  const hasMoreOnPage = pageEnd < Math.min((pageIdx + 1) * PAGE_SIZE + allSorted.length, allSorted.length)
 
   const handleSort = useCallback((col) => {
     const newDir = filters.sort_by === col && filters.sort_dir === 'desc' ? 'asc' : 'desc'
@@ -174,6 +178,12 @@ export default function LaunchesPage({ open, filters }) {
 
   const toggleExpand = useCallback((id) => {
     setExpandedId(prev => prev === id ? null : id)
+  }, [])
+
+  const openLaunchPanel = useCallback((launch) => {
+    window.__infinita_viewIn3D // Only if the bridge exists, use push panel
+      ? window.__infinita_openPanel?.({ type: 'launch', data: launch, title: launch.mission_name })
+      : setExpandedId(launch.id)
   }, [])
 
   const sortArrow = (col) => {
@@ -381,6 +391,16 @@ export default function LaunchesPage({ open, filters }) {
               ))}
             </div>
           </>
+        )}
+
+        {/* Load More within current page */}
+        {hasMoreOnPage && allSorted.length > PAGE_SIZE && (
+          <div style={{ padding: 'var(--space-3)', textAlign: 'center' }}>
+            <button className="lp-load-more-btn"
+              onClick={() => setLoadedExtra(prev => prev + PAGE_SIZE)}>
+              Load {Math.min(PAGE_SIZE, allSorted.length - pageEnd)} more
+            </button>
+          </div>
         )}
       </div>
 

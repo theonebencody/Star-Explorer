@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 
 // URL param keys
-const P = { q: 'q', provider: 'provider', outcome: 'outcome', orbit: 'orbit', site: 'site', ymin: 'ymin', ymax: 'ymax', sort: 'sort', dir: 'dir' }
+const P = { q: 'q', provider: 'provider', outcome: 'outcome', orbit: 'orbit', site: 'site', ymin: 'ymin', ymax: 'ymax', sort: 'sort', dir: 'dir', page: 'page' }
 
 function parseURL() {
   const p = new URLSearchParams(window.location.search)
@@ -15,6 +15,7 @@ function parseURL() {
     year_max:  p.has(P.ymax) ? Number(p.get(P.ymax)) : null,
     sort_by:   p.get(P.sort) || 'date',
     sort_dir:  p.get(P.dir) || 'desc',
+    page:      p.has(P.page) ? Number(p.get(P.page)) : 0,
   }
 }
 
@@ -29,6 +30,7 @@ function writeURL(state) {
   if (state.year_max != null)    p.set(P.ymax, state.year_max)
   if (state.sort_by !== 'date')  p.set(P.sort, state.sort_by)
   if (state.sort_dir !== 'desc') p.set(P.dir, state.sort_dir)
+  if (state.page > 0)           p.set(P.page, state.page)
   const qs = p.toString()
   const url = window.location.pathname + (qs ? '?' + qs : '')
   window.history.replaceState(null, '', url)
@@ -60,10 +62,11 @@ export default function useFilterState() {
   const setLaunchSite = useCallback((v) => setState(s => ({ ...s, launch_site: v })), [])
   const setYearRange = useCallback((min, max) => setState(s => ({ ...s, year_min: min, year_max: max })), [])
   const setSort = useCallback((by, dir) => setState(s => ({ ...s, sort_by: by, sort_dir: dir })), [])
+  const setPage = useCallback((p) => setState(s => ({ ...s, page: typeof p === 'function' ? p(s.page) : p })), [])
 
   const clearAll = useCallback(() => setState(s => ({
     search: '', providers: [], outcomes: [], orbit_type: '', launch_site: '',
-    year_min: null, year_max: null, sort_by: s.sort_by, sort_dir: s.sort_dir,
+    year_min: null, year_max: null, sort_by: s.sort_by, sort_dir: s.sort_dir, page: 0,
   })), [])
 
   const hasActiveFilters = useMemo(() => (
@@ -95,6 +98,6 @@ export default function useFilterState() {
   return {
     ...state,
     setSearch, toggleProvider, toggleOutcome, setOrbitType, setLaunchSite,
-    setYearRange, setSort, clearAll, hasActiveFilters, activeFiltersList, removeFilter,
+    setYearRange, setSort, setPage, clearAll, hasActiveFilters, activeFiltersList, removeFilter,
   }
 }

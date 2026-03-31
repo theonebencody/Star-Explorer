@@ -64,6 +64,9 @@ function App() {
       pushPanel({ type: 'siteLaunches', data: { siteName, launches: siteLaunches }, title: siteName })
     }
     // Called from LaunchesPage "View in 3D" button
+    // Open side panel from LaunchesPage row click
+    window.__infinita_openPanel = (panel) => pushPanel(panel)
+
     window.__infinita_viewIn3D = (launch) => {
       setActiveNav('explore')
       pushPanel({ type: 'launch', data: launch, title: launch.mission_name })
@@ -75,6 +78,7 @@ function App() {
       delete window.__infinita_setNav
       delete window.__infinita_updateBreadcrumbs
       delete window.__infinita_showSiteLaunches
+      delete window.__infinita_openPanel
       delete window.__infinita_viewIn3D
     }
   }, [filters, pushPanel])
