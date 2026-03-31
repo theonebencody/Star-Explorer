@@ -59,12 +59,6 @@
   @keyframes matrixFall{0%{transform:translateY(-50%)}100%{transform:translateY(0%)}}
 
 
-  #trivia-panel{position:fixed;right:16px;bottom:16px;z-index:10;pointer-events:all;width:272px}
-  #trivia-panel .trivia-question{font-size:11px;color:rgba(255,255,255,0.78);line-height:1.7;margin-bottom:8px;white-space:normal;word-wrap:break-word}
-  #trivia-panel .trivia-answer{font-size:11px;color:#0ef;line-height:1.7;opacity:0;transition:opacity 0.5s;white-space:normal;word-wrap:break-word}
-  #trivia-panel .trivia-answer.show{opacity:1}
-  #trivia-panel.collapsed .facts-chevron{transform:rotate(-90deg)}
-  #trivia-panel.collapsed .facts-body{max-height:0;opacity:0;pointer-events:none}
   .nearest-name{font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700}
   .nearest-info{font-size:10px;opacity:0.85;margin-top:2px}
 
