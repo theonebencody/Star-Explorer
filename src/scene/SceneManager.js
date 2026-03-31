@@ -25,16 +25,40 @@ export function init(container) {
 //  MOBILE DETECTION
 // ═══════════════════════════════════════════════
 const isMobile = /Android|iPhone|iPad|iPod|webOS/i.test(navigator.userAgent) || ('ontouchstart' in window && window.innerWidth < 1200);
+const isLowEnd = isMobile && (navigator.hardwareConcurrency <= 2 || (navigator.deviceMemory && navigator.deviceMemory < 4));
 
 // ═══════════════════════════════════════════════
 //  THREE.JS SETUP
 // ═══════════════════════════════════════════════
-const renderer = new THREE.WebGLRenderer({ antialias: !isMobile, alpha: false });
+const renderer = new THREE.WebGLRenderer({
+  antialias: !isMobile,
+  alpha: false,
+  powerPreference: isLowEnd ? 'low-power' : 'high-performance',
+});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 container.prepend(renderer.domElement);
+
+// ── Adaptive quality: monitor FPS and downgrade if needed ──
+let _fpsFrames = 0, _fpsTime = performance.now(), _fpsAvg = 60;
+let _qualityReduced = false;
+function _updateFPS() {
+  _fpsFrames++;
+  const now = performance.now();
+  if (now - _fpsTime >= 2000) { // Sample every 2 seconds
+    _fpsAvg = Math.round(_fpsFrames / ((now - _fpsTime) / 1000));
+    _fpsFrames = 0;
+    _fpsTime = now;
+    // If sustained low FPS on mobile, reduce pixel ratio
+    if (_fpsAvg < 25 && !_qualityReduced) {
+      _qualityReduced = true;
+      renderer.setPixelRatio(1);
+      console.log('[Infinita] Adaptive quality: reduced pixel ratio to 1x for performance');
+    }
+  }
+}
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000005);
@@ -282,9 +306,10 @@ planetMeshes.forEach(({ mesh, data }) => {
   const grokName = _planetNameMap[data.name];
   if (grokName && _grokBodies[grokName]) {
     const grokMesh = _grokBodies[grokName];
-    // Replace geometry with higher-poly version
+    // Replace geometry with higher-poly version (reduced on mobile for performance)
+    const segs = isMobile ? 32 : 64;
     mesh.geometry.dispose();
-    mesh.geometry = new THREE.SphereGeometry(data.rVis, 64, 64);
+    mesh.geometry = new THREE.SphereGeometry(data.rVis, segs, segs);
     // Replace material with detailed shader
     mesh.material.dispose();
     mesh.material = grokMesh.material.clone();
@@ -293,7 +318,7 @@ planetMeshes.forEach(({ mesh, data }) => {
     mesh.rotation.x = (_grokBodies.meta.axialTilts[grokName] || 0) * Math.PI / 180;
     // Add Earth cloud layer
     if (data.name === 'Earth' && _grokBodies.earthClouds) {
-      const cloudGeo = new THREE.SphereGeometry(data.rVis * 1.02, 64, 64);
+      const cloudGeo = new THREE.SphereGeometry(data.rVis * 1.02, segs, segs);
       const cloudMat = _grokBodies.earthClouds.material.clone();
       cloudMat.uniforms = { time: _grokTime };
       const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
@@ -302,7 +327,7 @@ planetMeshes.forEach(({ mesh, data }) => {
     }
     // Add Saturn rings
     if (data.name === 'Saturn' && _grokBodies.saturnRings) {
-      const ringGeo = new THREE.RingGeometry(data.rVis * 1.2, data.rVis * 2.5, 64);
+      const ringGeo = new THREE.RingGeometry(data.rVis * 1.2, data.rVis * 2.5, segs);
       const ringMat = _grokBodies.saturnRings.material.clone();
       ringMat.uniforms = { time: _grokTime };
       const ringMesh = new THREE.Mesh(ringGeo, ringMat);
@@ -311,7 +336,7 @@ planetMeshes.forEach(({ mesh, data }) => {
     }
     // Add Uranus rings
     if (data.name === 'Uranus' && _grokBodies.uranusRings) {
-      const ringGeo = new THREE.RingGeometry(data.rVis * 1.1, data.rVis * 1.5, 32);
+      const ringGeo = new THREE.RingGeometry(data.rVis * 1.1, data.rVis * 1.5, isMobile ? 16 : 32);
       const ringMesh = new THREE.Mesh(ringGeo, _grokBodies.uranusRings.material.clone());
       ringMesh.rotation.x = Math.PI / 2;
       mesh.add(ringMesh);
@@ -4888,6 +4913,7 @@ function animate(now) {
   // Advance Grok shader time for animated planet surfaces
   _grokTime.value += dt * 0.5;
   renderer.render(scene, camera);
+  _updateFPS();
 }
 
 requestAnimationFrame(animate);

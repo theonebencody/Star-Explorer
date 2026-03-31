@@ -49,7 +49,8 @@ export default function StarFieldBg() {
       el.appendChild(canvas)
 
       const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'low-power' })
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      const isMob = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMob ? 1.5 : 2))
       renderer.setSize(window.innerWidth, window.innerHeight)
       renderer.setClearColor(0x000000, 0)
 
@@ -58,7 +59,7 @@ export default function StarFieldBg() {
       camera.position.z = 1
 
       // ── Stars (Points with varying size & brightness) ──
-      const COUNT = 3500
+      const COUNT = isMob ? 1500 : 3500
       const positions = new Float32Array(COUNT * 3)
       const sizes = new Float32Array(COUNT)
       const brightness = new Float32Array(COUNT)
