@@ -198,7 +198,7 @@ function App() {
           onExplore={() => document.getElementById('splash-explore-btn')?.click()}
           onLaunches={() => {
             document.getElementById('splash-explore-btn')?.click()
-            setActiveNav('launches')
+            setActiveNav('timeline')
           }}
         />
         </Suspense>
