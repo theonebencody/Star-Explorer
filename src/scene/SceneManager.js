@@ -10,6 +10,7 @@ import { simbadOtypeInfo, simbadDistAU, simbadMarkerRadius, queryLiveSIMBAD, COM
 import { initWarp, renderWarp, hideWarp } from './warpEffect.js';
 import { initComets, updateComets } from './comets.js';
 import { buildRocket } from './rocketModels.js';
+import { createSolarSystemBodies } from './planetBodies.js';
 import { initSatellites, toggleSatellites, updateSatellites, isSatellitesVisible } from './satellites.js';
 import { ensureLoaded, fetchGaiaStars, fetchNearbyGalaxies } from '../data/catalogManager.js';
 import { DEEP_SKY_OBJECTS } from '../data/messierNGC.js';
@@ -266,6 +267,55 @@ PLANETS.forEach(p => {
   const orbitLine = new THREE.Line(orbitGeo, orbitMat);
   scene.add(orbitLine);
   orbitLines.push(orbitLine);
+});
+
+// ═══════════════════════════════════════════════
+//  APPLY GROK-GENERATED DETAILED SHADERS
+// ═══════════════════════════════════════════════
+const _grokBodies = createSolarSystemBodies(THREE);
+const _grokTime = { value: 0 };
+
+// Replace planet materials with detailed procedural shaders
+const _planetNameMap = { Mercury: 'mercury', Venus: 'venus', Earth: 'earth', Mars: 'mars', Jupiter: 'jupiter', Saturn: 'saturn', Uranus: 'uranus', Neptune: 'neptune' };
+planetMeshes.forEach(({ mesh, data }) => {
+  const grokName = _planetNameMap[data.name];
+  if (grokName && _grokBodies[grokName]) {
+    const grokMesh = _grokBodies[grokName];
+    // Replace geometry with higher-poly version
+    mesh.geometry.dispose();
+    mesh.geometry = new THREE.SphereGeometry(data.rVis, 64, 64);
+    // Replace material with detailed shader
+    mesh.material.dispose();
+    mesh.material = grokMesh.material.clone();
+    mesh.material.uniforms = { time: _grokTime };
+    // Apply axial tilt from Grok data
+    mesh.rotation.x = (_grokBodies.meta.axialTilts[grokName] || 0) * Math.PI / 180;
+    // Add Earth cloud layer
+    if (data.name === 'Earth' && _grokBodies.earthClouds) {
+      const cloudGeo = new THREE.SphereGeometry(data.rVis * 1.02, 64, 64);
+      const cloudMat = _grokBodies.earthClouds.material.clone();
+      cloudMat.uniforms = { time: _grokTime };
+      const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+      cloudMesh.userData._cloudSpin = true;
+      mesh.add(cloudMesh);
+    }
+    // Add Saturn rings
+    if (data.name === 'Saturn' && _grokBodies.saturnRings) {
+      const ringGeo = new THREE.RingGeometry(data.rVis * 1.2, data.rVis * 2.5, 64);
+      const ringMat = _grokBodies.saturnRings.material.clone();
+      ringMat.uniforms = { time: _grokTime };
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.rotation.x = Math.PI / 2;
+      mesh.add(ringMesh);
+    }
+    // Add Uranus rings
+    if (data.name === 'Uranus' && _grokBodies.uranusRings) {
+      const ringGeo = new THREE.RingGeometry(data.rVis * 1.1, data.rVis * 1.5, 32);
+      const ringMesh = new THREE.Mesh(ringGeo, _grokBodies.uranusRings.material.clone());
+      ringMesh.rotation.x = Math.PI / 2;
+      mesh.add(ringMesh);
+    }
+  }
 });
 
 // ═══════════════════════════════════════════════
@@ -4817,6 +4867,8 @@ function animate(now) {
   updateLabels();
   // Keep background stars centered on camera so they're always visible
   bgStarMesh.position.copy(camera.position);
+  // Advance Grok shader time for animated planet surfaces
+  _grokTime.value += dt * 0.5;
   renderer.render(scene, camera);
 }
 
