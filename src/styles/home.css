@@ -164,7 +164,7 @@
 
 .home-era {
   display: flex; flex-direction: column; gap: var(--space-1);
-  padding: var(--space-5) var(--space-6);
+  padding: var(--space-4) var(--space-5);
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border);
   border-left: 3px solid var(--era-color, var(--color-accent-primary));
@@ -233,7 +233,7 @@
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: var(--space-5);
+  padding: var(--space-4);
   text-align: center;
   opacity: 0; transform: translateY(16px);
   transition: opacity var(--duration-slow) var(--ease-default),

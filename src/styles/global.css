@@ -253,7 +253,7 @@
   .splash-hover-box-text{font-size:12px;color:rgba(255,255,255,0.5);line-height:2;letter-spacing:0.3px}
 
   /* ── Reset View Button ── */
-  .reset-view-btn{background:rgba(0,12,25,0.7);border:1px solid rgba(0,238,255,0.2);color:rgba(0,238,255,0.6);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:6px 14px;cursor:pointer;border-radius:4px;transition:all 0.15s;white-space:nowrap;margin-top:6px;display:block}
+  .reset-view-btn{background:rgba(0,12,25,0.7);border:1px solid rgba(0,238,255,0.2);color:rgba(0,238,255,0.6);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:6px 14px;cursor:pointer;border-radius:4px;transition:color var(--duration-fast) var(--ease-default),border-color var(--duration-fast) var(--ease-default),background var(--duration-fast) var(--ease-default);white-space:nowrap;margin-top:6px;display:block}
   .reset-view-btn:hover{border-color:rgba(0,238,255,0.5);color:#0ef;background:rgba(0,238,255,0.08)}
   .reset-view-btn:focus-visible{outline:none;box-shadow:0 0 0 2px rgba(0,0,2,0.9),0 0 0 4px #4fc3f7}
 

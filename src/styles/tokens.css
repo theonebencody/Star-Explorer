@@ -51,6 +51,10 @@
   --color-overlay:        rgba(10, 10, 15, 0.85);
   --color-scrim:          rgba(0, 0, 0, 0.6);
 
+  /* 1h. Panel/surface gradients — use these for consistent glassmorphism */
+  --gradient-panel:       linear-gradient(180deg, rgba(13, 17, 23, 0.95), rgba(11, 21, 40, 0.92));
+  --gradient-header:      linear-gradient(180deg, rgba(13, 17, 23, 0.96), rgba(11, 15, 22, 0.92));
+
 
   /* ── 2. TYPOGRAPHY ───────────────────────────────────────────────────── */
 
@@ -285,6 +289,9 @@
   --inset-highlight-strong: inset 0 1px 0 rgba(255, 255, 255, 1);
 
   --shadow-focus: 0 0 0 2px var(--color-bg-base), 0 0 0 4px var(--color-accent-primary);
+
+  --gradient-panel: linear-gradient(180deg, rgba(240,241,245,0.96), rgba(232,234,239,0.94));
+  --gradient-header: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(240,241,245,0.92));
 }
 
 /* Light mode component overrides */

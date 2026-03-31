@@ -12,7 +12,7 @@
   width: 0;
   overflow: hidden;
   border-right: 1px solid var(--color-border);
-  background: linear-gradient(180deg, rgba(13,17,23,0.95), rgba(11,21,40,0.9));
+  background: var(--gradient-panel);
   flex-shrink: 0;
   transition: width var(--duration-slow) var(--ease-spring);
 }
@@ -95,6 +95,7 @@
 }
 
 .lp-filter-clear-btn:hover { opacity: 1; }
+.lp-filter-clear-btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
 
 .lp-filter-section {
   margin-bottom: var(--space-4);
@@ -114,7 +115,7 @@
 
 /* Checkboxes */
 .lp-filter-checks {
-  display: flex; flex-direction: column; gap: 1px;
+  display: flex; flex-direction: column; gap: var(--space-1);
 }
 
 .lp-filter-check {
@@ -155,7 +156,7 @@
 .lp-filter-select {
   width: 100%;
   padding: var(--space-1) var(--space-2);
-  background: rgba(255,255,255,0.03);
+  background: rgba(79, 195, 247, 0.03);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   color: var(--color-text-secondary);
@@ -181,7 +182,7 @@
 .lp-filter-year-input {
   width: 60px;
   padding: var(--space-1);
-  background: rgba(255,255,255,0.03);
+  background: rgba(79, 195, 247, 0.03);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   color: var(--color-text-secondary);
@@ -258,6 +259,7 @@
 }
 
 .lp-chips-clear:hover { color: var(--color-accent-primary); }
+.lp-chips-clear:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
 
 
 /* ── No results ────────────────────────────────────────────────────────── */
@@ -297,6 +299,7 @@
   background: rgba(79,195,247,0.06);
   border-color: var(--color-border-strong);
 }
+.lp-no-results-btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
 
 /* ── Filter toggle button in toolbar ───────────────────────────────────── */
 

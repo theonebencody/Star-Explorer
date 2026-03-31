@@ -42,7 +42,7 @@ button:active:not(:disabled), .nav-sidebar-item:active, .nav-bottom-item:active 
 }
 
 .home-hero-cta:active, .home-cta-btn:active, .lp-view3d-btn:active {
-  transform: scale(1.02) !important;
+  transform: scale(0.97) !important;
 }
 
 
